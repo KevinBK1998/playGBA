@@ -17,7 +17,7 @@ public class CpuStepDefinitions {
 
     @When("^I read from R([0-9]{1,2})$")
     public void readFromReg(int index) {
-        data = registers.unbankedReg[index];
+        data = registers.getReg(index);
     }
 
     @Then("I should get 0")
@@ -27,11 +27,11 @@ public class CpuStepDefinitions {
 
     @When("^I write ([0-9]+) to R([0-9]{1,2})$")
     public void writeToReg(String data, int index) {
-        registers.unbankedReg[index] = Integer.parseUnsignedInt(data);
+        registers.setReg(Integer.parseUnsignedInt(data), index);
     }
 
     @Then("^([0-9]+) should be present in R([0-9]{1,2})$")
     public void shouldBePresentInReg(String data, int index) {
-        assertThat(registers.unbankedReg[index]).isEqualTo(Integer.parseUnsignedInt(data));
+        assertThat(registers.getReg(index)).isEqualTo(Integer.parseUnsignedInt(data));
     }
 }

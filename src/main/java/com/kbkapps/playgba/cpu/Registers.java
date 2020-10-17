@@ -1,5 +1,13 @@
 package com.kbkapps.playgba.cpu;
 
 public class Registers {
-    int[] unbankedReg = new int[13];
+    private final int[] unbankedReg = new int[13];
+
+    int getReg(int index) {
+        return unbankedReg[index];
+    }
+
+    void setReg(int data, int index) {
+        unbankedReg[index] = data;
+    }
 }
