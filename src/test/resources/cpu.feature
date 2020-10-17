@@ -8,30 +8,15 @@ Feature: The CPU
 #
 #  System/User FIQ       Supervisor Abort     IRQ       Undefined
 #  --------------------------------------------------------------
-#  R0
-#  R1
-#  R2
-#  R3
-#  R4
-#  R5
-#  R6
-#  R7
-#  --------------------------------------------------------------
-#  R8          R8_fiq
-#  R9          R9_fiq
-#  R10         R10_fiq
-#  R11         R11_fiq
-#  R12         R12_fiq
 #  R13 (SP)    R13_fiq   R13_svc    R13_abt   R13_irq   R13_und
 #  R14 (LR)    R14_fiq   R14_svc    R14_abt   R14_irq   R14_und
-#  R15 (PC)    R15       R15        R15       R15       R15
 #  --------------------------------------------------------------
 #  CPSR        CPSR      CPSR       CPSR      CPSR      CPSR
 #  --          SPSR_fiq  SPSR_svc   SPSR_abt  SPSR_irq  SPSR_und
 #  --------------------------------------------------------------
 
   Scenario Outline: There are 14 unbanked registers (R0-R12 and R15)
-    Given All unbanked registers are initialised to zero
+    Given All registers are initialised to zero
     When I read from R<index>
     Then I should get 0
     When I write <data> to R<index>
@@ -52,3 +37,14 @@ Feature: The CPU
       | 11    | 234  |
       | 12    | 456  |
       | 15    | 56   |
+
+  Scenario Outline: There are 3 banked registers
+    Given All registers are initialised to zero
+    When I read from R<index>
+    Then I should get 0
+    When I write <data> to R<index>
+    Then <data> should be present in R<index>
+    Examples:
+      | index | data |
+      | 13    | 987  |
+      | 14    | 314  |

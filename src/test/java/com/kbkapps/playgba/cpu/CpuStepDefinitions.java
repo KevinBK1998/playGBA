@@ -10,8 +10,8 @@ public class CpuStepDefinitions {
     private Integer data;
     private Registers registers;
 
-    @Given("All unbanked registers are initialised to zero")
-    public void initialiseUnbankedRegisters() {
+    @Given("All registers are initialised to zero")
+    public void initialiseRegisters() {
         registers = new Registers();
     }
 
