@@ -30,7 +30,7 @@ Feature: The CPU
 #  --          SPSR_fiq  SPSR_svc   SPSR_abt  SPSR_irq  SPSR_und
 #  --------------------------------------------------------------
 
-  Scenario Outline: There are 13 unbanked registers R0-R12
+  Scenario Outline: There are 14 unbanked registers (R0-R12 and R15)
     Given All unbanked registers are initialised to zero
     When I read from R<index>
     Then I should get 0
@@ -51,16 +51,4 @@ Feature: The CPU
       | 10    | 34   |
       | 11    | 234  |
       | 12    | 456  |
-      | 0     | 10   |
-      | 1     | 100  |
-      | 2     | 21   |
-      | 3     | 35   |
-      | 4     | 64   |
-      | 5     | 52   |
-      | 6     | 61   |
-      | 7     | 27   |
-      | 8     | 81   |
-      | 9     | 39   |
-      | 10    | 109  |
-      | 11    | 211  |
-      | 12    | 512  |
+      | 15    | 56   |
