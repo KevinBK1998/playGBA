@@ -7,7 +7,7 @@ import io.cucumber.java.en.When;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RegistersStepDefinitions {
-    private Integer data;
+    private int data;
     private Registers registers;
 
     @Given("All registers are initialised")
