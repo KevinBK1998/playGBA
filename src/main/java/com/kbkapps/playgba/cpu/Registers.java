@@ -1,6 +1,6 @@
 package com.kbkapps.playgba.cpu;
 
-import static com.kbkapps.playgba.cpu.Flags.AL;
+import static com.kbkapps.playgba.cpu.Flags.*;
 
 public class Registers {
     public static final int SYSTEM_OR_USER = 0;
@@ -89,6 +89,22 @@ public class Registers {
     }
 
     public boolean canExecute(Flags cond) {
-        return cond == AL;
+        //NegativeZeroCarryOverflow(V)----  --------  --------  IrqFiqThumbMMMMMode
+        if (cond == AL) return true;
+        else if (cond == MI) return currentStatusReg < 0;
+        else if (cond == PL) return currentStatusReg >= 0;
+        else if (cond == EQ) return (currentStatusReg & 0x40_00_00_00) != 0;
+        else if (cond == NE) return (currentStatusReg & 0x40_00_00_00) == 0;
+        else if (cond == CS) return (currentStatusReg & 0x20_00_00_00) != 0;
+        else if (cond == CC) return (currentStatusReg & 0x20_00_00_00) == 0;
+        else if (cond == VS) return (currentStatusReg & 0x10_00_00_00) != 0;
+        else if (cond == VC) return (currentStatusReg & 0x10_00_00_00) == 0;
+        else if (cond == HI) return canExecute(CS) && canExecute(NE);
+        else if (cond == LS) return canExecute(CC) || canExecute(EQ);
+        else if (cond == GE) return canExecute(MI) == canExecute(VS);
+        else if (cond == LT) return canExecute(MI) != canExecute(VS);
+        else if (cond == GT) return canExecute(NE) && canExecute(GE);
+        else if (cond == LE) return canExecute(EQ) || canExecute(LT);
+        else throw new IndexOutOfBoundsException(cond.name());
     }
 }

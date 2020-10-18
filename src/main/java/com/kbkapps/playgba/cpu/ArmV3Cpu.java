@@ -1,11 +1,10 @@
 package com.kbkapps.playgba.cpu;
 
-import static com.kbkapps.playgba.cpu.Flags.AL;
-import static com.kbkapps.playgba.cpu.Flags.EQ;
+import static com.kbkapps.playgba.cpu.Flags.*;
 
 public class ArmV3Cpu {
-    public static final byte HS = 0x2;
-    public static final byte LO = 0x3;
+    public static final Flags HS = CS;
+    public static final Flags LO = CC;
     public static final int PC = 15;
     Registers reg;
 
@@ -14,11 +13,62 @@ public class ArmV3Cpu {
     }
 
     public void runOpcode(String opCode, String condition, int label) {
-        Flags cond = null;
-        if (condition.equals("AL"))
-            cond = AL;
-        else if (condition.equals("EQ"))
-            cond = EQ;
+        Flags cond;
+        switch (condition) {
+            case "EQ":
+                cond = EQ;
+                break;
+            case "NE":
+                cond = NE;
+                break;
+            case "CS":
+                cond = CS;
+                break;
+            case "HS":
+                cond = HS;
+                break;
+            case "CC":
+                cond = CC;
+                break;
+            case "LO":
+                cond = LO;
+                break;
+            case "MI":
+                cond = MI;
+                break;
+            case "PL":
+                cond = PL;
+                break;
+            case "VS":
+                cond = VS;
+                break;
+            case "VC":
+                cond = VC;
+                break;
+            case "HI":
+                cond = HI;
+                break;
+            case "LS":
+                cond = LS;
+                break;
+            case "GE":
+                cond = GE;
+                break;
+            case "LT":
+                cond = LT;
+                break;
+            case "GT":
+                cond = GT;
+                break;
+            case "LE":
+                cond = LE;
+                break;
+            case "AL":
+                cond = AL;
+                break;
+            default:
+                throw new IndexOutOfBoundsException(condition);
+        }
         if (opCode.equals("B"))
             if (reg.canExecute(cond))
                 branch(label);
