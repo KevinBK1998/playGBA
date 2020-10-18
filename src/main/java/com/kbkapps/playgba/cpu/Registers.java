@@ -6,10 +6,15 @@ public class Registers {
     public static final int ABORT = 2;
     public static final int INTERRUPT_REQUEST = 3;
     public static final int UNDEFINED = 4;
+    //Registers 0-12
     private final int[] unbankedReg = new int[13];
+    //Registers 13(SP) and 14(LR)
     private final int[] bankedReg = new int[10];
-    private int reg15;
+    private final int[] savedStatusReg = new int[5];
     private int mode;
+    //PC
+    private int reg15;
+    private int currentStatusReg;
 
     int getReg(int index) {
         if (index < 0)
@@ -53,5 +58,21 @@ public class Registers {
         } else if (mode.contains("und")) {
             this.mode = UNDEFINED;
         } else throw new IndexOutOfBoundsException();
+    }
+
+    public int getPSR(char type) {
+        if (type == 'C')
+            return currentStatusReg;
+        if (type == 'S')
+            return savedStatusReg[mode];
+        throw new IndexOutOfBoundsException();
+    }
+
+    public void setPSR(int data, char type) {
+        if (type == 'C')
+            currentStatusReg = data;
+        else if (type == 'S')
+            savedStatusReg[mode] = data;
+        else throw new IndexOutOfBoundsException();
     }
 }
