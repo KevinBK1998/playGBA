@@ -1,5 +1,6 @@
 package com.kbkapps.playgba.cpu;
 
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -33,5 +34,15 @@ public class CpuStepDefinitions {
     @Then("^([0-9]+) should be present in R([0-9]{1,2})$")
     public void shouldBePresentInReg(String data, int index) {
         assertThat(registers.getReg(index)).isEqualTo(Integer.parseUnsignedInt(data));
+    }
+
+    @And("the mode is {word}")
+    public void initMode(String mode) {
+        registers.setMode(mode);
+    }
+
+    @When("I switch mode to {word}")
+    public void switchMode(String mode) {
+        registers.setMode(mode);
     }
 }

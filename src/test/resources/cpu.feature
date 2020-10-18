@@ -8,9 +8,6 @@ Feature: The CPU
 #
 #  System/User FIQ       Supervisor Abort     IRQ       Undefined
 #  --------------------------------------------------------------
-#  R13 (SP)    R13_fiq   R13_svc    R13_abt   R13_irq   R13_und
-#  R14 (LR)    R14_fiq   R14_svc    R14_abt   R14_irq   R14_und
-#  --------------------------------------------------------------
 #  CPSR        CPSR      CPSR       CPSR      CPSR      CPSR
 #  --          SPSR_fiq  SPSR_svc   SPSR_abt  SPSR_irq  SPSR_und
 #  --------------------------------------------------------------
@@ -38,13 +35,26 @@ Feature: The CPU
       | 12    | 456  |
       | 15    | 56   |
 
-  Scenario Outline: There are 3 banked registers
+  Scenario Outline: There are 2 banked registers
     Given All registers are initialised to zero
+    And the mode is <mode>
     When I read from R<index>
     Then I should get 0
     When I write <data> to R<index>
     Then <data> should be present in R<index>
+    When I switch mode to sys
+    And I read from R<index>
+    Then I should get 0
+    When I write <data> to R<index>
+    Then <data> should be present in R<index>
     Examples:
-      | index | data |
-      | 13    | 987  |
-      | 14    | 314  |
+    Abort     IRQ       Undefined
+      | mode | index | data |
+      | svc  | 13    | 678  |
+      | svc  | 14    | 910  |
+      | abt  | 13    | 123  |
+      | abt  | 14    | 345  |
+      | irq  | 13    | 678  |
+      | irq  | 14    | 910  |
+      | und  | 13    | 678  |
+      | und  | 14    | 910  |
