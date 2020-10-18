@@ -47,17 +47,25 @@ public class Registers {
     }
 
     public void setMode(String mode) {
-        if (mode.contains("sys")) {
-            this.mode = SYSTEM_OR_USER;
-        } else if (mode.contains("svc")) {
-            this.mode = SUPERVISOR;
-        } else if (mode.contains("abt")) {
-            this.mode = ABORT;
-        } else if (mode.contains("irq")) {
-            this.mode = INTERRUPT_REQUEST;
-        } else if (mode.contains("und")) {
-            this.mode = UNDEFINED;
-        } else throw new IndexOutOfBoundsException();
+        switch (mode) {
+            case "sys":
+                this.mode = SYSTEM_OR_USER;
+                break;
+            case "svc":
+                this.mode = SUPERVISOR;
+                break;
+            case "abt":
+                this.mode = ABORT;
+                break;
+            case "irq":
+                this.mode = INTERRUPT_REQUEST;
+                break;
+            case "und":
+                this.mode = UNDEFINED;
+                break;
+            default:
+                throw new IndexOutOfBoundsException();
+        }
     }
 
     public int getPSR(char type) {
@@ -74,5 +82,9 @@ public class Registers {
         else if (type == 'S')
             savedStatusReg[mode] = data;
         else throw new IndexOutOfBoundsException();
+    }
+
+    public boolean isTrue(byte cond) {
+        return cond == ArmV3Cpu.AL;
     }
 }
