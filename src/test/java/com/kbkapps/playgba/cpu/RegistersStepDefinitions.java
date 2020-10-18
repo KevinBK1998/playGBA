@@ -10,7 +10,7 @@ public class RegistersStepDefinitions {
     private Integer data;
     private Registers registers;
 
-    @Given("All registers are initialised to zero")
+    @Given("All registers are initialised")
     public void initialiseRegisters() {
         registers = new Registers();
     }
@@ -27,7 +27,7 @@ public class RegistersStepDefinitions {
 
     @When("^I write ([0-9]+) to R([0-9]{1,2})$")
     public void writeToReg(String data, int index) {
-        registers.setReg(Integer.parseUnsignedInt(data), index);
+        registers.setReg(index, Integer.parseUnsignedInt(data));
     }
 
     @Then("^([0-9]+) should be present in R([0-9]{1,2})$")
@@ -47,7 +47,7 @@ public class RegistersStepDefinitions {
 
     @When("^I write ([0-9]+) to ([CS]{1})PSR$")
     public void writeToPSR(String data, String type) {
-        registers.setPSR(Integer.parseUnsignedInt(data), type.charAt(0));
+        registers.setPSR(type.charAt(0), Integer.parseUnsignedInt(data));
     }
 
     @Then("^([0-9]+) should be present in ([CS]{1})PSR$")

@@ -33,7 +33,7 @@ public class Registers {
         return index * 5 + mode;
     }
 
-    void setReg(int data, int index) {
+    void setReg(int index, int data) {
         if (index < 0)
             throw new IndexOutOfBoundsException();
         if (index < 13)
@@ -68,7 +68,7 @@ public class Registers {
         throw new IndexOutOfBoundsException();
     }
 
-    public void setPSR(int data, char type) {
+    public void setPSR(char type, int data) {
         if (type == 'C')
             currentStatusReg = data;
         else if (type == 'S')

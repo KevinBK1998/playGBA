@@ -6,7 +6,7 @@ Feature: Registers
   used in GBA.
 
   Background: Reset the CPU
-    Given All registers are initialised to zero
+    Given All registers are initialised
 
   Scenario Outline: There are 14 unbanked registers (R0-R12 and R15)
   R0-R12 Registers (General Purpose Registers): These thirteen registers may be used for whatever general purposes.
