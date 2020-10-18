@@ -31,41 +31,72 @@ Feature: The CPU
   Execution Time: 2S + 1N
   Return: No flags affected.
     Given All registers are initialised
+    And CPSR is <state>
     And PC is <prevPC>
     When I try to execute B <cond> <label>
     Then I should be at <expectedPC>
     Examples:
-      | cond  | prevPC | label | expectedPC |
-      | EQ    | 0      | 2     | 2          |
-      | NE    | 0      | 2     | 8          |
-      | CS/HS | 0      | 2     | 2          |
-      | CC/LO | 0      | 2     | 8          |
-      | MI    | 0      | 2     | 2          |
-      | PL    | 0      | 2     | 8          |
-      | VS    | 0      | 2     | 2          |
-      | VC    | 0      | 2     | 8          |
-      | HI    | 0      | 2     | 2          |
-      | LS    | 0      | 2     | 8          |
-      | GE    | 0      | 2     | 8          |
-      | LT    | 0      | 2     | 2          |
-      | GT    | 0      | 2     | 8          |
-      | LE    | 0      | 2     | 2          |
-      | AL    | 0      | 2     | 8          |
-      | EQ    | 10     | 4     | 10         |
-      | NE    | 10     | 4     | 26         |
-      | CS/HS | 10     | 4     | 10         |
-      | CC/LO | 10     | 4     | 26         |
-      | MI    | 10     | 4     | 10         |
-      | PL    | 10     | 4     | 26         |
-      | VS    | 10     | 4     | 10         |
-      | VC    | 10     | 4     | 26         |
-      | HI    | 10     | 4     | 10         |
-      | LS    | 10     | 4     | 26         |
-      | GE    | 10     | 4     | 26         |
-      | LT    | 10     | 4     | 10         |
-      | GT    | 10     | 4     | 26         |
-      | LE    | 10     | 4     | 10         |
-      | AL    | 10     | 4     | 26         |
+      | state | cond  | prevPC | label | expectedPC |
+      | low   | EQ    | 0      | 2     | 0          |
+      | low   | NE    | 0      | 2     | 8          |
+      | low   | CS/HS | 0      | 2     | 0          |
+      | low   | CC/LO | 0      | 2     | 8          |
+      | low   | MI    | 0      | 2     | 0          |
+      | low   | PL    | 0      | 2     | 8          |
+      | low   | VS    | 0      | 2     | 0          |
+      | low   | VC    | 0      | 2     | 8          |
+      | low   | HI    | 0      | 2     | 0          |
+      | low   | LS    | 0      | 2     | 8          |
+      | low   | GE    | 0      | 2     | 8          |
+      | low   | LT    | 0      | 2     | 0          |
+      | low   | GT    | 0      | 2     | 8          |
+      | low   | LE    | 0      | 2     | 0          |
+      | low   | AL    | 0      | 2     | 8          |
+      | low   | EQ    | 10     | 4     | 10         |
+      | low   | NE    | 10     | 4     | 26         |
+      | low   | CS/HS | 10     | 4     | 10         |
+      | low   | CC/LO | 10     | 4     | 26         |
+      | low   | MI    | 10     | 4     | 10         |
+      | low   | PL    | 10     | 4     | 26         |
+      | low   | VS    | 10     | 4     | 10         |
+      | low   | VC    | 10     | 4     | 26         |
+      | low   | HI    | 10     | 4     | 10         |
+      | low   | LS    | 10     | 4     | 26         |
+      | low   | GE    | 10     | 4     | 26         |
+      | low   | LT    | 10     | 4     | 10         |
+      | low   | GT    | 10     | 4     | 26         |
+      | low   | LE    | 10     | 4     | 10         |
+      | low   | AL    | 10     | 4     | 26         |
+      | high  | EQ    | 0      | 2     | 8          |
+      | high  | NE    | 0      | 2     | 0          |
+      | high  | CS/HS | 0      | 2     | 8          |
+      | high  | CC/LO | 0      | 2     | 0          |
+      | high  | MI    | 0      | 2     | 8          |
+      | high  | PL    | 0      | 2     | 0          |
+      | high  | VS    | 0      | 2     | 8          |
+      | high  | VC    | 0      | 2     | 0          |
+      | high  | HI    | 0      | 2     | 0          |
+      | high  | LS    | 0      | 2     | 8          |
+      | high  | GE    | 0      | 2     | 8          |
+      | high  | LT    | 0      | 2     | 0          |
+      | high  | GT    | 0      | 2     | 0          |
+      | high  | LE    | 0      | 2     | 8          |
+      | high  | AL    | 0      | 2     | 8          |
+      | high  | EQ    | 10     | 4     | 26         |
+      | high  | NE    | 10     | 4     | 10         |
+      | high  | CS/HS | 10     | 4     | 26         |
+      | high  | CC/LO | 10     | 4     | 10         |
+      | high  | MI    | 10     | 4     | 26         |
+      | high  | PL    | 10     | 4     | 10         |
+      | high  | VS    | 10     | 4     | 26         |
+      | high  | VC    | 10     | 4     | 10         |
+      | high  | HI    | 10     | 4     | 10         |
+      | high  | LS    | 10     | 4     | 26         |
+      | high  | GE    | 10     | 4     | 26         |
+      | high  | LT    | 10     | 4     | 10         |
+      | high  | GT    | 10     | 4     | 10         |
+      | high  | LE    | 10     | 4     | 26         |
+      | high  | AL    | 10     | 4     | 26         |
 #  Scenario: Branch with Link (B, BL, BLX_imm)
 #  Branch with Link is meant to be used to call to a subroutine, return
 #  address is then saved in R14.

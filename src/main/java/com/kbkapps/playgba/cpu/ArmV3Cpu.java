@@ -1,7 +1,11 @@
 package com.kbkapps.playgba.cpu;
 
+import static com.kbkapps.playgba.cpu.Flags.AL;
+import static com.kbkapps.playgba.cpu.Flags.EQ;
+
 public class ArmV3Cpu {
-    public static final byte AL = 0xE;
+    public static final byte HS = 0x2;
+    public static final byte LO = 0x3;
     public static final int PC = 15;
     Registers reg;
 
@@ -10,11 +14,13 @@ public class ArmV3Cpu {
     }
 
     public void runOpcode(String opCode, String condition, int label) {
-        byte cond = 0;
+        Flags cond = null;
         if (condition.equals("AL"))
             cond = AL;
+        else if (condition.equals("EQ"))
+            cond = EQ;
         if (opCode.equals("B"))
-            if (reg.isTrue(cond))
+            if (reg.canExecute(cond))
                 branch(label);
     }
 

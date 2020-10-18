@@ -1,11 +1,15 @@
 package com.kbkapps.playgba.cpu;
 
+import static com.kbkapps.playgba.cpu.Flags.AL;
+
 public class Registers {
     public static final int SYSTEM_OR_USER = 0;
     public static final int SUPERVISOR = 1;
     public static final int ABORT = 2;
     public static final int INTERRUPT_REQUEST = 3;
     public static final int UNDEFINED = 4;
+    static final char CPSR = 'C';
+    private static final char SPSR = 'S';
     //Registers 0-12
     private final int[] unbankedReg = new int[13];
     //Registers 13(SP) and 14(LR)
@@ -69,22 +73,22 @@ public class Registers {
     }
 
     public int getPSR(char type) {
-        if (type == 'C')
+        if (type == CPSR)
             return currentStatusReg;
-        if (type == 'S')
+        if (type == SPSR)
             return savedStatusReg[mode];
         throw new IndexOutOfBoundsException();
     }
 
     public void setPSR(char type, int data) {
-        if (type == 'C')
+        if (type == CPSR)
             currentStatusReg = data;
-        else if (type == 'S')
+        else if (type == SPSR)
             savedStatusReg[mode] = data;
         else throw new IndexOutOfBoundsException();
     }
 
-    public boolean isTrue(byte cond) {
-        return cond == ArmV3Cpu.AL;
+    public boolean canExecute(Flags cond) {
+        return cond == AL;
     }
 }
