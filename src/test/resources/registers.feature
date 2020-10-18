@@ -5,6 +5,23 @@ Feature: Registers
   so writing to R0 will always affect the content of R0 in other modes also. We will be ignoring reg_fiq as they are not
   used in GBA.
 
+  Code Suffix Flags         Meaning
+  0:   EQ     Z=1           equal (zero) (same)
+  1:   NE     Z=0           not equal (nonzero) (not same)
+  2:   CS/HS  C=1           unsigned higher or same (carry set)
+  3:   CC/LO  C=0           unsigned lower (carry cleared)
+  4:   MI     N=1           signed negative (minus)
+  5:   PL     N=0           signed positive or zero (plus)
+  6:   VS     V=1           signed overflow (V set)
+  7:   VC     V=0           signed no overflow (V cleared)
+  8:   HI     C=1 and Z=0   unsigned higher
+  9:   LS     C=0 or Z=1    unsigned lower or same
+  A:   GE     N=V           signed greater or equal
+  B:   LT     N<>V          signed less than
+  C:   GT     Z=0 and N=V   signed greater than
+  D:   LE     Z=1 or N<>V   signed less or equal
+  E:   AL     -             always (the "AL" suffix can be omitted)
+
   Background: Reset the CPU
     Given All registers are initialised
 
