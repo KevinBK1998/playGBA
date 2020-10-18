@@ -77,4 +77,19 @@ public class ArmV3Cpu {
     private void branch(int label) {
         reg.setReg(PC, (int) (Integer.toUnsignedLong(reg.getReg(PC)) + label * 4));
     }
+
+    public OpCode decode(byte[] opCodes) {
+        Instructions opcode = null;
+        if ((opCodes[0] & 0xF) == 0b1010)
+            opcode = Instructions.B;
+        Flags cond = values()[Byte.toUnsignedInt(opCodes[0]) >> 4];
+        int data = 65025 * opCodes[1] + 255 * opCodes[2] + opCodes[3];
+        return new OpCode(opcode, cond, data);
+    }
+
+    public void execute(OpCode opcode) {
+        if (opcode.instruction == Instructions.B)
+            if (reg.canExecute(opcode.condition))
+                branch(opcode.data);
+    }
 }
