@@ -107,4 +107,8 @@ public class Registers {
         else if (cond == LE) return canExecute(EQ) || canExecute(LT);
         else throw new IndexOutOfBoundsException(cond.name());
     }
+
+    public void step() {
+        reg15 += 4;
+    }
 }

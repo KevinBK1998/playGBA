@@ -82,8 +82,12 @@ public class ArmV3Cpu {
         Instructions opcode = null;
         if ((opCodes[0] & 0xF) == 0b1010)
             opcode = Instructions.B;
+        else if ((opCodes[0] & 0xC) == 0b0000) {
+
+        }
         Flags cond = values()[Byte.toUnsignedInt(opCodes[0]) >> 4];
         int data = 65025 * opCodes[1] + 255 * opCodes[2] + opCodes[3];
+        reg.step();
         return new OpCode(opcode, cond, data);
     }
 

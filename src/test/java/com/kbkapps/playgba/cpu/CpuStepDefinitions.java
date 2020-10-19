@@ -61,4 +61,9 @@ public class CpuStepDefinitions {
     public void pcMustBe(String expectedPC) {
         assertThat(reg.getReg(ArmV3Cpu.PC)).isEqualTo(Integer.parseUnsignedInt(expectedPC));
     }
+
+    @Given("^pc is ([0-9]+)$")
+    public void pcIs(String pc) {
+        reg.setReg(ArmV3Cpu.PC, Integer.parseUnsignedInt(pc));
+    }
 }
