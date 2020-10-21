@@ -5,10 +5,11 @@ Feature: The CPU
     When i try to decode <opcodes>
     Then i should see "<message>"
     Examples:
-      | opcodes     | message               |
-      | 18 00 00 ea | branch always 0x18    |
-      | 00 00 5e e3 | compare always lr 0x0 |
-      | 04 e0 a0 03 | move equal lr 0x4     |
+      | opcodes     | message                   |
+      | 18 00 00 ea | branch always 0x18        |
+      | 00 00 5e e3 | compare always lr 0x0     |
+      | 04 e0 a0 03 | move equal lr 0x4         |
+      | 01 c3 a0 e3 | move always r12 0x4000000 |
   #TODO:Add more instructions
   Scenario: Branch instruction is executed
   Bit    Explanation
@@ -112,4 +113,8 @@ Feature: The CPU
     When i try to execute 04 e0 a0 03
     Then pc must be 112
     And R14 must be 4
+    And CPSR must be 40 00 00 00
+    When i try to execute 01 c3 a0 e3
+    Then pc must be 116
+    And R12 must be 0x4000000
     And CPSR must be 40 00 00 00

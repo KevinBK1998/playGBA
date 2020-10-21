@@ -6,7 +6,7 @@ import io.cucumber.java.en.When;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class InstructionsStepDefs {
+public class FlagsStepDefinitions {
     Registers reg = new Registers();
     ArmV3Cpu armCpu = new ArmV3Cpu(reg);
 

@@ -66,6 +66,11 @@ public class CpuStepDefinitions {
         return Integer.parseInt(arg0, 16) + (Integer.parseInt(arg1, 16) << 8) + (Integer.parseInt(arg2, 16) << 16) + (Integer.parseInt(arg3, 16) << 24);
     }
 
+    @And("^R([0-9]{1,2}) must be 0x([0-9a-f]{1,8})$")
+    public void rMustBeX(String regNo, String expectedData) {
+        assertThat(reg.getReg(Integer.parseInt(regNo))).isEqualTo(Integer.parseUnsignedInt(expectedData, 16));
+    }
+
 //    @When("cpu runs")
 //    public void cpuRuns() throws IOException {
 //        FileInputStream in = new FileInputStream("src/main/resources/bios.bin");

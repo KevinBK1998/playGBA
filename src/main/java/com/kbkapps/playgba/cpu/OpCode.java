@@ -30,9 +30,9 @@ public class OpCode {
         this.hasImmediate = hasImmediate;
         changePSR = canChangePSR;
         int shift = (data >> 4) & 0xF;
-//        System.out.println("shift = " + shift);
+        System.out.println("shift = " + shift);
         int immediate = data & 0xF;
-//        System.out.println("immediate (8-bit)= " + immediate);
+        System.out.println("immediate (8-bit)= " + immediate);
         this.immediate = immediate >> shift;
     }
 
