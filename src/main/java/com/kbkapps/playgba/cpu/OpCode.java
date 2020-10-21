@@ -29,11 +29,11 @@ public class OpCode {
         regDest = (data >> 12) & 0xF;
         this.hasImmediate = hasImmediate;
         changePSR = canChangePSR;
-        int shift = (data >> 4) & 0xF;
-        System.out.println("shift = " + shift);
+        int shift = (data >> 8) & 0xF;
+//        System.out.println("shift = " + shift);
         int immediate = data & 0xF;
-        System.out.println("immediate (8-bit)= " + immediate);
-        this.immediate = immediate >> shift;
+//        System.out.println("immediate (8-bit)= " + immediate);
+        this.immediate = Integer.rotateRight(immediate, 2 * shift);
     }
 
     public OpCode(Instructions opcode, Flags cond, boolean hasImmediate, int data) {
