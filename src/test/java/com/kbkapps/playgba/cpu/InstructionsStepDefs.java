@@ -24,5 +24,4 @@ public class InstructionsStepDefs {
     public void shouldBeAt(String expectedPC) {
         assertThat(reg.getReg(ArmV3Cpu.PC)).isEqualTo(Integer.parseUnsignedInt(expectedPC));
     }
-
 }

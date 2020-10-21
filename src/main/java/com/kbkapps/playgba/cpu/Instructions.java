@@ -1,7 +1,7 @@
 package com.kbkapps.playgba.cpu;
 
 public enum Instructions {
-    B("branch");
+    B("branch"), CMP("compare");
     private final String message;
 
     Instructions(String message) {

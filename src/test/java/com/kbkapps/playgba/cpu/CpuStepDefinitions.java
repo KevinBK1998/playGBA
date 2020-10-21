@@ -28,11 +28,9 @@ public class CpuStepDefinitions {
 
     @When("^i try to execute ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2})$")
     public void executeOpcode(String arg0, String arg1, String arg2, String arg3) {
-        opcode = armCpu.decode(new byte[]{
-                (byte) Integer.parseInt(arg0, 16),
-                (byte) Integer.parseInt(arg1, 16),
-                (byte) Integer.parseInt(arg2, 16),
-                (byte) Integer.parseInt(arg3, 16)});
+        int opcodeEncoded = Integer.parseInt(arg0, 16) + (Integer.parseInt(arg1, 16) << 8) + (Integer.parseInt(arg2, 16) << 16) + (Integer.parseInt(arg3, 16) << 24);
+        opcode = armCpu.decode(opcodeEncoded);
+        System.out.println("opcodeEncoded = " + Integer.toUnsignedString(opcodeEncoded, 16));
         armCpu.execute(opcode);
     }
 
@@ -65,5 +63,11 @@ public class CpuStepDefinitions {
     @Given("^pc is ([0-9]+)$")
     public void pcIs(String pc) {
         reg.setReg(ArmV3Cpu.PC, Integer.parseUnsignedInt(pc));
+    }
+
+    @Then("^CPSR must be ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2})$")
+    public void cpsrMustBe(String arg0, String arg1, String arg2, String arg3) {
+        int expectedCPSR = Integer.parseInt(arg0, 16) + (Integer.parseInt(arg1, 16) << 8) + (Integer.parseInt(arg2, 16) << 16) + (Integer.parseInt(arg3, 16) << 24);
+        assertThat(reg.getPSR(Registers.CPSR)).isEqualTo(expectedCPSR);
     }
 }
