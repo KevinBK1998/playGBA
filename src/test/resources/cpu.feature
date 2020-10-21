@@ -37,22 +37,6 @@ Feature: The CPU
 #    And PC is <prevPC>
 #    When I try to execute B <cond> <label>
 #    Then I should be at <expectedPC>
-  Scenario: Compare (with immediate) instruction is executed
-  Bit    Expl.
-  27-26  Must be 00b for this instruction
-  25     I - Immediate 2nd Operand Flag (0=Register, 1=Immediate)
-  24-21=A: CMP{cond}{P}    Rn,Op2 ;* ;compare         Void = Rn-Op2
-  20     Must be 1 for opcode 8-B
-  19-16  Rn - 1st Operand Register (R0..R15) (including PC=R15)
-  15-12  Rd - Destination Register (R0..R15) (including PC=R15)
-  ->Must be 0000b (or 1111b) for CMP/CMN/TST/TEQ{P}.
-  when above Bit 25 I=1 (Immediate as 2nd Operand)
-  ->11-8   Is - ROR-Shift applied to nn (0-30, in steps of 2)
-  ->7-0    nn - 2nd Operand Unsigned 8bit Immediate
-    Given pc is 104
-    When i try to execute 00 00 5e e3
-    Then pc must be 108
-    And CPSR must be 40 00 00 00
 
 #  Scenario: ALU
 #  Bit    Expl.
@@ -78,9 +62,9 @@ Feature: The CPU
 #  F: MVN{cond}{S} Rd,Op2       ;not               Rd = NOT Op2
 #  20     S - Set Condition Codes (0=No, 1=Yes) (Must be 1 for opcode 8-B)
 #  19-16  Rn - 1st Operand Register (R0..R15) (including PC=R15)
-#  Must be 0000b for MOV/MVN.
+#  ->Must be 0000b for MOV/MVN.
 #  15-12  Rd - Destination Register (R0..R15) (including PC=R15)
-#  Must be 0000b (or 1111b) for CMP/CMN/TST/TEQ{P}.
+#  ->Must be 0000b (or 1111b) for CMP/CMN/TST/TEQ{P}.
 #    When above Bit 25 I=0 (Register as 2nd Operand)
 #    When below Bit 4 R=0 - Shift by Immediate
 #  11-7   Is - Shift amount   (1-31, 0=Special/See below)
@@ -93,3 +77,37 @@ Feature: The CPU
 #    When above Bit 25 I=1 (Immediate as 2nd Operand)
 #  11-8   Is - ROR-Shift applied to nn (0-30, in steps of 2)
 #  7-0    nn - 2nd Operand Unsigned 8bit Immediate
+
+  Scenario: Compare (with immediate) instruction is executed
+  Bit    Expl.
+  27-26  Must be 00b for this instruction
+  25     I - Immediate 2nd Operand Flag (0=Register, 1=Immediate)
+  24-21=A: CMP{cond}{P}    Rn,Op2 ;* ;compare         Void = Rn-Op2
+  20     Must be 1 for opcode 8-B
+  19-16  Rn - 1st Operand Register (R0..R15) (including PC=R15)
+  15-12  Rd - Destination Register (R0..R15) (including PC=R15)
+  ->Must be 0000b (or 1111b) for CMP/CMN/TST/TEQ{P}.
+  when above Bit 25 I=1 (Immediate as 2nd Operand)
+  ->11-8   Is - ROR-Shift applied to nn (0-30, in steps of 2)
+  ->7-0    nn - 2nd Operand Unsigned 8bit Immediate
+    Given pc is 104
+    When i try to execute 00 00 5e e3
+    Then pc must be 108
+    And CPSR must be 40 00 00 00
+
+  Scenario: Move (with immediate) instruction is executed
+  Bit    Expl.
+  27-26  Must be 00b for this instruction
+  25     I - Immediate 2nd Operand Flag (0=Register, 1=Immediate)
+  24-21=D: MOV{cond}{S} Rd,Op2       ;move              Rd = Op2
+  20     S - Set Condition Codes (0=No, 1=Yes)
+  19-16  Rn - 1st Operand Register (R0..R15) (including PC=R15)
+  ->Must be 0000b for MOV/MVN.
+  15-12  Rd - Destination Register (R0..R15) (including PC=R15)
+  when above Bit 25 I=1 (Immediate as 2nd Operand)
+  ->11-8   Is - ROR-Shift applied to nn (0-30, in steps of 2)
+  ->7-0    nn - 2nd Operand Unsigned 8bit Immediate
+    Given pc is 108
+    When i try to execute 04 e0 a0 03
+    Then pc must be 112
+    And CPSR must be 40 00 00 00

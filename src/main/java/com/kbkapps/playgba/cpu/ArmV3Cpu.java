@@ -40,12 +40,26 @@ public class ArmV3Cpu {
             }
         if (((opcodeEncoded >> 26) & 0x3) == 0b00)//ALU
             if (((opcodeEncoded >> 25) & 0x1) != 0)//Immediate
-                if (((opcodeEncoded >> 21) & 0xF) == 0xA && ((opcodeEncoded >> 20) & 0x1) != 0) {//Compare
+                if (((opcodeEncoded >> 21) & 0xF) == 0xA) {//Compare
+                    checkIfPsrCanChange(opcodeEncoded);
                     Instructions opcode = Instructions.CMP;
+                    int data = opcodeEncoded & 0xF_FF_FF;
+                    return new OpCode(opcode, cond, true, data);
+                } else if (((opcodeEncoded >> 21) & 0xF) == 0xD) {
+                    Instructions opcode = Instructions.MOV;
                     int data = opcodeEncoded & 0xF_FF_FF;
                     return new OpCode(opcode, cond, true, data);
                 }
         return null;
+    }
+
+    private void checkIfPsrCanChange(int opcodeEncoded) {
+        if (!changePSR(opcodeEncoded)) throw new IndexOutOfBoundsException("CPSR must be written");
+    }
+
+    private boolean changePSR(int opcodeEncoded) {
+        //only for ALU opcodes 8-B
+        return ((opcodeEncoded >> 20) & 0x1) != 0;
     }
 
     public void execute(OpCode opcode) {
