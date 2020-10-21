@@ -1,6 +1,9 @@
 package com.kbkapps.playgba.cpu;
 
-import static com.kbkapps.playgba.cpu.Flags.*;
+import com.kbkapps.playgba.cpu.constants.Flags;
+import com.kbkapps.playgba.cpu.constants.Instructions;
+
+import static com.kbkapps.playgba.cpu.constants.Flags.*;
 
 public class ArmV3Cpu {
     public static final Flags HS = CS;

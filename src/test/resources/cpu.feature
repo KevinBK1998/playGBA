@@ -2,55 +2,24 @@ Feature: The CPU
   The Game Boy Advance Cpu is 32 bit ARM7TDMI and runs at 16MHz.
 
   Scenario Outline: Correct instruction is decoded
-    Given pc is <pc>
     When i try to decode <opcodes>
     Then i should see "<message>"
     Examples:
-      | pc  | opcodes     | message               |
-      | 0   | 18 00 00 ea | branch always 0x18    |
-      | 100 | 00 00 5e e3 | compare always lr 0x0 |
+      | opcodes     | message               |
+      | 18 00 00 ea | branch always 0x18    |
+      | 00 00 5e e3 | compare always lr 0x0 |
+      | 04 e0 a0 03 | move equal lr 0x4     |
   #TODO:Add more instructions
   Scenario: Branch instruction is executed
   Bit    Explanation
-  31-28  Condition
   27-25  Must be "101" for this instruction
-  24     Opcode (0-1)
-  ->0:   B{cond} label    ;branch            PC=PC+8+nn*4
+  24=0:   B{cond} label    ;branch            PC=PC+8+nn*4
   23-0   nn - Signed Offset, step 4      (-32M..+32M in steps of 4)
   Execution Time: 2S + 1N
   Return: No flags affected.
     Given pc is 0
     When i try to execute 18 00 00 ea
     Then pc must be 104
-
-  Scenario: Compare (with immediate) instruction is executed
-  Bit    Expl.
-  31-28  Condition
-  27-26  Must be 00b for this instruction
-  25     I - Immediate 2nd Operand Flag (0=Register, 1=Immediate)
-  24-21  Opcode (0-Fh)               ;*=Arithmetic, otherwise Logical
-  ->A: CMP{cond}{P}    Rn,Op2 ;* ;compare         Void = Rn-Op2
-  20     Must be 1 for opcode 8-B
-  19-16  Rn - 1st Operand Register (R0..R15) (including PC=R15)
-  15-12  Rd - Destination Register (R0..R15) (including PC=R15)
-  ->Must be 0000b (or 1111b) for CMP/CMN/TST/TEQ{P}.
-  when above Bit 25 I=0 (Register as 2nd Operand)
-  ->when below Bit 4 R=0 - Shift by Immediate
-  -->11-7   Is - Shift amount   (1-31, 0=Special/See below)
-  ->when below Bit 4 R=1 - Shift by Register
-  -->11-8   Rs - Shift register (R0-R14) - only lower 8bit 0-255 used
-  -->7      Reserved, must be zero  (otherwise multiply or LDREX or undefined)
-  ->6-5    Shift Type (0=LSL, 1=LSR, 2=ASR, 3=ROR)
-  ->4      R - Shift by Register Flag (0=Immediate, 1=Register)
-  ->3-0    Rm - 2nd Operand Register (R0..R15) (including PC=R15)
-  when above Bit 25 I=1 (Immediate as 2nd Operand)
-  ->11-8   Is - ROR-Shift applied to nn (0-30, in steps of 2)
-  ->7-0    nn - 2nd Operand Unsigned 8bit Immediate
-    Given pc is 104
-    When i try to execute 00 00 5e e3
-    Then pc must be 108
-    And CPSR must be 40 00 00 00
-
 #  Scenario: Branch with Link ( BL, BLX_imm)
 #  Branch with Link is meant to be used to call to a subroutine, return
 #  address is then saved in R14.
@@ -68,6 +37,23 @@ Feature: The CPU
 #    And PC is <prevPC>
 #    When I try to execute B <cond> <label>
 #    Then I should be at <expectedPC>
+  Scenario: Compare (with immediate) instruction is executed
+  Bit    Expl.
+  27-26  Must be 00b for this instruction
+  25     I - Immediate 2nd Operand Flag (0=Register, 1=Immediate)
+  24-21=A: CMP{cond}{P}    Rn,Op2 ;* ;compare         Void = Rn-Op2
+  20     Must be 1 for opcode 8-B
+  19-16  Rn - 1st Operand Register (R0..R15) (including PC=R15)
+  15-12  Rd - Destination Register (R0..R15) (including PC=R15)
+  ->Must be 0000b (or 1111b) for CMP/CMN/TST/TEQ{P}.
+  when above Bit 25 I=1 (Immediate as 2nd Operand)
+  ->11-8   Is - ROR-Shift applied to nn (0-30, in steps of 2)
+  ->7-0    nn - 2nd Operand Unsigned 8bit Immediate
+    Given pc is 104
+    When i try to execute 00 00 5e e3
+    Then pc must be 108
+    And CPSR must be 40 00 00 00
+
 #  Scenario: ALU
 #  Bit    Expl.
 #  31-28  Condition

@@ -1,6 +1,8 @@
 package com.kbkapps.playgba.cpu;
 
-import static com.kbkapps.playgba.cpu.Flags.*;
+import com.kbkapps.playgba.cpu.constants.Flags;
+
+import static com.kbkapps.playgba.cpu.constants.Flags.*;
 
 public class Registers {
     public static final int SYSTEM_OR_USER = 0;

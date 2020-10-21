@@ -1,5 +1,8 @@
 package com.kbkapps.playgba.cpu;
 
+import com.kbkapps.playgba.cpu.constants.Flags;
+import com.kbkapps.playgba.cpu.constants.Instructions;
+
 public class OpCode {
     Instructions instruction;
     Flags condition;

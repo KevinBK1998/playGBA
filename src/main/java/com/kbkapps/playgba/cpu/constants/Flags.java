@@ -1,4 +1,4 @@
-package com.kbkapps.playgba.cpu;
+package com.kbkapps.playgba.cpu.constants;
 
 public enum Flags {
     EQ("equal"), NE("not equal"), CS("carry set"), CC("carry cleared"),

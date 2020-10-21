@@ -1,4 +1,4 @@
-package com.kbkapps.playgba.cpu;
+package com.kbkapps.playgba.cpu.constants;
 
 public enum Instructions {
     B("branch"), CMP("compare");
