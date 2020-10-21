@@ -1,5 +1,6 @@
 package com.kbkapps.playgba.cpu;
 
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -11,16 +12,6 @@ public class CpuStepDefinitions {
     ArmV3Cpu armCpu = new ArmV3Cpu(reg);
     private OpCode opcode;
 
-    @Given("CPSR is {word}")
-    public void setCPSR(String state) {
-//        reg.setPSR(Registers.CPSR, state.equals("high") ? 0xFF_FF_FF_FF : 0);
-    }
-
-    @Given("^pc is ([0-9]+)$")
-    public void pcIs(String pc) {
-        reg.setReg(ArmV3Cpu.PC, Integer.parseUnsignedInt(pc));
-    }
-
     private static String getUnsignedStringFromByte(byte datum) {
         String result = Integer.toUnsignedString(datum, 16);
         if (result.length() == 8)
@@ -28,11 +19,16 @@ public class CpuStepDefinitions {
         return result;
     }
 
+    @Given("^pc is ([0-9]+)$")
+    public void pcIs(String pc) {
+        reg.setReg(ArmV3Cpu.PC, Integer.parseUnsignedInt(pc));
+    }
+
     @When("^i try to decode ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2})$")
     public void decodeOpcode(String arg0, String arg1, String arg2, String arg3) {
-        int opcodeEncoded = Integer.parseInt(arg0, 16) + (Integer.parseInt(arg1, 16) << 8) + (Integer.parseInt(arg2, 16) << 16) + (Integer.parseInt(arg3, 16) << 24);
+        int opcodeEncoded = getIntFromBytes(arg0, arg1, arg2, arg3);
         System.out.println("opcodeEncoded = " + Integer.toUnsignedString(opcodeEncoded, 16));
-        opcode = armCpu.decode(opcodeEncoded);
+        opcode = OpCode.decodeOpcode(opcodeEncoded);
     }
 
     @Then("i should see {string}")
@@ -41,10 +37,14 @@ public class CpuStepDefinitions {
         assertThat(opcode.toString()).isEqualTo(message);
     }
 
+    @Given("^CPSR is ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2})$")
+    public void cpsrIs(String arg0, String arg1, String arg2, String arg3) {
+        reg.setPSR(Registers.CPSR, getIntFromBytes(arg3, arg2, arg1, arg0));
+    }
+
     @When("^i try to execute ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2})$")
-    public void executeOpcode(String arg0, String arg1, String arg2, String arg3) {
-        int opcodeEncoded = Integer.parseInt(arg0, 16) + (Integer.parseInt(arg1, 16) << 8) + (Integer.parseInt(arg2, 16) << 16) + (Integer.parseInt(arg3, 16) << 24);
-        armCpu.execute(armCpu.decode(opcodeEncoded));
+    public void executeOpcode(String arg0, String arg1, String arg2, String arg3) throws UndefinedOpcodeException {
+        armCpu.execute(OpCode.decodeOpcode(getIntFromBytes(arg0, arg1, arg2, arg3)));
     }
 
     @Then("^pc must be ([0-9]+)$")
@@ -54,8 +54,16 @@ public class CpuStepDefinitions {
 
     @Then("^CPSR must be ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2})$")
     public void cpsrMustBe(String arg0, String arg1, String arg2, String arg3) {
-        int expectedCPSR = (Integer.parseInt(arg0, 16) << 24) + (Integer.parseInt(arg1, 16) << 16) + (Integer.parseInt(arg2, 16) << 8) + Integer.parseInt(arg3, 16);
-        assertThat(reg.getPSR(Registers.CPSR)).isEqualTo(expectedCPSR);
+        assertThat(reg.getPSR(Registers.CPSR)).isEqualTo(getIntFromBytes(arg3, arg2, arg1, arg0));
+    }
+
+    @And("^R([0-9]{1,2}) must be ([0-9]+)$")
+    public void rMustBe(String regNo, String expectedData) {
+        assertThat(reg.getReg(Integer.parseInt(regNo))).isEqualTo(Integer.parseUnsignedInt(expectedData));
+    }
+
+    private int getIntFromBytes(String arg0, String arg1, String arg2, String arg3) {
+        return Integer.parseInt(arg0, 16) + (Integer.parseInt(arg1, 16) << 8) + (Integer.parseInt(arg2, 16) << 16) + (Integer.parseInt(arg3, 16) << 24);
     }
 
 //    @When("cpu runs")

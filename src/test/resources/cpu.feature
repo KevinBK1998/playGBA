@@ -108,6 +108,8 @@ Feature: The CPU
   ->11-8   Is - ROR-Shift applied to nn (0-30, in steps of 2)
   ->7-0    nn - 2nd Operand Unsigned 8bit Immediate
     Given pc is 108
+    And CPSR is 40 00 00 00
     When i try to execute 04 e0 a0 03
     Then pc must be 112
+    And R14 must be 4
     And CPSR must be 40 00 00 00
