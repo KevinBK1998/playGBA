@@ -3,12 +3,12 @@ Feature: The CPU
 
   Scenario Outline: Correct instruction is decoded
     Given pc is <pc>
-    When i try to execute <opcodes>
+    When i try to decode <opcodes>
     Then i should see "<message>"
     Examples:
       | pc  | opcodes     | message               |
       | 0   | 18 00 00 ea | branch always 0x18    |
-      | 100 | 04 f0 5e e2 | compare always lr 0x0 |
+      | 100 | 00 00 5e e3 | compare always lr 0x0 |
   #TODO:Add more instructions
   Scenario: Branch instruction is executed
   Bit    Explanation
@@ -49,7 +49,7 @@ Feature: The CPU
     Given pc is 104
     When i try to execute 00 00 5e e3
     Then pc must be 108
-    And CPSR must be 00 00 00 00
+    And CPSR must be 40 00 00 00
 
 #  Scenario: Branch with Link ( BL, BLX_imm)
 #  Branch with Link is meant to be used to call to a subroutine, return
