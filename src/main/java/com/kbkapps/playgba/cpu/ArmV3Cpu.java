@@ -26,7 +26,7 @@ public class ArmV3Cpu {
     }
 
     private void branch(int label) {
-        reg.setReg(PC, (int) (Integer.toUnsignedLong(reg.getReg(PC)) + label * 4));
+        reg.setReg(PC, (int) (Integer.toUnsignedLong(getPC()) + label * 4));
     }
 
     public void execute(OpCode opcode) throws UndefinedOpcodeException {
@@ -73,6 +73,15 @@ public class ArmV3Cpu {
             if (((int) result) == 0)
                 flags |= Z;
             reg.setPSR(Registers.CPSR, flags);
+            getPC();
         }
+    }
+
+    int getPC() {
+        return reg.getReg(PC);
+    }
+
+    public void setPc(int pc) {
+        reg.setReg(PC, pc);
     }
 }
