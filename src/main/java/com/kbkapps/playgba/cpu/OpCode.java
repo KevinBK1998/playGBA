@@ -36,6 +36,13 @@ public class OpCode {
         this.immediate = Integer.rotateRight(immediate, 2 * shift);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof OpCode)
+            return this.toString().equalsIgnoreCase(obj.toString());
+        return false;
+    }
+
     public OpCode(Instructions opcode, Flags cond, boolean hasImmediate, int data) {
         this(opcode, cond, hasImmediate, true, data);
     }

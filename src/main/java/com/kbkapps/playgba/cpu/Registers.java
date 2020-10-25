@@ -22,6 +22,18 @@ public class Registers {
     private int reg15;
     private int currentStatusReg;
 
+    public Registers() {
+    }
+
+    public Registers(int[] unbankedReg, int[] bankedReg, int[] savedStatusReg, int mode, int r15, int cpsr) {
+        System.arraycopy(unbankedReg, 0, this.unbankedReg, 0, 13);
+        System.arraycopy(bankedReg, 0, this.bankedReg, 0, 10);
+        System.arraycopy(savedStatusReg, 0, this.savedStatusReg, 0, 5);
+        this.mode = mode;
+        reg15 = r15;
+        currentStatusReg = cpsr;
+    }
+
     int getReg(int index) {
         if (index < 0)
             throw new IndexOutOfBoundsException();
@@ -112,5 +124,28 @@ public class Registers {
 
     public void step() {
         reg15 += 4;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Registers)
+            return this.toString().equalsIgnoreCase(obj.toString());
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder regState = new StringBuilder();
+        for (int i = 0; i < 13; i++)
+            regState.append(unbankedReg[i]).append(" ");
+        for (int i = 0; i < 10; i++)
+            regState.append(bankedReg[i]).append(" ");
+        for (int i = 0; i < 5; i++)
+            regState.append(savedStatusReg[i]).append(" ");
+        regState.append(mode).append(" ")
+                .append(reg15).append(" ")
+                .append(currentStatusReg);
+
+        return regState.toString();
     }
 }

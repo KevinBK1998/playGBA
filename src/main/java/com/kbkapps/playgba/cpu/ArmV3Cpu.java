@@ -32,9 +32,7 @@ public class ArmV3Cpu {
     public void execute(OpCode opcode) throws UndefinedOpcodeException {
         if (opcode == null)
             throw new UndefinedOpcodeException("NULL");
-        reg.step();
         if (opcode.instruction == Instructions.B) {
-            reg.step();
             if (reg.canExecute(opcode.condition)) {
                 branch(opcode.offset);
             }
@@ -81,7 +79,11 @@ public class ArmV3Cpu {
         return reg.getReg(PC);
     }
 
-    public void setPc(int pc) {
-        reg.setReg(PC, pc);
+    public void step() {
+        reg.step();
+    }
+
+    public Registers getState() {
+        return reg;
     }
 }
