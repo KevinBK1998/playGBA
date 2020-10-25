@@ -6,6 +6,7 @@ import com.kbkapps.playgba.cpu.constants.Instructions;
 import static com.kbkapps.playgba.cpu.constants.Flags.values;
 
 public class OpCode {
+    boolean sizeOfImmediate;
     Instructions instruction;
     Flags condition;
     int offset;
@@ -19,7 +20,6 @@ public class OpCode {
         instruction = opcode;
         condition = cond;
         this.offset = offset;
-        hasImmediate = false;
     }
 
     public OpCode(Instructions opcode, Flags cond, boolean hasImmediate, boolean canChangePSR, int data) {
@@ -34,6 +34,17 @@ public class OpCode {
         int immediate = data & 0xF;
 //        System.out.println("immediate (8-bit)= " + immediate);
         this.immediate = Integer.rotateRight(immediate, 2 * shift);
+    }
+
+    public OpCode(Instructions opcode, Flags cond, int flags, int data) {
+        instruction = opcode;
+        condition = cond;
+        hasImmediate = ((flags >> 3) & 1) != 0;
+        sizeOfImmediate = (flags & 1) != 0;
+        regNo = (data >> 16) & 0xF;
+        regDest = (data >> 12) & 0xF;
+        immediate = data & 0xF_FF;
+        System.out.println("immediate (12-bit)= " + immediate);
     }
 
     @Override
@@ -68,6 +79,15 @@ public class OpCode {
                     int data = opcodeEncoded & 0xF_FF_FF;
                     return new OpCode(opcode, cond, true, shouldChangePSR(opcodeEncoded), data);
                 }
+        if (((opcodeEncoded >> 26) & 0x3) == 0b01)//Single Data Transfer
+        {
+            int flags = ((opcodeEncoded >> 22) & 0xF);
+            if (((opcodeEncoded >> 20) & 1) != 0) {//Load: LDR{cond}{B}{T} Rd,<Address>   ;Rd=[Rn+/-<offset>]
+                Instructions opcode = Instructions.LDR;
+                int data = opcodeEncoded & 0xF_FF_FF;
+                return new OpCode(opcode, cond, flags, data);
+            }
+        }
         throw new UndefinedOpcodeException(opcodeEncoded);
     }
 
@@ -83,11 +103,11 @@ public class OpCode {
     @Override
     public String toString() {
         if (instruction == Instructions.B)
-            return instruction.toString() + " " + condition.toString() + " 0x" + Integer.toUnsignedString(offset, 16);
+            return condition.toString() + " " + instruction.toString() + " 0x" + Integer.toUnsignedString(offset, 16);
         if (instruction == Instructions.CMP)
-            return instruction.toString() + " " + condition.toString() + " " + getRegName(regNo) + " 0x" + Integer.toUnsignedString(immediate, 16);
+            return condition.toString() + " " + instruction.toString() + " " + getRegName(regNo) + " 0x" + Integer.toUnsignedString(immediate, 16);
 //        if(instruction==Instructions.MOV)
-        return instruction.toString() + " " + condition.toString() + " " + getRegName(regDest) + " 0x" + Integer.toUnsignedString(immediate, 16);
+        return condition.toString() + " " + instruction.toString() + " " + getRegName(regDest) + " 0x" + Integer.toUnsignedString(immediate, 16);
     }
 
     private String getRegName(int index) {

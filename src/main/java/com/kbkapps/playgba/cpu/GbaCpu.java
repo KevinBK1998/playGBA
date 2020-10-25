@@ -16,7 +16,7 @@ public class GbaCpu {
             FileInputStream in = new FileInputStream("src/main/resources/bios.bin");
             gbaData = new byte[in.available()];
             if (in.read(gbaData) < gbaData.length)
-                System.out.println("ERROR: UNABLE TO READ");
+                System.out.println("ERROR: UNABLE TO READ COMPLETELY");
         } catch (IOException e) {
             e.printStackTrace();
         }

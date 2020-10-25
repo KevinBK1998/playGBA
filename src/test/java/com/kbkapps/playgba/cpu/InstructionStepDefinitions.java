@@ -20,7 +20,7 @@ public class InstructionStepDefinitions {
     @When("^i try to decode ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2})$")
     public void decodeOpcode(String arg0, String arg1, String arg2, String arg3) throws UndefinedOpcodeException {
         int opcodeEncoded = getIntFromBytes(arg0, arg1, arg2, arg3);
-        System.out.println("opcodeEncoded = " + Integer.toUnsignedString(opcodeEncoded, 16));
+//        System.out.println("opcodeEncoded = " + Integer.toUnsignedString(opcodeEncoded, 16));
         opcode = OpCode.decodeOpcode(opcodeEncoded);
     }
 
