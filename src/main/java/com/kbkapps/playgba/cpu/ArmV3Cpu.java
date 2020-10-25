@@ -32,6 +32,7 @@ public class ArmV3Cpu {
     public void execute(OpCode opcode) throws UndefinedOpcodeException {
         if (opcode == null)
             throw new UndefinedOpcodeException("NULL");
+        else System.out.println("Executing: " + opcode);
         if (opcode.instruction == Instructions.B) {
             if (reg.canExecute(opcode.condition)) {
                 branch(opcode.offset);

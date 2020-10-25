@@ -48,6 +48,7 @@ public class OpCode {
     }
 
     static OpCode decodeOpcode(int opcodeEncoded) {
+        System.out.println("Decoding: " + Integer.toUnsignedString(opcodeEncoded, 16));
         Flags cond = values()[(opcodeEncoded >> 28) & 0xF];
         if (((opcodeEncoded >> 25) & 0xF) == 0b101)//Branching
             if (((opcodeEncoded >> 24) & 0x1) == 0b0) {//Branch

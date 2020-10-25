@@ -4,10 +4,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 public class GbaCpu {
+    public static final int N_STEPS = 6;
     public int opcodeEncoded;
     ArmV3Cpu armCpu = new ArmV3Cpu(new Registers());
     OpCode opcodeDecoded;
     byte[] gbaData;
+    private int prevPc;
 
     {
         try {
@@ -20,11 +22,10 @@ public class GbaCpu {
         }
     }
 
-    public void trigger() {
-        executeOpcode();
-        decodeInstruction();
-        fetchInstruction();
-        armCpu.step();
+    public static void main(String[] args) {
+        GbaCpu cpu = new GbaCpu();
+        for (int i = 0; i < N_STEPS; i++)
+            cpu.trigger();
     }
 
     private void executeOpcode() {
@@ -39,11 +40,13 @@ public class GbaCpu {
         opcodeDecoded = OpCode.decodeOpcode(opcodeEncoded);
     }
 
-    private void fetchInstruction() {
-        int pc = armCpu.getPC();
-        opcodeEncoded = 0;
-        for (int i = pc; i < pc + 4; i++)
-            opcodeEncoded += Byte.toUnsignedInt(gbaData[i]) << (8 * i);
+    private static String getUnsignedStringFromByte(byte datum) {
+        String result = Integer.toUnsignedString(datum, 16);
+        if (result.length() == 8)
+            return result.substring(6);
+        if (result.length() == 1)
+            return "0" + result;
+        return result;
     }
 
     public void setPC(int pc) {
@@ -53,5 +56,28 @@ public class GbaCpu {
 
     public Registers getState() {
         return armCpu.getState();
+    }
+
+    public void trigger() {
+        executeOpcode();
+        decodeInstruction();
+        fetchInstruction();
+        armCpu.step();
+
+    }
+
+    private void fetchInstruction() {
+        int pc = armCpu.getPC();
+        if (pc != prevPc)
+            opcodeDecoded = null;
+        opcodeEncoded = 0;
+        System.out.println("Fetching: PC=" + pc);
+        for (int i = pc; i < pc + 4; i++) {
+            byte byteValue = gbaData[i];
+            System.out.print(getUnsignedStringFromByte(byteValue) + " ");
+            this.opcodeEncoded += Byte.toUnsignedInt(byteValue) << (8 * i);
+        }
+        System.out.println("was Fetched");
+        prevPc = pc + 4;
     }
 }
