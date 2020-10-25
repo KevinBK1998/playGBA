@@ -13,7 +13,7 @@ public class CpuStepDefinitions {
     private final GbaCpu gbaCpu = new GbaCpu();
 
     @When("clock is triggered")
-    public void clockIsTriggered() {
+    public void clockIsTriggered() throws UndefinedOpcodeException {
         gbaCpu.trigger();
     }
 
@@ -26,8 +26,8 @@ public class CpuStepDefinitions {
     }
 
     @Then("next instruction is decoded")
-    public void nextInstructionIsDecoded() {
-        assertThat(gbaCpu.opcodeDecoded).isEqualTo(OpCode.decodeOpcode(0xea_00_00_04));
+    public void nextInstructionIsDecoded() throws UndefinedOpcodeException {
+        assertThat(gbaCpu.opcodeDecoded).isEqualTo(OpCode.decodeOpcode(0xe3_5e_00_00));
     }
 
     @Then("the next instruction after that is fetched")
@@ -49,8 +49,8 @@ public class CpuStepDefinitions {
         }
     }
 
-    @Given("^PC is set to ([0-9]+)$")
-    public void pcIs(String pc) {
-        gbaCpu.setPC(Integer.parseUnsignedInt(pc, 16));
+    @Given("^CPU runs ([0-9]+) times$")
+    public void pcIs(String times) {
+        gbaCpu.runTimes(Integer.parseUnsignedInt(times, 16));
     }
 }

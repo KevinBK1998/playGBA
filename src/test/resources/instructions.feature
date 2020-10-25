@@ -18,9 +18,9 @@ Feature: The Instruction Set
   23-0   nn - Signed Offset, step 4      (-32M..+32M in steps of 4)
   Execution Time: 2S + 1N
   Return: No flags affected.
-    Given pc is 0
+    Given pc is 8
     When i try to execute 18 00 00 ea
-    Then pc must be 104
+    Then pc must be 108
 #  Scenario: Branch with Link ( BL, BLX_imm)
 #  Branch with Link is meant to be used to call to a subroutine, return
 #  address is then saved in R14.
@@ -91,9 +91,8 @@ Feature: The Instruction Set
   when above Bit 25 I=1 (Immediate as 2nd Operand)
   ->11-8   Is - ROR-Shift applied to nn (0-30, in steps of 2)
   ->7-0    nn - 2nd Operand Unsigned 8bit Immediate
-    Given pc is 104
+    Given pc is 108
     When i try to execute 00 00 5e e3
-    Then pc must be 108
     And CPSR must be 40 00 00 00
 
   Scenario: Move (with immediate) instruction is executed
@@ -108,13 +107,13 @@ Feature: The Instruction Set
   when above Bit 25 I=1 (Immediate as 2nd Operand)
   ->11-8   Is - ROR-Shift applied to nn (0-30, in steps of 2)
   ->7-0    nn - 2nd Operand Unsigned 8bit Immediate
-    Given pc is 108
+    Given pc is 112
     And CPSR is 40 00 00 00
     When i try to execute 04 e0 a0 03
-    Then pc must be 112
+    Then pc must be 116
     And R14 must be 4
     And CPSR must be 40 00 00 00
     When i try to execute 01 c3 a0 e3
-    Then pc must be 116
+    Then pc must be 120
     And R12 must be 0x4000000
     And CPSR must be 40 00 00 00

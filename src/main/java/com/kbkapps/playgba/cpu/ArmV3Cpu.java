@@ -29,10 +29,11 @@ public class ArmV3Cpu {
         reg.setReg(PC, (int) (Integer.toUnsignedLong(getPC()) + label * 4));
     }
 
-    public void execute(OpCode opcode) throws UndefinedOpcodeException {
-        if (opcode == null)
-            throw new UndefinedOpcodeException("NULL");
-        else System.out.println("Executing: " + opcode);
+    public void execute(OpCode opcode) {
+        if (opcode == null) {
+            System.out.println("NOP");
+            return;
+        } else System.out.println("Executing: " + opcode);
         if (opcode.instruction == Instructions.B) {
             if (reg.canExecute(opcode.condition)) {
                 branch(opcode.offset);

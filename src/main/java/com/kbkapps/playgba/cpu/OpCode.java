@@ -47,7 +47,7 @@ public class OpCode {
         this(opcode, cond, hasImmediate, true, data);
     }
 
-    static OpCode decodeOpcode(int opcodeEncoded) {
+    static OpCode decodeOpcode(int opcodeEncoded) throws UndefinedOpcodeException {
         System.out.println("Decoding: " + Integer.toUnsignedString(opcodeEncoded, 16));
         Flags cond = values()[(opcodeEncoded >> 28) & 0xF];
         if (((opcodeEncoded >> 25) & 0xF) == 0b101)//Branching
@@ -68,7 +68,7 @@ public class OpCode {
                     int data = opcodeEncoded & 0xF_FF_FF;
                     return new OpCode(opcode, cond, true, shouldChangePSR(opcodeEncoded), data);
                 }
-        return null;
+        throw new UndefinedOpcodeException(opcodeEncoded);
     }
 
     private static void checkIfPsrCanChange(int opcodeEncoded) {
