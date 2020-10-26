@@ -1,5 +1,6 @@
 package com.kbkapps.playgba.cpu;
 
+import com.kbkapps.playgba.cpu.opcodes.OpCode;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;

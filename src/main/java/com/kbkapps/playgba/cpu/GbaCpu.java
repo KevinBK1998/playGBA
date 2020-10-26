@@ -1,5 +1,7 @@
 package com.kbkapps.playgba.cpu;
 
+import com.kbkapps.playgba.cpu.opcodes.OpCode;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 

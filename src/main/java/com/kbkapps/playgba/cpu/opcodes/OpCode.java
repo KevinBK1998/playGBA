@@ -1,33 +1,27 @@
-package com.kbkapps.playgba.cpu;
+package com.kbkapps.playgba.cpu.opcodes;
 
+import com.kbkapps.playgba.cpu.UndefinedOpcodeException;
 import com.kbkapps.playgba.cpu.constants.Flags;
 import com.kbkapps.playgba.cpu.constants.Instructions;
 
 import static com.kbkapps.playgba.cpu.constants.Flags.values;
 
 public class OpCode {
-    boolean sizeOfImmediate;
     Instructions instruction;
     Flags condition;
     int offset;
     int immediate;
-    boolean hasImmediate;
+    boolean immediateFlag;
     int regNo;
     int regDest;
     boolean changePSR;
 
-    public OpCode(Instructions opcode, Flags cond, int offset) {
-        instruction = opcode;
-        condition = cond;
-        this.offset = offset;
-    }
-
-    public OpCode(Instructions opcode, Flags cond, boolean hasImmediate, boolean canChangePSR, int data) {
+    public OpCode(Instructions opcode, Flags cond, boolean immediateFlag, boolean canChangePSR, int data) {
         instruction = opcode;
         condition = cond;
         regNo = (data >> 16) & 0xF;
         regDest = (data >> 12) & 0xF;
-        this.hasImmediate = hasImmediate;
+        this.immediateFlag = immediateFlag;
         changePSR = canChangePSR;
         int shift = (data >> 8) & 0xF;
 //        System.out.println("shift = " + shift);
@@ -36,29 +30,11 @@ public class OpCode {
         this.immediate = Integer.rotateRight(immediate, 2 * shift);
     }
 
-    public OpCode(Instructions opcode, Flags cond, int flags, int data) {
-        instruction = opcode;
-        condition = cond;
-        hasImmediate = ((flags >> 3) & 1) != 0;
-        sizeOfImmediate = (flags & 1) != 0;
-        regNo = (data >> 16) & 0xF;
-        regDest = (data >> 12) & 0xF;
-        immediate = data & 0xF_FF;
-        System.out.println("immediate (12-bit)= " + immediate);
+    public OpCode(Instructions opcode, Flags cond, boolean immediateFlag, int data) {
+        this(opcode, cond, immediateFlag, true, data);
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof OpCode)
-            return this.toString().equalsIgnoreCase(obj.toString());
-        return false;
-    }
-
-    public OpCode(Instructions opcode, Flags cond, boolean hasImmediate, int data) {
-        this(opcode, cond, hasImmediate, true, data);
-    }
-
-    static OpCode decodeOpcode(int opcodeEncoded) throws UndefinedOpcodeException {
+    public static OpCode decodeOpcode(int opcodeEncoded) throws UndefinedOpcodeException {
         System.out.println("Decoding: " + Integer.toUnsignedString(opcodeEncoded, 16));
         Flags cond = values()[(opcodeEncoded >> 28) & 0xF];
         if (((opcodeEncoded >> 25) & 0xF) == 0b101)//Branching
@@ -85,10 +61,58 @@ public class OpCode {
             if (((opcodeEncoded >> 20) & 1) != 0) {//Load: LDR{cond}{B}{T} Rd,<Address>   ;Rd=[Rn+/-<offset>]
                 Instructions opcode = Instructions.LDR;
                 int data = opcodeEncoded & 0xF_FF_FF;
-                return new OpCode(opcode, cond, flags, data);
+                return new SingleDataTransfer(opcode, cond, flags, data);
             }
         }
         throw new UndefinedOpcodeException(opcodeEncoded);
+    }
+
+    public Instructions getInstruction() {
+        return instruction;
+    }
+
+    public Flags getCondition() {
+        return condition;
+    }
+
+    public int getOffset() {
+        return offset;
+    }
+
+    public int getImmediate() {
+        return immediate;
+    }
+
+    public OpCode(Instructions opcode, Flags cond, int offset) {
+        instruction = opcode;
+        condition = cond;
+        this.offset = offset;
+    }
+
+    public boolean hasImmediate() {
+        return immediateFlag;
+    }
+
+    public OpCode(Instructions opcode, Flags cond, int flags, int data) {
+        instruction = opcode;
+        condition = cond;
+        regNo = (data >> 16) & 0xF;
+        regDest = (data >> 12) & 0xF;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof OpCode)
+            return this.toString().equalsIgnoreCase(obj.toString());
+        return false;
+    }
+
+    public int getRegNo() {
+        return regNo;
+    }
+
+    public int getRegDest() {
+        return regDest;
     }
 
     private static void checkIfPsrCanChange(int opcodeEncoded) {
@@ -106,11 +130,12 @@ public class OpCode {
             return condition.toString() + " " + instruction.toString() + " 0x" + Integer.toUnsignedString(offset, 16);
         if (instruction == Instructions.CMP)
             return condition.toString() + " " + instruction.toString() + " " + getRegName(regNo) + " 0x" + Integer.toUnsignedString(immediate, 16);
-//        if(instruction==Instructions.MOV)
-        return condition.toString() + " " + instruction.toString() + " " + getRegName(regDest) + " 0x" + Integer.toUnsignedString(immediate, 16);
+        if (instruction == Instructions.MOV)
+            return condition.toString() + " " + instruction.toString() + " " + getRegName(regDest) + " 0x" + Integer.toUnsignedString(immediate, 16);
+        return null;
     }
 
-    private String getRegName(int index) {
+    protected final String getRegName(int index) {
         return index < 13 ? ("r" + index) : (index == 13 ? "sp" : (index == 14 ? "lr" : "pc"));
     }
 

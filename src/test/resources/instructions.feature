@@ -8,8 +8,8 @@ Feature: The Instruction Set
       | 18 00 00 ea | always branch 0x18               |
       | 00 00 5e e3 | always compare lr 0x0            |
       | 04 e0 a0 03 | if equal move lr 0x4             |
-      | 01 c3 a0 e3 | always move r12 0x4000000        |
-      | 00 c3 dc e5 | always load b r12, [r12, #0x300] |
+      | 01 c3 a0 e3 | always move r12 0x4000000           |
+      | 00 c3 dc e5 | always load byte r12, [r12 + 0x300] |
   #TODO:Add more instructions
   Scenario: Branch instruction is executed
   Bit    Explanation
@@ -154,4 +154,4 @@ Feature: The Instruction Set
   ->When above I=0 (Immediate as Offset)
   -->11-0   Unsigned 12bit Immediate Offset (0-4095, steps of 1)
     When i try to execute 00 c3 dc e5
-    Then R12 must be 0xd9
+    Then R12 must be 0

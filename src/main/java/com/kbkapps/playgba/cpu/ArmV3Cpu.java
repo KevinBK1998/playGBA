@@ -2,6 +2,7 @@ package com.kbkapps.playgba.cpu;
 
 import com.kbkapps.playgba.cpu.constants.Flags;
 import com.kbkapps.playgba.cpu.constants.Instructions;
+import com.kbkapps.playgba.cpu.opcodes.OpCode;
 
 import static com.kbkapps.playgba.cpu.constants.Flags.CC;
 import static com.kbkapps.playgba.cpu.constants.Flags.CS;
@@ -34,39 +35,39 @@ public class ArmV3Cpu {
             System.out.println("NOP");
             return;
         } else System.out.println("Executing: " + opcode);
-        if (opcode.instruction == Instructions.B) {
-            if (reg.canExecute(opcode.condition)) {
-                branch(opcode.offset);
+        if (opcode.getInstruction() == Instructions.B) {
+            if (reg.canExecute(opcode.getCondition())) {
+                branch(opcode.getOffset());
             }
-        } else if (opcode.instruction == Instructions.CMP) {
-            if (reg.canExecute(opcode.condition))
+        } else if (opcode.getInstruction() == Instructions.CMP) {
+            if (reg.canExecute(opcode.getCondition()))
                 compare(opcode);
-        } else if (opcode.instruction == Instructions.MOV) {
-            if (reg.canExecute(opcode.condition))
+        } else if (opcode.getInstruction() == Instructions.MOV) {
+            if (reg.canExecute(opcode.getCondition()))
                 move(opcode);
         }
     }
 
     private void move(OpCode opcode) {
-        if (opcode.hasImmediate) {
+        if (opcode.hasImmediate()) {
             int flags = 0;
-            int result = opcode.immediate;
+            int result = opcode.getImmediate();
 //            System.out.println("result = " + Integer.toUnsignedString((int) result, 16));
             if (((result >> 31) & 1) != 0)
                 flags |= N;
             if (result == 0)
                 flags |= Z;
-            reg.setReg(opcode.regDest, result);
+            reg.setReg(opcode.getRegDest(), result);
             if (opcode.canChangePsr())
                 reg.setPSR(Registers.CPSR, flags);
         }
     }
 
     private void compare(OpCode opcode) {
-        if (opcode.hasImmediate) {
+        if (opcode.hasImmediate()) {
             int flags = 0;
-            long before = reg.getReg(opcode.regNo);
-            long result = before - (long) opcode.immediate;
+            long before = reg.getReg(opcode.getRegNo());
+            long result = before - (long) opcode.getImmediate();
 //            System.out.println("result = " + Integer.toUnsignedString((int) result, 16));
             if (((result >> 31) & 1) != 0)
                 flags |= N;
