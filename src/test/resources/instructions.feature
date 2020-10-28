@@ -106,6 +106,7 @@ Feature: The Instruction Set
   when above Bit 25 I=1 (Immediate as 2nd Operand)
   ->11-8   Is - ROR-Shift applied to nn (0-30, in steps of 2)
   ->7-0    nn - 2nd Operand Unsigned 8bit Immediate
+    Given CPSR is 40 00 00 00
     When i try to execute 04 e0 a0 03
     And R14 must be 4
     When i try to execute 01 c3 a0 e3
@@ -153,5 +154,6 @@ Feature: The Instruction Set
   15-12  Rd - Source/Destination Register (R0..R15) (including R15=PC+12)
   ->When above I=0 (Immediate as Offset)
   -->11-0   Unsigned 12bit Immediate Offset (0-4095, steps of 1)
+    Given 0 is present in memory 4000300
     When i try to execute 00 c3 dc e5
     Then R12 must be 0

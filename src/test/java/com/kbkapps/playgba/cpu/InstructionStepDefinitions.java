@@ -10,8 +10,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class InstructionStepDefinitions {
     Registers reg = new Registers();
+    GbaMemory mem = new GbaMemory();
     ArmV3Cpu armCpu = new ArmV3Cpu(reg);
     private OpCode opcode;
+
 
     @Given("^pc is ([0-9]+)$")
     public void pcIs(String pc) {
@@ -64,5 +66,10 @@ public class InstructionStepDefinitions {
     @And("^R([0-9]{1,2}) must be 0x([0-9a-f]{1,8})$")
     public void rMustBeX(String regNo, String expectedData) {
         assertThat(reg.getReg(Integer.parseInt(regNo))).isEqualTo(Integer.parseUnsignedInt(expectedData, 16));
+    }
+
+    @Given("^([0-9a-f]{1,8}) is present in memory ([0-9a-f]{1,8})$")
+    public void isPresentInMemory(String data, String address) {
+        mem.write(address, data);
     }
 }
