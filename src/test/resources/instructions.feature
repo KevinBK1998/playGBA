@@ -4,12 +4,13 @@ Feature: The Instruction Set
     When i try to decode <opcodes>
     Then i should see "<message>"
     Examples:
-      | opcodes     | message                          |
-      | 18 00 00 ea | always branch 0x18               |
-      | 00 00 5e e3 | always compare lr 0x0            |
-      | 04 e0 a0 03 | if equal move lr 0x4             |
+      | opcodes     | message                             |
+      | 18 00 00 ea | always branch 0x18                  |
+      | 00 00 5e e3 | always compare lr 0x0               |
+      | 04 e0 a0 03 | if equal move lr 0x4                |
       | 01 c3 a0 e3 | always move r12 0x4000000           |
       | 00 c3 dc e5 | always load byte r12, [r12 + 0x300] |
+      | 01 00 3c e3 | always exclusive test r12 0x1       |
   #TODO:Add more instructions
   Scenario: Branch instruction is executed
   Bit    Explanation
@@ -78,6 +79,30 @@ Feature: The Instruction Set
 #    When above Bit 25 I=1 (Immediate as 2nd Operand)
 #  11-8   Is - ROR-Shift applied to nn (0-30, in steps of 2)
 #  7-0    nn - 2nd Operand Unsigned 8bit Immediate
+#  Returned CPSR Flags
+#If S=1, Rd<>R15, logical operations (AND,EOR,TST,TEQ,ORR,MOV,BIC,MVN):
+#  V=not affected
+#  C=carryflag of shift operation (not affected if LSL#0 or Rs=00h)
+#  Z=zeroflag of result
+#  N=signflag of result (result bit 31)
+#If S=1, Rd<>R15, arithmetic operations (SUB,RSB,ADD,ADC,SBC,RSC,CMP,CMN):
+#  V=overflowflag of result
+#  C=carryflag of result
+#  Z=zeroflag of result
+#  N=signflag of result (result bit 31)
+#IF S=1, with unused Rd bits=1111b, {P} opcodes (CMPP/CMNP/TSTP/TEQP):
+#  R15=result  ;modify PSR bits in R15, ARMv2 and below only.
+#  In user mode only N,Z,C,V bits of R15 can be changed.
+#  In other modes additionally I,F,M1,M0 can be changed.
+#  The PC bits in R15 are left unchanged in all modes.
+#If S=1, Rd=R15; should not be used in user mode:
+#  CPSR = SPSR_<current mode>
+#  PC = result
+#  For example: MOVS PC,R14  ;return from SWI (PC=R14_svc, CPSR=SPSR_svc).
+#If S=0: Flags are not affected (not allowed for CMP,CMN,TEQ,TST).
+#
+#The instruction "MOV R0,R0" is used as "NOP" opcode in 32bit ARM state.
+#Execution Time: (1+p)S+rI+pN. Whereas r=1 if I=0 and R=1 (ie. shift by register); otherwise r=0. And p=1 if Rd=R15; otherwise p=0.
 
   Scenario: Compare (with immediate) instruction is executed
   Bit    Expl.
@@ -138,6 +163,8 @@ Feature: The Instruction Set
 #  -->6-5    Shift Type             (0=LSL, 1=LSR, 2=ASR, 3=ROR)
 #  -->4      Must be 0 (Reserved, see The Undefined Instruction)
 #  -->3-0    Rm - Offset Register   (R0..R14) (not including PC=R15)
+#  Return: CPSR flags are not affected.
+#  Execution Time: For normal LDR: 1S+1N+1I. For LDR PC: 2S+2N+1I. For STR: 2N.
 
   Scenario: Load Register with Immediate Byte
   Bit    Expl.
