@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class InstructionStepDefinitions {
     Registers reg = new Registers();
     GbaMemory mem = new GbaMemory();
-    ArmV3Cpu armCpu = new ArmV3Cpu(reg);
+    ArmV3Cpu armCpu = new ArmV3Cpu(reg, mem);
     private OpCode opcode;
 
 
@@ -70,6 +70,11 @@ public class InstructionStepDefinitions {
 
     @Given("^([0-9a-f]{1,8}) is present in memory ([0-9a-f]{1,8})$")
     public void isPresentInMemory(String data, String address) {
-        mem.write(address, data);
+        mem.write8(Integer.parseUnsignedInt(address, 16), Byte.parseByte(data, 16));
+    }
+
+    @And("^R([0-9]{1,2}) is 0x([0-9a-f]{1,8})$")
+    public void rIsX(String regNo, String data) {
+        reg.setReg(Integer.parseInt(regNo), Integer.parseUnsignedInt(data, 16));
     }
 }

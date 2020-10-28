@@ -8,6 +8,18 @@ public class SingleDataTransfer extends OpCode {
     boolean addFlag;
     boolean sizeOfImmediate;
 
+    public boolean shouldAddOffsetBeforeTransfer() {
+        return preFlag;
+    }
+
+    public boolean shouldAdd() {
+        return addFlag;
+    }
+
+    public boolean isSizeOfImmediate() {
+        return sizeOfImmediate;
+    }
+
     SingleDataTransfer(Instructions opcode, Flags cond, int flags, int data) {
         super(opcode, cond, flags, data);
         immediateFlag = ((flags >> 3) & 1) == 0;//I

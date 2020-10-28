@@ -2,27 +2,13 @@ package com.kbkapps.playgba.cpu;
 
 import com.kbkapps.playgba.cpu.opcodes.OpCode;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-
 public class GbaCpu {
     public static final int N_STEPS = 8;
     public int opcodeEncoded;
-    ArmV3Cpu armCpu = new ArmV3Cpu(new Registers());
+    GbaMemory gbaMemory = new GbaMemory();
+    ArmV3Cpu armCpu = new ArmV3Cpu(new Registers(), gbaMemory);
     OpCode opcodeDecoded;
-    byte[] gbaData;
     private int prevPc;
-
-    {
-        try {
-            FileInputStream in = new FileInputStream("src/main/resources/bios.bin");
-            gbaData = new byte[in.available()];
-            if (in.read(gbaData) < gbaData.length)
-                System.out.println("ERROR: UNABLE TO READ COMPLETELY");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     public static void main(String[] args) {
         GbaCpu cpu = new GbaCpu();
@@ -78,7 +64,7 @@ public class GbaCpu {
         opcodeEncoded = 0;
         System.out.println("Fetching: PC=" + pc);
         for (int i = pc; i < pc + 4; i++) {
-            byte byteValue = gbaData[i];
+            byte byteValue = armCpu.gbaMemory.read8(i);
             System.out.print(getUnsignedStringFromByte(byteValue) + " ");
             this.opcodeEncoded += Byte.toUnsignedInt(byteValue) << (8 * i);
         }

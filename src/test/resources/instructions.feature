@@ -155,5 +155,6 @@ Feature: The Instruction Set
   ->When above I=0 (Immediate as Offset)
   -->11-0   Unsigned 12bit Immediate Offset (0-4095, steps of 1)
     Given 0 is present in memory 4000300
+    And R12 is 0x4000000
     When i try to execute 00 c3 dc e5
     Then R12 must be 0
