@@ -18,6 +18,7 @@ public class GbaCpu {
         } catch (UndefinedOpcodeException e) {
             System.out.println(e.getMessage());
         }
+        System.out.println("Reg = " + cpu.armCpu.getState());
     }
 
     private void decodeInstruction() throws UndefinedOpcodeException {

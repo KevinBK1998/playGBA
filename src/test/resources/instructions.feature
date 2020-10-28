@@ -12,23 +12,15 @@ Feature: The Instruction Set
       | 00 c3 dc e5 | always load byte r12, [r12 + 0x300] |
       | 01 00 3c e3 | always exclusive test r12 0x1       |
   #TODO:Add more instructions
-  Scenario: Branch instruction is executed
-  Bit    Explanation
-  27-25  Must be "101" for this instruction
-  24=0:   B{cond} label    ;branch            PC=PC+8+nn*4
-  23-0   nn - Signed Offset, step 4      (-32M..+32M in steps of 4)
-  Execution Time: 2S + 1N
-  Return: No flags affected.
-    Given pc is 8
-    When i try to execute 18 00 00 ea
-    Then pc must be 108
-#  Scenario: Branch with Link ( BL, BLX_imm)
+
+  #  Scenario: Branch, Branch with Link (B, BL, BLX_imm)
 #  Branch with Link is meant to be used to call to a subroutine, return
 #  address is then saved in R14.
 #  Bit    |Explanation
 #  31-28  |Condition (must be 1111b for BLX)
 #  27-25  |Must be "101" for this instruction
 #  24     |Opcode (0-1) (or Half-word Offset for BLX)
+#  ->0:   B{cond} label    ;branch            PC=PC+8+nn*4
 #  ->1: BL{cond} label   ;branch/link       PC=PC+8+nn*4, LR=PC+4
 #  ->H: BLX label ;ARM9  ;branch/link/thumb PC=PC+8+nn*4+H*2, LR=PC+4, T=1
 #  23-0   |nn - Signed Offset, step 4      (-32M..+32M in steps of 4)
@@ -39,6 +31,10 @@ Feature: The Instruction Set
 #    And PC is <prevPC>
 #    When I try to execute B <cond> <label>
 #    Then I should be at <expectedPC>
+  Scenario: Branch instruction is executed
+    Given pc is 8
+    When i try to execute 18 00 00 ea
+    Then pc must be 108
 
 #  Scenario: ALU
 #  Bit    Expl.
@@ -103,39 +99,22 @@ Feature: The Instruction Set
 #
 #The instruction "MOV R0,R0" is used as "NOP" opcode in 32bit ARM state.
 #Execution Time: (1+p)S+rI+pN. Whereas r=1 if I=0 and R=1 (ie. shift by register); otherwise r=0. And p=1 if Rd=R15; otherwise p=0.
+#  9: TEQ{cond}{P}    Rn,Op2    ;test exclusive  Void = Rn XOR Op2
+  Scenario: Test Exclusive (with immediate) instruction is executed
+    Given CPSR is 40 00 00 00
+    When i try to execute 01 00 3c e3
+    Then CPSR must be 00 00 00 00
 
   Scenario: Compare (with immediate) instruction is executed
-  Bit    Expl.
-  27-26  Must be 00b for this instruction
-  25     I - Immediate 2nd Operand Flag (0=Register, 1=Immediate)
-  24-21=A: CMP{cond}{P}    Rn,Op2 ;* ;compare         Void = Rn-Op2
-  20     Must be 1 for opcode 8-B
-  19-16  Rn - 1st Operand Register (R0..R15) (including PC=R15)
-  15-12  Rd - Destination Register (R0..R15) (including PC=R15)
-  ->Must be 0000b (or 1111b) for CMP/CMN/TST/TEQ{P}.
-  when above Bit 25 I=1 (Immediate as 2nd Operand)
-  ->11-8   Is - ROR-Shift applied to nn (0-30, in steps of 2)
-  ->7-0    nn - 2nd Operand Unsigned 8bit Immediate
     When i try to execute 00 00 5e e3
-    And CPSR must be 40 00 00 00
+    Then CPSR must be 40 00 00 00
 
   Scenario: Move (with immediate) instruction is executed
-  Bit    Expl.
-  27-26  Must be 00b for this instruction
-  25     I - Immediate 2nd Operand Flag (0=Register, 1=Immediate)
-  24-21=D: MOV{cond}{S} Rd,Op2       ;move              Rd = Op2
-  20     S - Set Condition Codes (0=No, 1=Yes)
-  19-16  Rn - 1st Operand Register (R0..R15) (including PC=R15)
-  ->Must be 0000b for MOV/MVN.
-  15-12  Rd - Destination Register (R0..R15) (including PC=R15)
-  when above Bit 25 I=1 (Immediate as 2nd Operand)
-  ->11-8   Is - ROR-Shift applied to nn (0-30, in steps of 2)
-  ->7-0    nn - 2nd Operand Unsigned 8bit Immediate
     Given CPSR is 40 00 00 00
     When i try to execute 04 e0 a0 03
-    And R14 must be 4
+    Then R14 must be 4
     When i try to execute 01 c3 a0 e3
-    And R12 must be 0x4000000
+    Then R12 must be 0x4000000
 
 #  Scenario: Single Data Transfer (From Memory)
 #  Bit    Expl.
@@ -167,20 +146,6 @@ Feature: The Instruction Set
 #  Execution Time: For normal LDR: 1S+1N+1I. For LDR PC: 2S+2N+1I. For STR: 2N.
 
   Scenario: Load Register with Immediate Byte
-  Bit    Expl.
-  31-28  Condition
-  27-26  Must be 01b for this instruction
-  25     I - Immediate Offset Flag (0=Immediate, 1=Shifted Register)
-  24     P - Pre/Post (0=post; add offset after transfer, 1=pre; before trans.)
-  23     U - Up/Down Bit (0=down; subtract offset from base, 1=up; add to base)
-  22     B - Byte/Word bit (0=transfer 32bit/word, 1=transfer 8bit/byte)
-  20     L - Load/Store bit (0=Store to memory, 1=Load from memory)
-  ->1: LDR{cond}{B}{T} Rd,<Address>   ;Rd=[Rn+/-<offset>]
-  ->Whereas, B=Byte, T=Force User Mode (only for POST-Indexing)
-  19-16  Rn - Base register               (R0..R15) (including R15=PC+8)
-  15-12  Rd - Source/Destination Register (R0..R15) (including R15=PC+12)
-  ->When above I=0 (Immediate as Offset)
-  -->11-0   Unsigned 12bit Immediate Offset (0-4095, steps of 1)
     Given 0 is present in memory 4000300
     And R12 is 0x4000000
     When i try to execute 00 c3 dc e5

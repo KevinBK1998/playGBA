@@ -137,14 +137,14 @@ public class Registers {
     public String toString() {
         StringBuilder regState = new StringBuilder();
         for (int i = 0; i < 13; i++)
-            regState.append(unbankedReg[i]).append(" ");
+            regState.append(Integer.toUnsignedString(unbankedReg[i], 16)).append(" ");
         for (int i = 0; i < 10; i++)
-            regState.append(bankedReg[i]).append(" ");
+            regState.append(Integer.toUnsignedString(bankedReg[i], 16)).append(" ");
         for (int i = 0; i < 5; i++)
-            regState.append(savedStatusReg[i]).append(" ");
-        regState.append(mode).append(" ")
-                .append(reg15).append(" ")
-                .append(currentStatusReg);
+            regState.append(Integer.toUnsignedString(savedStatusReg[i], 16)).append(" ");
+        regState.append(Integer.toUnsignedString(mode, 16)).append(" ")
+                .append(Integer.toUnsignedString(reg15, 16)).append(" ")
+                .append(Integer.toUnsignedString(currentStatusReg, 16));
 
         return regState.toString();
     }

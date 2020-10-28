@@ -46,6 +46,9 @@ public class ArmV3Cpu {
             if (reg.canExecute(opcode.getCondition())) {
                 branch(opcode.getOffset());
             }
+        } else if (opcode.getInstruction() == Instructions.TEQ) {
+            if (reg.canExecute(opcode.getCondition()))
+                testExclusive(opcode);
         } else if (opcode.getInstruction() == Instructions.CMP) {
             if (reg.canExecute(opcode.getCondition()))
                 compare(opcode);
@@ -55,6 +58,20 @@ public class ArmV3Cpu {
         } else if (opcode.getInstruction() == Instructions.LDR) {
             if (reg.canExecute(opcode.getCondition()))
                 loadReg((SingleDataTransfer) opcode);
+        }
+    }
+
+    private void testExclusive(OpCode opcode) {
+        if (opcode.hasImmediate()) {
+            int flags = 0;
+            int before = reg.getReg(opcode.getRegNo());
+            int result = before ^ opcode.getImmediate();
+            System.out.println("result = " + Integer.toUnsignedString(result, 16));
+            if (result < 0)
+                flags |= N;
+            if (result == 0)
+                flags |= Z;
+            reg.setPSR(Registers.CPSR, flags);
         }
     }
 
@@ -85,7 +102,7 @@ public class ArmV3Cpu {
             int flags = 0;
             int result = opcode.getImmediate();
 //            System.out.println("result = " + Integer.toUnsignedString((int) result, 16));
-            if (((result >> 31) & 1) != 0)
+            if (result < 0)
                 flags |= N;
             if (result == 0)
                 flags |= Z;
@@ -106,7 +123,6 @@ public class ArmV3Cpu {
             if (((int) result) == 0)
                 flags |= Z;
             reg.setPSR(Registers.CPSR, flags);
-            getPC();
         }
     }
 
