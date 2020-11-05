@@ -3,7 +3,7 @@ package com.kbkapps.playgba.cpu;
 import com.kbkapps.playgba.cpu.opcodes.OpCode;
 
 public class GbaCpu {
-    public static final int N_STEPS = 8;
+    public static final int N_STEPS = 16;
     public int opcodeEncoded;
     GbaMemory gbaMemory = new GbaMemory();
     ArmV3Cpu armCpu = new ArmV3Cpu(new Registers(), gbaMemory);

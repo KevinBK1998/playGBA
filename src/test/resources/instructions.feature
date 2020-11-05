@@ -11,6 +11,7 @@ Feature: The Instruction Set
       | 01 c3 a0 e3 | always move r12 0x4000000           |
       | 00 c3 dc e5 | always load byte r12, [r12 + 0x300] |
       | 01 00 3c e3 | always exclusive test r12 0x1       |
+      | 00 c0 0f 01 | mrseq r12, apsr                     |
   #TODO:Add more instructions
 
   #  Scenario: Branch, Branch with Link (B, BL, BLX_imm)

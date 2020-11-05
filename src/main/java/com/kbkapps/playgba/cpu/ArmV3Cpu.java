@@ -12,10 +12,12 @@ public class ArmV3Cpu {
     public static final Flags HS = CS;
     public static final Flags LO = CC;
     public static final int PC = 15;
+    public static final int N = 0x80_00_00_00;
     public static final int Z = 0x40_00_00_00;
+    public static final int C = 0x20_00_00_00;
+    public static final int V = 0x10_00_00_00;
     Registers reg;
     GbaMemory gbaMemory;
-    public static final int N = 0x80_00_00_00;
 
     public ArmV3Cpu(Registers registers) {
         reg = registers;
@@ -63,15 +65,10 @@ public class ArmV3Cpu {
 
     private void testExclusive(OpCode opcode) {
         if (opcode.hasImmediate()) {
-            int flags = 0;
             int before = reg.getReg(opcode.getRegNo());
             int result = before ^ opcode.getImmediate();
             System.out.println("result = " + Integer.toUnsignedString(result, 16));
-            if (result < 0)
-                flags |= N;
-            if (result == 0)
-                flags |= Z;
-            reg.setPSR(Registers.CPSR, flags);
+            reg.setPSR(Registers.CPSR, setFlags(result));
         }
     }
 
@@ -99,31 +96,64 @@ public class ArmV3Cpu {
 
     private void move(OpCode opcode) {
         if (opcode.hasImmediate()) {
-            int flags = 0;
             int result = opcode.getImmediate();
 //            System.out.println("result = " + Integer.toUnsignedString((int) result, 16));
-            if (result < 0)
-                flags |= N;
-            if (result == 0)
-                flags |= Z;
             reg.setReg(opcode.getRegDest(), result);
             if (opcode.canChangePsr())
-                reg.setPSR(Registers.CPSR, flags);
+                reg.setPSR(Registers.CPSR, setFlags(result));
         }
     }
 
     private void compare(OpCode opcode) {
         if (opcode.hasImmediate()) {
-            int flags = 0;
             long before = reg.getReg(opcode.getRegNo());
-            long result = before - (long) opcode.getImmediate();
+            long immediate = opcode.getImmediate();
+            long result = before - immediate;
 //            System.out.println("result = " + Integer.toUnsignedString((int) result, 16));
-            if (((result >> 31) & 1) != 0)
-                flags |= N;
-            if (((int) result) == 0)
-                flags |= Z;
-            reg.setPSR(Registers.CPSR, flags);
+            boolean isSub = true;
+            reg.setPSR(Registers.CPSR, setFlags(result, isSub));
         }
+    }
+
+    /*
+    Addition Overflow occurs if
+        (+A) + (+B) = −C
+        (−A) + (−B) = +C
+    Subtraction Overflow occurs if
+        (+A) − (−B) = −C
+        (−A) − (+B) = +C
+    */
+
+    private int setFlags(long result, boolean expectsPositive) {
+        int flags = setFlags(result);
+        System.out.println("expectsPositive = " + expectsPositive);
+        if (expectsPositive) {
+            System.out.println("result = " + Long.toUnsignedString(result, 16));
+            System.out.println("(int)result = " + Integer.toUnsignedString((int) result, 16));
+//          if ((result>>32)>0)
+//              flags |= C;
+            if ((result >> 32) > 0)
+                flags |= V;
+        } else {
+//          if ((result>>32)>0)
+//              flags |= C;
+            if ((result >> 32) > 0)
+                flags |= V;
+        }
+        return flags;
+    }
+
+    private int setFlags(long result) {
+        int flags = 0;
+        if (((result >> 31) & 1) != 0)
+            flags |= N;
+        if (((int) result) == 0)
+            flags |= Z;
+//        if ((result>>32)>0)
+//            flags |= C;
+        if ((result >> 32) > 0)
+            flags |= V;
+        return flags;
     }
 
     int getPC() {
