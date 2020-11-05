@@ -5,8 +5,11 @@ import com.kbkapps.playgba.cpu.constants.Flags;
 import com.kbkapps.playgba.cpu.constants.Instructions;
 
 public class ArithmeticLogical extends OpCode {
-
     private boolean isSavedPsr;
+
+    public char getPsr() {
+        return isSavedPsr ? 'S' : 'C';
+    }
 
     public ArithmeticLogical(Instructions opcode, Flags cond, boolean immediateFlag, boolean canChangePsr, int opcodeEncoded) {
         super(opcode, cond, immediateFlag, canChangePsr, opcodeEncoded);
@@ -73,7 +76,7 @@ public class ArithmeticLogical extends OpCode {
         if (instruction == Instructions.MOV)
             return condition.toString() + " " + instruction.toString() + " " + getRegName(regDest) + ", 0x" + Integer.toUnsignedString(immediate, 16);
         if (instruction == Instructions.MRS)
-            return condition.toString() + " " + instruction.toString() + " " + getRegName(regDest) + ", " + (isSavedPsr ? "S" : "C") + "PSR";
+            return condition.toString() + " " + instruction.toString() + " " + getRegName(regDest) + ", " + (isSavedPsr ? "S" : "A") + "PSR";
         return null;
     }
 }

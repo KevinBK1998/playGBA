@@ -12,12 +12,14 @@ public class GbaCpu {
 
     public static void main(String[] args) {
         GbaCpu cpu = new GbaCpu();
+        int i = 0;
         try {
-            for (int i = 0; i < N_STEPS; i++)
+            for (; i < N_STEPS; i++)
                 cpu.trigger();
         } catch (UndefinedOpcodeException e) {
             System.out.println(e.getMessage());
         }
+        System.out.println(i + " instructions executed");
         System.out.println("Reg = " + cpu.armCpu.getState());
     }
 

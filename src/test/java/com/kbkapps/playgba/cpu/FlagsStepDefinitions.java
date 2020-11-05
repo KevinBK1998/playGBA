@@ -35,7 +35,7 @@ public class FlagsStepDefinitions {
     }
 
     @When("^I try to execute compare r0 0x([0-9a-f]{1,3})$")
-    public void iTryToExecuteCompareData(String data) {
+    public void iTryToExecuteCompareData(String data) throws UndefinedOpcodeException {
         OpCode opCode = new OpCode(Instructions.CMP, Flags.AL, true, Integer.parseUnsignedInt(data, 16));
         armCpu.execute(opCode);
     }

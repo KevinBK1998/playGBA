@@ -136,12 +136,16 @@ public class Registers {
     @Override
     public String toString() {
         StringBuilder regState = new StringBuilder();
+        regState.append("unbanked: ");
         for (int i = 0; i < 13; i++)
             regState.append(Integer.toUnsignedString(unbankedReg[i], 16)).append(" ");
+        regState.append("banked: ");
         for (int i = 0; i < 10; i++)
             regState.append(Integer.toUnsignedString(bankedReg[i], 16)).append(" ");
+        regState.append("spsr: ");
         for (int i = 0; i < 5; i++)
             regState.append(Integer.toUnsignedString(savedStatusReg[i], 16)).append(" ");
+        regState.append("special: ");
         regState.append(Integer.toUnsignedString(mode, 16)).append(" ")
                 .append(Integer.toUnsignedString(reg15, 16)).append(" ")
                 .append(Integer.toUnsignedString(currentStatusReg, 16));

@@ -2,6 +2,7 @@ package com.kbkapps.playgba.cpu;
 
 import com.kbkapps.playgba.cpu.constants.Flags;
 import com.kbkapps.playgba.cpu.constants.Instructions;
+import com.kbkapps.playgba.cpu.opcodes.ArithmeticLogical;
 import com.kbkapps.playgba.cpu.opcodes.OpCode;
 import com.kbkapps.playgba.cpu.opcodes.SingleDataTransfer;
 
@@ -39,7 +40,7 @@ public class ArmV3Cpu {
         reg.setReg(PC, (int) (Integer.toUnsignedLong(getPC()) + label * 4));
     }
 
-    public void execute(OpCode opcode) {
+    public void execute(OpCode opcode) throws UndefinedOpcodeException {
         if (opcode == null) {
             System.out.println("NOP");
             return;
@@ -48,6 +49,9 @@ public class ArmV3Cpu {
             if (reg.canExecute(opcode.getCondition())) {
                 branch(opcode.getOffset());
             }
+        } else if (opcode.getInstruction() == Instructions.MRS) {
+            if (reg.canExecute(opcode.getCondition()))
+                psrTransfer(opcode);
         } else if (opcode.getInstruction() == Instructions.TEQ) {
             if (reg.canExecute(opcode.getCondition()))
                 testExclusive(opcode);
@@ -60,7 +64,14 @@ public class ArmV3Cpu {
         } else if (opcode.getInstruction() == Instructions.LDR) {
             if (reg.canExecute(opcode.getCondition()))
                 loadReg((SingleDataTransfer) opcode);
+        } else {
+            throw new UndefinedOpcodeException(opcode.toString());
         }
+    }
+
+    private void psrTransfer(OpCode opcode) {
+        ArithmeticLogical arithmeticLogical = (ArithmeticLogical) opcode;
+        reg.setReg(arithmeticLogical.getRegDest(), reg.getPSR(arithmeticLogical.getPsr()));
     }
 
     private void testExclusive(OpCode opcode) {

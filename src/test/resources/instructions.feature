@@ -11,7 +11,7 @@ Feature: The Instruction Set
       | 01 c3 a0 e3 | always move r12, 0x4000000          |
       | 00 c3 dc e5 | always load byte r12, [r12 + 0x300] |
       | 01 00 3c e3 | always exclusive test r12, 0x1      |
-      | 00 c0 0f 01 | if equal move psr to reg r12, CPSR  |
+      | 00 c0 0f 01 | if equal move psr to reg r12, APSR  |
   #TODO:Add more instructions
 
   #  Scenario: Branch, Branch with Link (B, BL, BLX_imm)
@@ -116,7 +116,39 @@ Feature: The Instruction Set
     Then R14 must be 4
     When i try to execute 01 c3 a0 e3
     Then R12 must be 0x4000000
-
+    #  Scenario: PSR Transfer
+#  These instructions occupy an unused area (TEQ,TST,CMP,CMN with S=0) of ALU opcodes.
+#  Bit    Expl.
+#  31-28  Condition
+#  27-26  Must be 00b for this instruction
+#  25     I - Immediate Operand Flag  (0=Register, 1=Immediate) (Zero for MRS)
+#  24-23  Must be 10b for this instruction
+#  22     Psr - Source/Destination PSR  (0=CPSR, 1=SPSR_<current mode>)
+#  21     Opcode
+#  0: MRS{cond} Rd,Psr          ;Rd = Psr
+#  1: MSR{cond} Psr{_field},Op  ;Psr[field] = Op
+#  20     Must be 0b for this instruction (otherwise TST,TEQ,CMP,CMN)
+#  For MRS:
+#  19-16   Must be 1111b for this instruction (otherwise SWP)
+#  15-12   Rd - Destination Register  (R0-R14)
+#  11-0    Not used, must be zero.
+#  For MSR:
+#  19      f  write to flags field     Bit 31-24 (aka _flg)
+#  18      s  write to status field    Bit 23-16 (reserved, don't change)
+#  17      x  write to extension field Bit 15-8  (reserved, don't change)
+#  16      c  write to control field   Bit 7-0   (aka _ctl)
+#  15-12   Not used, must be 1111b.
+#  For MSR Psr,Rm (I=0)
+#  11-4    Not used, must be zero. (otherwise BX)
+#  3-0     Rm - Source Register <op>  (R0-R14)
+#  For MSR Psr,Imm (I=1)
+#  11-8    Shift applied to Imm   (ROR in steps of two 0-30)
+#  7-0     Imm - Unsigned 8bit Immediate
+#  In source code, a 32bit immediate should be specified as operand.
+#  The assembler should then convert that into a shifted 8bit value.
+  Scenario: Move cpsr to reg
+    When i try to execute 00 c0 0f 01
+    Then R12 must be 0
 #  Scenario: Single Data Transfer (From Memory)
 #  Bit    Expl.
 #  31-28  Condition (Must be 1111b for PLD)
