@@ -6,12 +6,12 @@ Feature: The Instruction Set
     Examples:
       | opcodes     | message                             |
       | 18 00 00 ea | always branch 0x18                  |
-      | 00 00 5e e3 | always compare lr 0x0               |
-      | 04 e0 a0 03 | if equal move lr 0x4                |
-      | 01 c3 a0 e3 | always move r12 0x4000000           |
+      | 00 00 5e e3 | always compare lr, 0x0              |
+      | 04 e0 a0 03 | if equal move lr, 0x4               |
+      | 01 c3 a0 e3 | always move r12, 0x4000000          |
       | 00 c3 dc e5 | always load byte r12, [r12 + 0x300] |
-      | 01 00 3c e3 | always exclusive test r12 0x1       |
-      | 00 c0 0f 01 | mrseq r12, apsr                     |
+      | 01 00 3c e3 | always exclusive test r12, 0x1      |
+      | 00 c0 0f 01 | if equal move psr to reg r12, CPSR  |
   #TODO:Add more instructions
 
   #  Scenario: Branch, Branch with Link (B, BL, BLX_imm)

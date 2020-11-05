@@ -44,16 +44,7 @@ public class OpCode {
                 return new OpCode(opcode, cond, jumpBy);
             }
         if (((opcodeEncoded >> 26) & 0x3) == 0b00)//ALU
-            if (((opcodeEncoded >> 25) & 0x1) != 0)//Immediate
-                if (((opcodeEncoded >> 21) & 0xF) == 0x9) {//Test Exclusive
-                    return getVoidAluOpcode(opcodeEncoded, cond, Instructions.TEQ);
-                } else if (((opcodeEncoded >> 21) & 0xF) == 0xA) {//Compare
-                    return getVoidAluOpcode(opcodeEncoded, cond, Instructions.CMP);
-                } else if (((opcodeEncoded >> 21) & 0xF) == 0xD) {//Move
-                    Instructions opcode = Instructions.MOV;
-                    int data = opcodeEncoded & 0xF_FF_FF;
-                    return new OpCode(opcode, cond, true, shouldChangePSR(opcodeEncoded), data);
-                }
+            return ArithmeticLogical.decodeOpcode(cond, opcodeEncoded);
         if (((opcodeEncoded >> 26) & 0x3) == 0b01)//Single Data Transfer
         {
             int flags = ((opcodeEncoded >> 22) & 0xF);
@@ -63,14 +54,9 @@ public class OpCode {
                 return new SingleDataTransfer(opcode, cond, flags, data);
             }
         }
+        System.out.println("cond = " + cond);
+        System.out.println("rest of opcodeEncoded = " + Integer.toUnsignedString(opcodeEncoded & 0xF_FF_FF_FF, 16));
         throw new UndefinedOpcodeException(opcodeEncoded);
-    }
-
-    private static OpCode getVoidAluOpcode(int opcodeEncoded, Flags cond, Instructions opcode) {
-        //only for ALU opcodes 8-B
-        if (!shouldChangePSR(opcodeEncoded)) throw new IndexOutOfBoundsException("CPSR must be written");
-        int data = opcodeEncoded & 0xF_FF_FF;
-        return new OpCode(opcode, cond, true, data);
     }
 
     public Instructions getInstruction() {
@@ -121,20 +107,11 @@ public class OpCode {
         return regDest;
     }
 
-    private static boolean shouldChangePSR(int opcodeEncoded) {
-        return ((opcodeEncoded >> 20) & 0x1) != 0;
-    }
 
     @Override
     public String toString() {
         if (instruction == Instructions.B)
             return condition.toString() + " " + instruction.toString() + " 0x" + Integer.toUnsignedString(offset, 16);
-        if (instruction == Instructions.TEQ)
-            return condition.toString() + " " + instruction.toString() + " " + getRegName(regNo) + " 0x" + Integer.toUnsignedString(immediate, 16);
-        if (instruction == Instructions.CMP)
-            return condition.toString() + " " + instruction.toString() + " " + getRegName(regNo) + " 0x" + Integer.toUnsignedString(immediate, 16);
-        if (instruction == Instructions.MOV)
-            return condition.toString() + " " + instruction.toString() + " " + getRegName(regDest) + " 0x" + Integer.toUnsignedString(immediate, 16);
         return null;
     }
 

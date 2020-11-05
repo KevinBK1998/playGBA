@@ -127,19 +127,21 @@ public class ArmV3Cpu {
     private int setFlags(long result, boolean expectsPositive) {
         int flags = setFlags(result);
         System.out.println("expectsPositive = " + expectsPositive);
-        if (expectsPositive) {
-            System.out.println("result = " + Long.toUnsignedString(result, 16));
-            System.out.println("(int)result = " + Integer.toUnsignedString((int) result, 16));
+//        if (expectsPositive) {
+        System.out.println("result = " + Long.toUnsignedString(result, 16));
+        System.out.println("(int)result = " + Integer.toUnsignedString((int) result, 16));
 //          if ((result>>32)>0)
 //              flags |= C;
-            if ((result >> 32) > 0)
-                flags |= V;
-        } else {
+        if ((result >> 32) > 0)
+            flags |= V;
+//        } else {
+//            System.out.println("result = " + Long.toUnsignedString(result, 16));
+//            System.out.println("(int)result = " + Integer.toUnsignedString((int) result, 16));
 //          if ((result>>32)>0)
 //              flags |= C;
-            if ((result >> 32) > 0)
-                flags |= V;
-        }
+//            if ((result >> 32) > 0)
+//                flags |= V;
+//        }
         return flags;
     }
 
