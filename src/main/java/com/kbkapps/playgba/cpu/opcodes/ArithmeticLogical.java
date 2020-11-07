@@ -5,6 +5,8 @@ import com.kbkapps.playgba.cpu.constants.Flags;
 import com.kbkapps.playgba.cpu.constants.Instructions;
 
 public class ArithmeticLogical extends OpCode {
+
+    boolean changePSR;
     private boolean isSavedPsr;
 
     public char getPsr() {
@@ -12,20 +14,25 @@ public class ArithmeticLogical extends OpCode {
     }
 
     public ArithmeticLogical(Instructions opcode, Flags cond, boolean immediateFlag, boolean canChangePsr, int opcodeEncoded) {
-        super(opcode, cond, immediateFlag, canChangePsr, opcodeEncoded);
+        super(opcode, cond, immediateFlag);
+        regNo = (opcodeEncoded >> 16) & 0xF;
+        regDest = (opcodeEncoded >> 12) & 0xF;
+        this.immediateFlag = immediateFlag;
+        changePSR = canChangePsr;
+        int shift = (opcodeEncoded >> 8) & 0xF;
+//        System.out.println("shift = " + shift);
+        int immediate = opcodeEncoded & 0xFF;
+//        System.out.println("immediate (8-bit)= " + immediate);
+        this.immediate = Integer.rotateRight(immediate, 2 * shift);
     }
 
     public ArithmeticLogical(Instructions opcode, Flags cond, boolean immediateFlag, int opcodeEncoded) {
-        super(opcode, cond, immediateFlag, opcodeEncoded);
+        this(opcode, cond, immediateFlag, true, opcodeEncoded);
     }
 
     public ArithmeticLogical(boolean isSavedPsr, Instructions opcode, Flags cond, int opcodeEncoded) {
-        super(opcode, cond, false, false, opcodeEncoded);
+        this(opcode, cond, false, false, opcodeEncoded);
         this.isSavedPsr = isSavedPsr;
-    }
-
-    private static boolean shouldChangePSR(int opcodeEncoded) {
-        return ((opcodeEncoded >> 20) & 0x1) != 0;
     }
 
     public static ArithmeticLogical decodeOpcode(Flags cond, int opcodeEncoded) throws UndefinedOpcodeException {
@@ -76,12 +83,14 @@ public class ArithmeticLogical extends OpCode {
             }
         }
         System.out.println("cond = " + cond);
+        System.out.println("shouldChangePsr = " + shouldChangePsr);
         System.out.println("rest of opcodeEncoded(ALU) = " + Integer.toUnsignedString(opcodeEncoded & 0xFF_FF_FF, 16));
         throw new UndefinedOpcodeException(opcodeEncoded);
     }
 
     @Override
     public String toString() {
+//        System.out.println("changePsr= " + changePSR);
         if (instruction == Instructions.TEQ)
             return condition.toString() + " " + instruction.toString() + " " + getRegName(regNo) + ", 0x" + Integer.toUnsignedString(immediate, 16);
         if (instruction == Instructions.CMP)
@@ -93,5 +102,9 @@ public class ArithmeticLogical extends OpCode {
         if (instruction == Instructions.MRS)
             return condition.toString() + " " + instruction.toString() + " " + getRegName(regDest) + ", " + (isSavedPsr ? "S" : "A") + "PSR";
         return null;
+    }
+
+    public boolean canChangePsr() {
+        return changePSR;
     }
 }

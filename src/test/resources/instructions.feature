@@ -108,8 +108,16 @@ Feature: The Instruction Set
     Then CPSR must be 00 00 00 00
 
   Scenario: Compare (with immediate) instruction is executed
+    Given CPSR is 40 00 00 00
     When i try to execute 00 00 5e e3
     Then CPSR must be 40 00 00 00
+
+  Scenario: Logical Or (with immediate) instruction is executed
+    Given CPSR is 00 00 00 00
+    And R12 is 0x4000000
+    When i try to execute c0 c0 8c 03
+    Then R12 must be 0x4000000
+    And CPSR must be 00 00 00 00
 
   Scenario: Move (with immediate) instruction is executed
     Given CPSR is 40 00 00 00
@@ -117,7 +125,7 @@ Feature: The Instruction Set
     Then R14 must be 4
     When i try to execute 01 c3 a0 e3
     Then R12 must be 0x4000000
-
+    And  CPSR must be 40 00 00 00
 
 #  Scenario: PSR Transfer
 #  These instructions occupy an unused area (TEQ,TST,CMP,CMN with S=0) of ALU opcodes.
@@ -149,7 +157,7 @@ Feature: The Instruction Set
 #  7-0     Imm - Unsigned 8bit Immediate
 #  In source code, a 32bit immediate should be specified as operand.
 #  The assembler should then convert that into a shifted 8bit value.
-  Scenario: Move cpsr to reg
+  Scenario: Move to Reg from apSr
     When i try to execute 00 c0 0f 01
     Then R12 must be 0
 #  Scenario: Single Data Transfer (From Memory)

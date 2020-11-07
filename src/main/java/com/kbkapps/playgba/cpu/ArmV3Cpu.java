@@ -58,6 +58,9 @@ public class ArmV3Cpu {
         } else if (opcode.getInstruction() == Instructions.CMP) {
             if (reg.canExecute(opcode.getCondition()))
                 compare(opcode);
+        } else if (opcode.getInstruction() == Instructions.ORR) {
+            if (reg.canExecute(opcode.getCondition()))
+                logicalOr(opcode);
         } else if (opcode.getInstruction() == Instructions.MOV) {
             if (reg.canExecute(opcode.getCondition()))
                 move(opcode);
@@ -66,6 +69,17 @@ public class ArmV3Cpu {
                 loadReg((SingleDataTransfer) opcode);
         } else {
             throw new UndefinedOpcodeException(opcode.toString());
+        }
+    }
+
+    private void logicalOr(OpCode opcode) {
+        ArithmeticLogical alu = (ArithmeticLogical) opcode;
+        if (alu.hasImmediate()) {
+            int result = reg.getReg(alu.getRegNo()) | alu.getImmediate();
+//            System.out.println("result = " + Integer.toUnsignedString((int) result, 16));
+            reg.setReg(alu.getRegDest(), result);
+            if (alu.canChangePsr())
+                reg.setPSR(Registers.CPSR, setFlags(result));
         }
     }
 
@@ -106,11 +120,12 @@ public class ArmV3Cpu {
     }
 
     private void move(OpCode opcode) {
-        if (opcode.hasImmediate()) {
-            int result = opcode.getImmediate();
+        ArithmeticLogical alu = (ArithmeticLogical) opcode;
+        if (alu.hasImmediate()) {
+            int result = alu.getImmediate();
 //            System.out.println("result = " + Integer.toUnsignedString((int) result, 16));
-            reg.setReg(opcode.getRegDest(), result);
-            if (opcode.canChangePsr())
+            reg.setReg(alu.getRegDest(), result);
+            if (alu.canChangePsr())
                 reg.setPSR(Registers.CPSR, setFlags(result));
         }
     }
@@ -143,8 +158,8 @@ public class ArmV3Cpu {
         System.out.println("(int)result = " + Integer.toUnsignedString((int) result, 16));
 //          if ((result>>32)>0)
 //              flags |= C;
-        if ((result >> 32) > 0)
-            flags |= V;
+//        if ((result >> 32) > 0)
+//            flags |= V;
 //        } else {
 //            System.out.println("result = " + Long.toUnsignedString(result, 16));
 //            System.out.println("(int)result = " + Integer.toUnsignedString((int) result, 16));
@@ -164,8 +179,8 @@ public class ArmV3Cpu {
             flags |= Z;
 //        if ((result>>32)>0)
 //            flags |= C;
-        if ((result >> 32) > 0)
-            flags |= V;
+//        if ((result >> 32) > 0)
+//            flags |= V;
         return flags;
     }
 

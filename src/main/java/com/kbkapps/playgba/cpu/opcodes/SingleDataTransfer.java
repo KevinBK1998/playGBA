@@ -16,13 +16,8 @@ public class SingleDataTransfer extends OpCode {
         return addFlag;
     }
 
-    public boolean isSizeOfImmediate() {
-        return sizeOfImmediate;
-    }
-
     SingleDataTransfer(Instructions opcode, Flags cond, int flags, int data) {
         super(opcode, cond, flags, data);
-        immediateFlag = ((flags >> 3) & 1) == 0;//I
         preFlag = ((flags >> 2) & 1) != 0;//P
         addFlag = ((flags >> 1) & 1) != 0;//U
         sizeOfImmediate = (flags & 1) != 0;//B

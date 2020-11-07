@@ -2,6 +2,7 @@ package com.kbkapps.playgba.cpu;
 
 import com.kbkapps.playgba.cpu.constants.Flags;
 import com.kbkapps.playgba.cpu.constants.Instructions;
+import com.kbkapps.playgba.cpu.opcodes.ArithmeticLogical;
 import com.kbkapps.playgba.cpu.opcodes.OpCode;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -36,7 +37,7 @@ public class FlagsStepDefinitions {
 
     @When("^I try to execute compare r0 0x([0-9a-f]{1,3})$")
     public void iTryToExecuteCompareData(String data) throws UndefinedOpcodeException {
-        OpCode opCode = new OpCode(Instructions.CMP, Flags.AL, true, Integer.parseUnsignedInt(data, 16));
+        OpCode opCode = new ArithmeticLogical(Instructions.CMP, Flags.AL, true, Integer.parseUnsignedInt(data, 16));
         armCpu.execute(opCode);
     }
 

@@ -14,24 +14,25 @@ public class OpCode {
     boolean immediateFlag;
     int regNo;
     int regDest;
-    boolean changePSR;
 
-    public OpCode(Instructions opcode, Flags cond, boolean immediateFlag, boolean canChangePSR, int data) {
+    public OpCode(Instructions opcode, Flags cond, int flags, int data) {
         instruction = opcode;
         condition = cond;
+        immediateFlag = ((flags >> 3) & 1) == 0;//I
         regNo = (data >> 16) & 0xF;
         regDest = (data >> 12) & 0xF;
-        this.immediateFlag = immediateFlag;
-        changePSR = canChangePSR;
-        int shift = (data >> 8) & 0xF;
-//        System.out.println("shift = " + shift);
-        int immediate = data & 0xFF;
-//        System.out.println("immediate (8-bit)= " + immediate);
-        this.immediate = Integer.rotateRight(immediate, 2 * shift);
     }
 
-    public OpCode(Instructions opcode, Flags cond, boolean immediateFlag, int data) {
-        this(opcode, cond, immediateFlag, true, data);
+    public OpCode(Instructions opcode, Flags cond, int offset) {
+        instruction = opcode;
+        condition = cond;
+        this.offset = offset;
+    }
+
+    public OpCode(Instructions opcode, Flags cond, boolean immediateFlag) {
+        instruction = opcode;
+        condition = cond;
+        this.immediateFlag = immediateFlag;
     }
 
     public static OpCode decodeOpcode(int opcodeEncoded) throws UndefinedOpcodeException {
@@ -75,21 +76,8 @@ public class OpCode {
         return immediate;
     }
 
-    public OpCode(Instructions opcode, Flags cond, int offset) {
-        instruction = opcode;
-        condition = cond;
-        this.offset = offset;
-    }
-
     public boolean hasImmediate() {
         return immediateFlag;
-    }
-
-    public OpCode(Instructions opcode, Flags cond, int flags, int data) {
-        instruction = opcode;
-        condition = cond;
-        regNo = (data >> 16) & 0xF;
-        regDest = (data >> 12) & 0xF;
     }
 
     @Override
@@ -117,9 +105,5 @@ public class OpCode {
 
     protected final String getRegName(int index) {
         return index < 13 ? ("r" + index) : (index == 13 ? "sp" : (index == 14 ? "lr" : "pc"));
-    }
-
-    public boolean canChangePsr() {
-        return changePSR;
     }
 }
