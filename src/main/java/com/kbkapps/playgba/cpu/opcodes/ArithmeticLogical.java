@@ -30,12 +30,23 @@ public class ArithmeticLogical extends OpCode {
 
     public static ArithmeticLogical decodeOpcode(Flags cond, int opcodeEncoded) throws UndefinedOpcodeException {
         Instructions opcode = null;
-        if (((opcodeEncoded >> 21) & 0xF) == 0x9) //Test Exclusive
-            opcode = Instructions.TEQ;
-        else if (((opcodeEncoded >> 21) & 0xF) == 0xA) //Compare
-            opcode = Instructions.CMP;
-        else if (((opcodeEncoded >> 21) & 0xF) == 0xD) //Move
-            opcode = Instructions.MOV;
+        switch ((opcodeEncoded >> 21) & 0xF) {
+            case 0x9:
+                opcode = Instructions.TEQ;
+                break;
+            case 0xA:
+                opcode = Instructions.CMP;
+                break;
+            case 0xC:
+                opcode = Instructions.ORR;
+                break;
+            case 0xD:
+                opcode = Instructions.MOV;
+                break;
+            default:
+                System.out.println("cond = " + cond);
+                System.out.println("rest of opcodeEncoded(ALU) = " + Integer.toUnsignedString(opcodeEncoded & 0xF_FF_FF_FF, 16));
+        }
         boolean shouldChangePsr = ((opcodeEncoded >> 20) & 0x1) != 0;
         if (((opcodeEncoded >> 25) & 0x1) != 0) {//Immediate
             int data = opcodeEncoded & 0xF_FF_FF;
@@ -64,6 +75,8 @@ public class ArithmeticLogical extends OpCode {
                 }
             }
         }
+        System.out.println("cond = " + cond);
+        System.out.println("rest of opcodeEncoded(ALU) = " + Integer.toUnsignedString(opcodeEncoded & 0xFF_FF_FF, 16));
         throw new UndefinedOpcodeException(opcodeEncoded);
     }
 
@@ -73,6 +86,8 @@ public class ArithmeticLogical extends OpCode {
             return condition.toString() + " " + instruction.toString() + " " + getRegName(regNo) + ", 0x" + Integer.toUnsignedString(immediate, 16);
         if (instruction == Instructions.CMP)
             return condition.toString() + " " + instruction.toString() + " " + getRegName(regNo) + ", 0x" + Integer.toUnsignedString(immediate, 16);
+        if (instruction == Instructions.ORR)
+            return condition.toString() + " " + instruction.toString() + " " + getRegName(regDest) + ", " + getRegName(regNo) + ", 0x" + Integer.toUnsignedString(immediate, 16);
         if (instruction == Instructions.MOV)
             return condition.toString() + " " + instruction.toString() + " " + getRegName(regDest) + ", 0x" + Integer.toUnsignedString(immediate, 16);
         if (instruction == Instructions.MRS)

@@ -25,7 +25,7 @@ public class OpCode {
         changePSR = canChangePSR;
         int shift = (data >> 8) & 0xF;
 //        System.out.println("shift = " + shift);
-        int immediate = data & 0xF;
+        int immediate = data & 0xFF;
 //        System.out.println("immediate (8-bit)= " + immediate);
         this.immediate = Integer.rotateRight(immediate, 2 * shift);
     }

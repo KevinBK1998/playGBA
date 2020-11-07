@@ -12,9 +12,10 @@ Feature: The Instruction Set
       | 00 c3 dc e5 | always load byte r12, [r12 + 0x300] |
       | 01 00 3c e3 | always exclusive test r12, 0x1      |
       | 00 c0 0f 01 | if equal move psr to reg r12, APSR  |
+      | c0 c0 8c 03 | if equal logical or r12, r12, 0xc0  |
   #TODO:Add more instructions
 
-  #  Scenario: Branch, Branch with Link (B, BL, BLX_imm)
+#  Scenario: Branch, Branch with Link (B, BL, BLX_imm)
 #  Branch with Link is meant to be used to call to a subroutine, return
 #  address is then saved in R14.
 #  Bit    |Explanation
@@ -116,7 +117,9 @@ Feature: The Instruction Set
     Then R14 must be 4
     When i try to execute 01 c3 a0 e3
     Then R12 must be 0x4000000
-    #  Scenario: PSR Transfer
+
+
+#  Scenario: PSR Transfer
 #  These instructions occupy an unused area (TEQ,TST,CMP,CMN with S=0) of ALU opcodes.
 #  Bit    Expl.
 #  31-28  Condition
