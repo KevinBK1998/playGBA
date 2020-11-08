@@ -51,7 +51,7 @@ public class InstructionStepDefinitions {
 
     @Then("^CPSR must be ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2})$")
     public void cpsrMustBe(String arg0, String arg1, String arg2, String arg3) {
-        assertThat(reg.getPSR(Registers.CPSR)).isEqualTo(getIntFromBytes(arg3, arg2, arg1, arg0));
+        assertThat(reg.getPSR(Registers.CPSR)).inHexadecimal().isEqualTo(getIntFromBytes(arg3, arg2, arg1, arg0));
     }
 
     @And("^R([0-9]{1,2}) must be ([0-9]+)$")
@@ -68,7 +68,7 @@ public class InstructionStepDefinitions {
         assertThat(reg.getReg(Integer.parseInt(regNo))).isEqualTo(Integer.parseUnsignedInt(expectedData, 16));
     }
 
-    @Given("^([0-9a-f]{1,8}) is present in memory ([0-9a-f]{1,8})$")
+    @Given("^([0-9a-f]{1,8}) is present in memory 0x([0-9a-f]{1,8})$")
     public void isPresentInMemory(String data, String address) {
         mem.write8(Integer.parseUnsignedInt(address, 16), Byte.parseByte(data, 16));
     }

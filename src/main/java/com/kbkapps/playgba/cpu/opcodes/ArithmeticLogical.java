@@ -8,7 +8,17 @@ public class ArithmeticLogical extends OpCode {
     boolean changePSR;
     private boolean isSavedPsr;
     int regM;
+
+
     int mask;
+
+    public int getRegSource() {
+        return regM;
+    }
+
+    public int getMask() {
+        return mask;
+    }
 
     public ArithmeticLogical(boolean isSavedPsr, Instructions opcode, Flags cond, int flags, int mReg) {
         super(opcode, cond, false);

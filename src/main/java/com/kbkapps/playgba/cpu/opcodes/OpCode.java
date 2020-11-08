@@ -42,6 +42,8 @@ public class OpCode {
             if (((opcodeEncoded >> 24) & 0x1) == 0b0) {//Branch
                 Instructions opcode = Instructions.B;
                 int jumpBy = opcodeEncoded & 0x00_FF_FF_FF;
+                if ((jumpBy & 0x80_00_00) != 0)
+                    jumpBy |= 0xFF_00_00_00;
                 return new OpCode(opcode, cond, jumpBy);
             }
         if (((opcodeEncoded >> 26) & 0x3) == 0b00)//ALU
@@ -99,7 +101,7 @@ public class OpCode {
     @Override
     public String toString() {
         if (instruction == Instructions.B)
-            return condition.toString() + " " + instruction.toString() + " 0x" + Integer.toUnsignedString(offset, 16);
+            return condition.toString() + " " + instruction.toString() + " " + Integer.toString(offset, 16);
         return null;
     }
 

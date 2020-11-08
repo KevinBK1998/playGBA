@@ -5,7 +5,7 @@ Feature: The Instruction Set
     Then i should see "<message>"
     Examples:
       | opcodes     | message                               |
-      | 18 00 00 ea | always branch 0x18                    |
+      | 18 00 00 ea | always branch 18                      |
       | 00 00 5e e3 | always compare lr, 0x0                |
       | 04 e0 a0 03 | if equal move lr, 0x4                 |
       | 01 c3 a0 e3 | always move r12, 0x4000000            |
@@ -14,6 +14,11 @@ Feature: The Instruction Set
       | 00 c0 0f 01 | if equal move psr to reg r12, CPSR    |
       | c0 c0 8c 03 | if equal logical or r12, r12, 0xc0    |
       | 0c f0 29 01 | if equal move reg to psr CPSR_fc, r12 |
+      | e3 ff ff 0a | if equal branch -1d                   |
+      | df 00 a0 e3 | always move r0, 0xdf                  |
+      | 00 f0 29 e1 | always move reg to psr CPSR_fc, r0    |
+      | 01 43 a0 e3 | always move r4, 0x4000000             |
+      | 08 42 c4 e5 | always strb r4, [r4, #0x208]          |
   #TODO:Add more instructions
 
 #  Scenario: Branch, Branch with Link (B, BL, BLX_imm)
@@ -38,6 +43,10 @@ Feature: The Instruction Set
     Given pc is 8
     When i try to execute 18 00 00 ea
     Then pc must be 108
+    Given pc is 140
+    And CPSR is 00 00 00 00
+    When i try to execute e3 ff ff 0a
+    Then pc must be 144
 
 #  Scenario: ALU
 #  Bit    Expl.
@@ -104,20 +113,19 @@ Feature: The Instruction Set
 #Execution Time: (1+p)S+rI+pN. Whereas r=1 if I=0 and R=1 (ie. shift by register); otherwise r=0. And p=1 if Rd=R15; otherwise p=0.
 #  9: TEQ{cond}{P}    Rn,Op2    ;test exclusive  Void = Rn XOR Op2
   Scenario: Test Exclusive (with immediate) instruction is executed
-    Given CPSR is 40 00 00 00
     When i try to execute 01 00 3c e3
     Then CPSR must be 00 00 00 00
 
   Scenario: Compare (with immediate) instruction is executed
-    Given CPSR is 40 00 00 00
+    Given CPSR is 00 00 00 00
     When i try to execute 00 00 5e e3
     Then CPSR must be 40 00 00 00
 
   Scenario: Logical Or (with immediate) instruction is executed
     Given CPSR is 00 00 00 00
-    And R12 is 0x4000000
+    And R12 is 0x0
     When i try to execute c0 c0 8c 03
-    Then R12 must be 0x4000000
+    Then R12 must be 0x0
     And CPSR must be 00 00 00 00
 
   Scenario: Move (with immediate) instruction is executed
@@ -126,7 +134,9 @@ Feature: The Instruction Set
     Then R14 must be 4
     When i try to execute 01 c3 a0 e3
     Then R12 must be 0x4000000
-    And  CPSR must be 40 00 00 00
+    When i try to execute df 00 a0 e3
+    Then R0 must be 0xdf
+
 
 #  Scenario: PSR Transfer
 #  These instructions occupy an unused area (TEQ,TST,CMP,CMN with S=0) of ALU opcodes.
@@ -158,9 +168,19 @@ Feature: The Instruction Set
 #  7-0     Imm - Unsigned 8bit Immediate
 #  In source code, a 32bit immediate should be specified as operand.
 #  The assembler should then convert that into a shifted 8bit value.
-  Scenario: Move to Reg from apSr
+  Scenario: Move to Reg from cpSr
+    Given CPSR is 00 00 00 00
     When i try to execute 00 c0 0f 01
     Then R12 must be 0
+
+  Scenario: Move to cpSr (fc) from Reg
+    Given R12 is 0x0
+    When i try to execute 0c f0 29 01
+    Then CPSR must be 00 00 00 00
+    Given R0 is 0xdf
+    When i try to execute 00 f0 29 e1
+    Then CPSR must be 00 00 00 df
+
 #  Scenario: Single Data Transfer (From Memory)
 #  Bit    Expl.
 #  31-28  Condition (Must be 1111b for PLD)
@@ -189,9 +209,8 @@ Feature: The Instruction Set
 #  -->3-0    Rm - Offset Register   (R0..R14) (not including PC=R15)
 #  Return: CPSR flags are not affected.
 #  Execution Time: For normal LDR: 1S+1N+1I. For LDR PC: 2S+2N+1I. For STR: 2N.
-
   Scenario: Load Register with Immediate Byte
-    Given 0 is present in memory 4000300
+    Given 0 is present in memory 0x4000300
     And R12 is 0x4000000
     When i try to execute 00 c3 dc e5
     Then R12 must be 0

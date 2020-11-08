@@ -46,10 +46,11 @@ public class ArmV3Cpu {
             return;
         } else System.out.println("Executing: " + opcode);
         if (opcode.getInstruction() == Instructions.B) {
+//            System.out.println("opcode.getOffset() = " + opcode.getOffset()*4);
             if (reg.canExecute(opcode.getCondition())) {
                 branch(opcode.getOffset());
             }
-        } else if (opcode.getInstruction() == Instructions.MRS) {
+        } else if (opcode.getInstruction() == Instructions.MRS | opcode.getInstruction() == Instructions.MSR) {
             if (reg.canExecute(opcode.getCondition()))
                 psrTransfer(opcode);
         } else if (opcode.getInstruction() == Instructions.TEQ) {
@@ -84,8 +85,11 @@ public class ArmV3Cpu {
     }
 
     private void psrTransfer(OpCode opcode) {
-        ArithmeticLogical arithmeticLogical = (ArithmeticLogical) opcode;
-        reg.setReg(arithmeticLogical.getRegDest(), reg.getPSR(arithmeticLogical.getPsr()));
+        ArithmeticLogical alu = (ArithmeticLogical) opcode;
+        if (alu.getInstruction() == Instructions.MRS)
+            reg.setReg(alu.getRegDest(), reg.getPSR(alu.getPsr()));
+        else
+            reg.setPSR(alu.getPsr(), alu.getMask() & reg.getReg(alu.getRegSource()));
     }
 
     private void testExclusive(OpCode opcode) {
