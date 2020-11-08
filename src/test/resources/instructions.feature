@@ -18,7 +18,7 @@ Feature: The Instruction Set
       | df 00 a0 e3 | always move r0, 0xdf                  |
       | 00 f0 29 e1 | always move reg to psr CPSR_fc, r0    |
       | 01 43 a0 e3 | always move r4, 0x4000000             |
-      | 08 42 c4 e5 | always strb r4, [r4, #0x208]          |
+      | 08 42 c4 e5 | always store byte r4, [r4 + 0x208]    |
   #TODO:Add more instructions
 
 #  Scenario: Branch, Branch with Link (B, BL, BLX_imm)

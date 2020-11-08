@@ -55,6 +55,10 @@ public class OpCode {
                 Instructions opcode = Instructions.LDR;
                 int data = opcodeEncoded & 0xF_FF_FF;
                 return new SingleDataTransfer(opcode, cond, flags, data);
+            } else {//STR{cond}{B}{T} Rd,<Address>   ;[Rn+/-<offset>]=Rd
+                Instructions opcode = Instructions.STR;
+                int data = opcodeEncoded & 0xF_FF_FF;
+                return new SingleDataTransfer(opcode, cond, flags, data);
             }
         }
         System.out.println("cond = " + cond);
