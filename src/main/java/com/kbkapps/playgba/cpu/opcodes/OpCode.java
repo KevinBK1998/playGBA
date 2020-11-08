@@ -25,8 +25,8 @@ public class OpCode {
 
     public OpCode(Instructions opcode, Flags cond, int offset) {
         instruction = opcode;
-        condition = cond;
         this.offset = offset;
+        condition = cond;
     }
 
     public OpCode(Instructions opcode, Flags cond, boolean immediateFlag) {

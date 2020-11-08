@@ -5,9 +5,22 @@ import com.kbkapps.playgba.cpu.constants.Flags;
 import com.kbkapps.playgba.cpu.constants.Instructions;
 
 public class ArithmeticLogical extends OpCode {
-
     boolean changePSR;
     private boolean isSavedPsr;
+    int regM;
+    int mask;
+
+    public ArithmeticLogical(boolean isSavedPsr, Instructions opcode, Flags cond, int flags, int mReg) {
+        super(opcode, cond, false);
+        mask = 0;
+        for (int i = 3; i >= 0; i--) {
+            mask = mask << 8;
+            boolean bit = ((flags >> i) & 1) != 0;
+            if (bit)
+                mask += 0xFF;
+        }
+        regM = mReg;
+    }
 
     public char getPsr() {
         return isSavedPsr ? 'S' : 'C';
@@ -79,6 +92,13 @@ public class ArithmeticLogical extends OpCode {
                         int data = opcodeEncoded & 0xF0_00;
                         return new ArithmeticLogical(isSavedPsr, opcode, cond, data);
                     }
+                } else {
+                    if (((opcodeEncoded >> 12) & 0xF) == 0xF && ((opcodeEncoded >> 4) & 0xFF) == 0) {//Move Reg to PSR
+                        int flags = (opcodeEncoded >> 16) & 0xF;
+                        opcode = Instructions.MSR;
+                        int mReg = opcodeEncoded & 0xF;
+                        return new ArithmeticLogical(isSavedPsr, opcode, cond, flags, mReg);
+                    }
                 }
             }
         }
@@ -100,8 +120,23 @@ public class ArithmeticLogical extends OpCode {
         if (instruction == Instructions.MOV)
             return condition.toString() + " " + instruction.toString() + " " + getRegName(regDest) + ", 0x" + Integer.toUnsignedString(immediate, 16);
         if (instruction == Instructions.MRS)
-            return condition.toString() + " " + instruction.toString() + " " + getRegName(regDest) + ", " + (isSavedPsr ? "S" : "A") + "PSR";
+            return condition.toString() + " " + instruction.toString() + " " + getRegName(regDest) + ", " + (isSavedPsr ? "S" : "C") + "PSR";
+        if (instruction == Instructions.MSR)
+            return condition.toString() + " " + instruction.toString() + " " + (isSavedPsr ? "S" : "C") + "PSR" + getMaskAsString() + ", " + getRegName(regM);
         return null;
+    }
+
+    private String getMaskAsString() {
+        String maskString = "_";
+        if (((mask >> 24) & 1) > 0)
+            maskString += "f";
+        if (((mask >> 16) & 1) > 0)
+            maskString += "s";
+        if (((mask >> 8) & 1) > 0)
+            maskString += "x";
+        if ((mask & 1) > 0)
+            maskString += "c";
+        return maskString;
     }
 
     public boolean canChangePsr() {
