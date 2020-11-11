@@ -82,4 +82,9 @@ public class InstructionStepDefinitions {
     public void shouldBePresentInMemory(String data, String address) {
         assertThat(mem.read8(Integer.parseUnsignedInt(address, 16))).inHexadecimal().isEqualTo(Byte.parseByte(data, 16));
     }
+
+    @Then("^lr must be ([0-9]+)$")
+    public void lrMustBe(String expectedPC) {
+        assertThat(reg.getReg(ArmV3Cpu.LR)).isEqualTo(Integer.parseUnsignedInt(expectedPC));
+    }
 }

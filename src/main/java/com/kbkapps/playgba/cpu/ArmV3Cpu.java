@@ -13,6 +13,7 @@ import static com.kbkapps.playgba.cpu.constants.Flags.CS;
 public class ArmV3Cpu {
     public static final Flags HS = CS;
     public static final Flags LO = CC;
+    public static final int LR = 14;
     public static final int PC = 15;
     public static final int N = 0x80_00_00_00;
     public static final int Z = 0x40_00_00_00;
@@ -34,11 +35,14 @@ public class ArmV3Cpu {
         Flags cond = Flags.valueOf(condition);
         if (opCode.equals("B"))
             if (reg.canExecute(cond))
-                branch(label);
+                branch(new Branch(Instructions.B, cond, label));
     }
 
-    private void branch(int label) {
-        reg.setReg(PC, (int) (Integer.toUnsignedLong(getPC()) + label * 4));
+    private void branch(OpCode opcode) {
+        Branch br = (Branch) opcode;
+        if (br.getInstruction() == Instructions.BL)
+            reg.setReg(LR, reg.getReg(PC) + 4);
+        reg.setReg(PC, (int) (Integer.toUnsignedLong(getPC()) + br.getOffset() * 4));
     }
 
     public void execute(OpCode opcode) throws UndefinedOpcodeException {
@@ -46,8 +50,7 @@ public class ArmV3Cpu {
             System.out.println("NOP");
             return;
         } else System.out.println("Executing: " + opcode);
-        if (opcode.getInstruction() == Instructions.B) {
-//            System.out.println("opcode.getOffset() = " + opcode.getOffset()*4);
+        if (opcode.getInstruction() == Instructions.B | opcode.getInstruction() == Instructions.BL) {
             if (reg.canExecute(opcode.getCondition())) {
                 branch(opcode);
             }
@@ -75,11 +78,6 @@ public class ArmV3Cpu {
         } else {
             throw new UndefinedOpcodeException(opcode.toString());
         }
-    }
-
-    private void branch(OpCode opcode) {
-        Branch br = (Branch) opcode;
-        branch(br.getOffset());
     }
 
     private void logicalOr(OpCode opcode) {

@@ -19,7 +19,7 @@ Feature: The Instruction Set
       | 00 f0 29 e1 | always move reg to psr CPSR_fc, r0    |
       | 01 43 a0 e3 | always move r4, 0x4000000             |
       | 08 42 c4 e5 | always store byte r4, [r4 + 0x208]    |
-      | 0f 00 00 eb | always branch with link sub_000000E0  |
+      | 0f 00 00 eb | always branch with link f             |
   #TODO:Add more instructions
 
 #  Scenario: Branch, Branch with Link (B, BL, BLX_imm)
@@ -30,7 +30,8 @@ Feature: The Instruction Set
 #  27-25  |Must be "101" for this instruction
 #  24     |Opcode (0-1) (or Half-word Offset for BLX)
 #  ->0:   B{cond} label    ;branch            PC=PC+8+nn*4
-#  ->1: BL{cond} label   ;branch/link       PC=PC+8+nn*4, LR=PC+4
+#  ->1: BL{cond} label   ;branch/link
+#  PC=PC+8+nn*4, LR=PC+4
 #  ->H: BLX label ;ARM9  ;branch/link/thumb PC=PC+8+nn*4+H*2, LR=PC+4, T=1
 #  23-0   |nn - Signed Offset, step 4      (-32M..+32M in steps of 4)
 #  Branch with Link can be used to 'call' to a sub-routine, which may then 'return' by MOV PC,R14 for example.
@@ -40,7 +41,7 @@ Feature: The Instruction Set
 #    And PC is <prevPC>
 #    When I try to execute B <cond> <label>
 #    Then I should be at <expectedPC>
-  Scenario: Branch instruction is executed
+  Scenario: Branch is executed
     Given pc is 8
     When i try to execute 18 00 00 ea
     Then pc must be 108
@@ -48,6 +49,12 @@ Feature: The Instruction Set
     And CPSR is 00 00 00 00
     When i try to execute e3 ff ff 0a
     Then pc must be 144
+
+  Scenario: Branch with Link is executed
+    Given pc is 164
+    When i try to execute 0f 00 00 eb
+    Then pc must be 228
+    And lr must be 168
 
 #  Scenario: ALU
 #  Bit    Expl.
