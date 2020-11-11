@@ -19,6 +19,7 @@ Feature: The Instruction Set
       | 00 f0 29 e1 | always move reg to psr CPSR_fc, r0    |
       | 01 43 a0 e3 | always move r4, 0x4000000             |
       | 08 42 c4 e5 | always store byte r4, [r4 + 0x208]    |
+      | 0f 00 00 eb | always branch with link sub_000000E0  |
   #TODO:Add more instructions
 
 #  Scenario: Branch, Branch with Link (B, BL, BLX_imm)
@@ -137,7 +138,6 @@ Feature: The Instruction Set
     When i try to execute df 00 a0 e3
     Then R0 must be 0xdf
 
-
 #  Scenario: PSR Transfer
 #  These instructions occupy an unused area (TEQ,TST,CMP,CMN with S=0) of ALU opcodes.
 #  Bit    Expl.
@@ -209,8 +209,13 @@ Feature: The Instruction Set
 #  -->3-0    Rm - Offset Register   (R0..R14) (not including PC=R15)
 #  Return: CPSR flags are not affected.
 #  Execution Time: For normal LDR: 1S+1N+1I. For LDR PC: 2S+2N+1I. For STR: 2N.
-  Scenario: Load Register with Immediate Byte
+  Scenario: Load Register with byte from memory
     Given 0 is present in memory 0x4000300
     And R12 is 0x4000000
     When i try to execute 00 c3 dc e5
     Then R12 must be 0
+
+  Scenario: Store Register to a byte in memory
+    And R4 is 0x4000000
+    When i try to execute 08 42 c4 e5
+    Then 0 should be present in memory 0x4000208

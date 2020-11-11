@@ -77,4 +77,9 @@ public class InstructionStepDefinitions {
     public void rIsX(String regNo, String data) {
         reg.setReg(Integer.parseInt(regNo), Integer.parseUnsignedInt(data, 16));
     }
+
+    @Then("^([0-9a-f]{1,8}) should be present in memory 0x([0-9a-f]{1,8})$")
+    public void shouldBePresentInMemory(String data, String address) {
+        assertThat(mem.read8(Integer.parseUnsignedInt(address, 16))).inHexadecimal().isEqualTo(Byte.parseByte(data, 16));
+    }
 }

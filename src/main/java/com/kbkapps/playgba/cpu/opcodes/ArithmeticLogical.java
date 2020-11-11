@@ -4,6 +4,8 @@ import com.kbkapps.playgba.cpu.UndefinedOpcodeException;
 import com.kbkapps.playgba.cpu.constants.Flags;
 import com.kbkapps.playgba.cpu.constants.Instructions;
 
+import static com.kbkapps.playgba.cpu.constants.Flags.values;
+
 public class ArithmeticLogical extends OpCode {
     boolean changePSR;
     private boolean isSavedPsr;
@@ -58,7 +60,8 @@ public class ArithmeticLogical extends OpCode {
         this.isSavedPsr = isSavedPsr;
     }
 
-    public static ArithmeticLogical decodeOpcode(Flags cond, int opcodeEncoded) throws UndefinedOpcodeException {
+    public static ArithmeticLogical decodeOpcode(int opcodeEncoded) throws UndefinedOpcodeException {
+        Flags cond = values()[(opcodeEncoded >> 28) & 0xF];
         Instructions opcode = null;
         switch ((opcodeEncoded >> 21) & 0xF) {
             case 0x9:

@@ -9,7 +9,6 @@ import static com.kbkapps.playgba.cpu.constants.Flags.values;
 public class OpCode {
     Instructions instruction;
     Flags condition;
-    int offset;
     int immediate;
     boolean immediateFlag;
     int regNo;
@@ -23,12 +22,6 @@ public class OpCode {
         regDest = (data >> 12) & 0xF;
     }
 
-    public OpCode(Instructions opcode, Flags cond, int offset) {
-        instruction = opcode;
-        this.offset = offset;
-        condition = cond;
-    }
-
     public OpCode(Instructions opcode, Flags cond, boolean immediateFlag) {
         instruction = opcode;
         condition = cond;
@@ -38,29 +31,12 @@ public class OpCode {
     public static OpCode decodeOpcode(int opcodeEncoded) throws UndefinedOpcodeException {
         System.out.println("Decoding: " + Integer.toUnsignedString(opcodeEncoded, 16));
         Flags cond = values()[(opcodeEncoded >> 28) & 0xF];
-        if (((opcodeEncoded >> 25) & 0xF) == 0b101)//Branching
-            if (((opcodeEncoded >> 24) & 0x1) == 0b0) {//Branch
-                Instructions opcode = Instructions.B;
-                int jumpBy = opcodeEncoded & 0x00_FF_FF_FF;
-                if ((jumpBy & 0x80_00_00) != 0)
-                    jumpBy |= 0xFF_00_00_00;
-                return new OpCode(opcode, cond, jumpBy);
-            }
-        if (((opcodeEncoded >> 26) & 0x3) == 0b00)//ALU
-            return ArithmeticLogical.decodeOpcode(cond, opcodeEncoded);
-        if (((opcodeEncoded >> 26) & 0x3) == 0b01)//Single Data Transfer
-        {
-            int flags = ((opcodeEncoded >> 22) & 0xF);
-            if (((opcodeEncoded >> 20) & 1) != 0) {//Load: LDR{cond}{B}{T} Rd,<Address>   ;Rd=[Rn+/-<offset>]
-                Instructions opcode = Instructions.LDR;
-                int data = opcodeEncoded & 0xF_FF_FF;
-                return new SingleDataTransfer(opcode, cond, flags, data);
-            } else {//STR{cond}{B}{T} Rd,<Address>   ;[Rn+/-<offset>]=Rd
-                Instructions opcode = Instructions.STR;
-                int data = opcodeEncoded & 0xF_FF_FF;
-                return new SingleDataTransfer(opcode, cond, flags, data);
-            }
-        }
+        if (((opcodeEncoded >> 25) & 0xF) == 0b101)
+            return Branch.decodeOpcode(opcodeEncoded);
+        if (((opcodeEncoded >> 26) & 0x3) == 0b00)
+            return ArithmeticLogical.decodeOpcode(opcodeEncoded);
+        if (((opcodeEncoded >> 26) & 0x3) == 0b01)
+            return SingleDataTransfer.decodeOpcode(opcodeEncoded);
         System.out.println("cond = " + cond);
         System.out.println("rest of opcodeEncoded = " + Integer.toUnsignedString(opcodeEncoded & 0xF_FF_FF_FF, 16));
         throw new UndefinedOpcodeException(opcodeEncoded);
@@ -72,10 +48,6 @@ public class OpCode {
 
     public Flags getCondition() {
         return condition;
-    }
-
-    public int getOffset() {
-        return offset;
     }
 
     public int getImmediate() {
@@ -104,9 +76,7 @@ public class OpCode {
 
     @Override
     public String toString() {
-        if (instruction == Instructions.B)
-            return condition.toString() + " " + instruction.toString() + " " + Integer.toString(offset, 16);
-        return null;
+        return String.format("%s %s %s %s %s %s", condition.toString(), instruction.toString(), immediateFlag, immediate, regNo, regDest);
     }
 
     protected final String getRegName(int index) {

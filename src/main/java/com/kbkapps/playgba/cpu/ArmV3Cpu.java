@@ -3,6 +3,7 @@ package com.kbkapps.playgba.cpu;
 import com.kbkapps.playgba.cpu.constants.Flags;
 import com.kbkapps.playgba.cpu.constants.Instructions;
 import com.kbkapps.playgba.cpu.opcodes.ArithmeticLogical;
+import com.kbkapps.playgba.cpu.opcodes.Branch;
 import com.kbkapps.playgba.cpu.opcodes.OpCode;
 import com.kbkapps.playgba.cpu.opcodes.SingleDataTransfer;
 
@@ -48,7 +49,7 @@ public class ArmV3Cpu {
         if (opcode.getInstruction() == Instructions.B) {
 //            System.out.println("opcode.getOffset() = " + opcode.getOffset()*4);
             if (reg.canExecute(opcode.getCondition())) {
-                branch(opcode.getOffset());
+                branch(opcode);
             }
         } else if (opcode.getInstruction() == Instructions.MRS | opcode.getInstruction() == Instructions.MSR) {
             if (reg.canExecute(opcode.getCondition()))
@@ -68,9 +69,17 @@ public class ArmV3Cpu {
         } else if (opcode.getInstruction() == Instructions.LDR) {
             if (reg.canExecute(opcode.getCondition()))
                 loadReg((SingleDataTransfer) opcode);
+        } else if (opcode.getInstruction() == Instructions.STR) {
+            if (reg.canExecute(opcode.getCondition()))
+                storeReg((SingleDataTransfer) opcode);
         } else {
             throw new UndefinedOpcodeException(opcode.toString());
         }
+    }
+
+    private void branch(OpCode opcode) {
+        Branch br = (Branch) opcode;
+        branch(br.getOffset());
     }
 
     private void logicalOr(OpCode opcode) {
@@ -110,6 +119,26 @@ public class ArmV3Cpu {
                     int data = gbaMemory.read8(regNo + opcode.getImmediate());
                     regNo = opcode.getRegDest();
                     reg.setReg(regNo, data);
+                } else {
+                    //[r12-0x300]
+                }
+            } else {
+                if (opcode.shouldAdd()) {
+                    //[r12]+0x300
+                } else {
+                    //[r12]-0x300
+                }
+            }
+        }
+    }
+
+    private void storeReg(SingleDataTransfer opcode) {
+        if (opcode.hasImmediate()) {
+            if (opcode.shouldAddOffsetBeforeTransfer()) {
+                if (opcode.shouldAdd()) {
+                    //[r12+0x300]
+                    int regNo = reg.getReg(opcode.getRegNo());
+                    gbaMemory.write8(regNo + opcode.getImmediate(), (byte) regNo);
                 } else {
                     //[r12-0x300]
                 }
