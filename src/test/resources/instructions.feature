@@ -29,7 +29,7 @@ Feature: The Instruction Set
       | 5f 00 a0 e3 | always move r0, 0x5f                  |
       | a0 d0 9f e5 | always load word sp, [pc + 0xa0]      |
       | 01 00 8f e2 | always add r0, pc, 0x1                |
-      #|             | always bx r0                          |
+      | 10 ff 2f e1 | always bx r0                          |
   #TODO:Add more instructions
 
 #  Scenario: Branch, Branch with Link (B, BL, BLX_imm)
@@ -130,6 +130,11 @@ Feature: The Instruction Set
 #The instruction "MOV R0,R0" is used as "NOP" opcode in 32bit ARM state.
 #Execution Time: (1+p)S+rI+pN. Whereas r=1 if I=0 and R=1 (ie. shift by register); otherwise r=0. And p=1 if Rd=R15; otherwise p=0.
 #  9: TEQ{cond}{P}    Rn,Op2    ;test exclusive  Void = Rn XOR Op2
+  Scenario: Add (with immediate) instruction is executed
+    And pc is 284
+    When i try to execute 01 00 8f e2
+    Then R0 must be 0x11d
+
   Scenario: Test Exclusive (with immediate) instruction is executed
     When i try to execute 01 00 3c e3
     Then CPSR must be 00 00 00 00

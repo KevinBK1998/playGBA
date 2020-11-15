@@ -44,6 +44,9 @@ public class ArmV3Cpu {
         } else if (opcode.getInstruction() == Instructions.MRS | opcode.getInstruction() == Instructions.MSR) {
             if (reg.canExecute(opcode.getCondition()))
                 psrTransfer(opcode);
+        } else if (opcode.getInstruction() == Instructions.ADD) {
+            if (reg.canExecute(opcode.getCondition()))
+                add(opcode);
         } else if (opcode.getInstruction() == Instructions.TEQ) {
             if (reg.canExecute(opcode.getCondition()))
                 testExclusive(opcode);
@@ -64,6 +67,17 @@ public class ArmV3Cpu {
                 storeReg((SingleDataTransfer) opcode);
         } else {
             throw new UndefinedOpcodeException(opcode.toString());
+        }
+    }
+
+    private void add(OpCode opcode) {
+        ArithmeticLogical alu = (ArithmeticLogical) opcode;
+        if (alu.hasImmediate()) {
+            int result = reg.getReg(alu.getRegNo()) + alu.getImmediate();
+//            System.out.println("result = " + Integer.toUnsignedString((int) result, 16));
+            reg.setReg(alu.getRegDest(), result);
+            if (alu.canChangePsr())
+                reg.setPSR(Registers.CPSR, setFlags(result));
         }
     }
 
