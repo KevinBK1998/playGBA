@@ -253,10 +253,6 @@ public class ArmV3Cpu {
         return reg.getReg(PC);
     }
 
-    public void step() {
-        reg.step();
-    }
-
     public Registers getState() {
         return reg;
     }

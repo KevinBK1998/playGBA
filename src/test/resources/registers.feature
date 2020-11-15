@@ -138,19 +138,17 @@ Feature: Registers
   CPSR: The current condition codes (flags) and CPU control bits are stored in the CPSR register.
     When I read from CPSR
     Then I should get 0
-    When I write 295 to CPSR
-    Then 295 should be present in CPSR
+    When I write <data> to CPSR
+    Then <data> should be present in CPSR
     When I switch mode to <mode>
     And I read from CPSR
-    Then I should get 295
-    When I write 308 to CPSR
-    Then 308 should be present in CPSR
+    Then I should get <data>
     Examples:
-      | mode |
-      | svc  |
-      | abt  |
-      | irq  |
-      | und  |
+      | data | mode |
+      | 19   | svc  |
+      | 23   | abt  |
+      | 18   | irq  |
+      | 27   | und  |
 
   Scenario Outline: The Saved Program Status Register is banked
   SPSR (Program Status Registers) (ARMv3 and up): When an exception arises, the old CPSR is saved in the SPSR of the

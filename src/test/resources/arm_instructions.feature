@@ -85,7 +85,7 @@ Feature: The Arm Instruction Set
     And pc is 280
     And R0 is 0x11d
     When i try to execute 10 ff 2f e1
-    Then pc must be 288
+    Then pc must be 286
     And CPSR must be 00 00 00 7f
     And Irq must be enabled
     And CPU must run in THUMB

@@ -138,7 +138,7 @@ public class Registers {
     }
 
     public void step() {
-        reg15 += 4;
+        reg15 += thumbMode ? 2 : 4;
     }
 
     @Override

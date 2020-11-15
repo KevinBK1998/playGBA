@@ -35,16 +35,18 @@ public class GbaCpu {
 
     private void thumbTrigger() throws UndefinedOpcodeException {
         thumbCpu.execute(opcodeDecoded);
+        if (!reg.thumbMode) return;
         decodeInstruction();
         fetchInstruction();
-        thumbCpu.step();
+        reg.step();
     }
 
     public void armTrigger() throws UndefinedOpcodeException {
         armCpu.execute(opcodeDecoded);
+        if (reg.thumbMode) return;
         decodeInstruction();
         fetchInstruction();
-        armCpu.step();
+        reg.step();
     }
 
     private void decodeInstruction() throws UndefinedOpcodeException {
@@ -54,7 +56,6 @@ public class GbaCpu {
             opcodeDecoded = null;
         } else
             opcodeDecoded = OpCode.decodeOpcode(opcodeEncoded);
-
     }
 
     private void fetchInstruction() {
