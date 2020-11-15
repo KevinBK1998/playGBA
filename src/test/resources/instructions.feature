@@ -20,6 +20,9 @@ Feature: The Instruction Set
       | 01 43 a0 e3 | always move r4, 0x4000000             |
       | 08 42 c4 e5 | always store byte r4, [r4 + 0x208]    |
       | 0f 00 00 eb | always branch with link f             |
+      | d3 00 a0 e3 | always move r0, 0xd3                  |
+      | 00 f0 29 e1 | always move reg to psr CPSR_fc, r0    |
+      | d0 d0 9f e5 | always load word sp, [pc + 0xd0]      |
   #TODO:Add more instructions
 
 #  Scenario: Branch, Branch with Link (B, BL, BLX_imm)
@@ -144,6 +147,8 @@ Feature: The Instruction Set
     Then R12 must be 0x4000000
     When i try to execute df 00 a0 e3
     Then R0 must be 0xdf
+    When i try to execute d3 00 a0 e3
+    Then R0 must be 0xd3
 
 #  Scenario: PSR Transfer
 #  These instructions occupy an unused area (TEQ,TST,CMP,CMN with S=0) of ALU opcodes.
@@ -187,6 +192,17 @@ Feature: The Instruction Set
     Given R0 is 0xdf
     When i try to execute 00 f0 29 e1
     Then CPSR must be 00 00 00 df
+    And Irq must be disabled
+    And Fiq must be disabled
+    And CPU must run in ARM
+    And mode must be sys
+    Given R0 is 0xd3
+    When i try to execute 00 f0 29 e1
+    Then CPSR must be 00 00 00 d3
+    And Irq must be disabled
+    And Fiq must be disabled
+    And CPU must run in ARM
+    And mode must be svc
 
 #  Scenario: Single Data Transfer (From Memory)
 #  Bit    Expl.
@@ -217,10 +233,16 @@ Feature: The Instruction Set
 #  Return: CPSR flags are not affected.
 #  Execution Time: For normal LDR: 1S+1N+1I. For LDR PC: 2S+2N+1I. For STR: 2N.
   Scenario: Load Register with byte from memory
-    Given 0 is present in memory 0x4000300
+    Given byte 0 is present in memory 0x4000300
     And R12 is 0x4000000
     When i try to execute 00 c3 dc e5
     Then R12 must be 0
+
+  Scenario: Load Register with word from memory
+    #Given word 0x03007fe0 is present in memory 0x1c0
+    And pc is 240
+    When i try to execute d0 d0 9f e5
+    Then SP must be 0x03007fe0
 
   Scenario: Store Register to a byte in memory
     And R4 is 0x4000000

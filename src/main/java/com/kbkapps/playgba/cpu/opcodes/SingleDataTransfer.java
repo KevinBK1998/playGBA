@@ -8,7 +8,17 @@ import static com.kbkapps.playgba.cpu.constants.Flags.values;
 public class SingleDataTransfer extends OpCode {
     boolean preFlag;
     boolean addFlag;
-    boolean sizeOfImmediate;
+
+    boolean byteTransfer;
+
+    SingleDataTransfer(Instructions opcode, Flags cond, int flags, int data) {
+        super(opcode, cond, flags, data);
+        preFlag = ((flags >> 2) & 1) != 0;//P
+        addFlag = ((flags >> 1) & 1) != 0;//U
+        byteTransfer = (flags & 1) != 0;//B
+        immediate = data & 0xF_FF;
+//        System.out.println("immediate (12-bit)= 0x" + Integer.toUnsignedString(immediate, 16));
+    }
 
     public boolean shouldAddOffsetBeforeTransfer() {
         return preFlag;
@@ -18,13 +28,8 @@ public class SingleDataTransfer extends OpCode {
         return addFlag;
     }
 
-    SingleDataTransfer(Instructions opcode, Flags cond, int flags, int data) {
-        super(opcode, cond, flags, data);
-        preFlag = ((flags >> 2) & 1) != 0;//P
-        addFlag = ((flags >> 1) & 1) != 0;//U
-        sizeOfImmediate = (flags & 1) != 0;//B
-        immediate = data & 0xF_FF;
-//        System.out.println("immediate (12-bit)= 0x" + Integer.toUnsignedString(immediate, 16));
+    public boolean isByteTransfer() {
+        return byteTransfer;
     }
 
     public static SingleDataTransfer decodeOpcode(int opcodeEncoded) {
@@ -41,6 +46,6 @@ public class SingleDataTransfer extends OpCode {
 
     @Override
     public String toString() {
-        return condition.toString() + " " + instruction.toString() + (sizeOfImmediate ? " byte " : " word ") + getRegName(regDest) + ", [" + getRegName(regNo) + (preFlag ? " " : "] ") + (addFlag ? "+" : "-") + " 0x" + Integer.toUnsignedString(immediate, 16) + (preFlag ? "]" : "");
+        return condition.toString() + " " + instruction.toString() + (byteTransfer ? " byte " : " word ") + getRegName(regDest) + ", [" + getRegName(regNo) + (preFlag ? " " : "] ") + (addFlag ? "+" : "-") + " 0x" + Integer.toUnsignedString(immediate, 16) + (preFlag ? "]" : "");
     }
 }

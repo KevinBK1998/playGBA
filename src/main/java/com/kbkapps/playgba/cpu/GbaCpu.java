@@ -23,6 +23,13 @@ public class GbaCpu {
         System.out.println("Reg = " + cpu.armCpu.getState());
     }
 
+    public void trigger() throws UndefinedOpcodeException {
+        armCpu.execute(opcodeDecoded);
+        decodeInstruction();
+        fetchInstruction();
+        armCpu.step();
+    }
+
     private void decodeInstruction() throws UndefinedOpcodeException {
         int pc = armCpu.getPC();
         if (pc != prevPc || pc == 0) {
@@ -31,35 +38,6 @@ public class GbaCpu {
         } else
             opcodeDecoded = OpCode.decodeOpcode(opcodeEncoded);
 
-    }
-
-    private static String getUnsignedStringFromByte(byte datum) {
-        String result = Integer.toUnsignedString(datum, 16);
-        if (result.length() == 8)
-            return result.substring(6);
-        if (result.length() == 1)
-            return "0" + result;
-        return result;
-    }
-
-    public void runTimes(int times) {
-        try {
-            for (int i = 0; i < times; i++)
-                trigger();
-        } catch (UndefinedOpcodeException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public Registers getState() {
-        return armCpu.getState();
-    }
-
-    public void trigger() throws UndefinedOpcodeException {
-        armCpu.execute(opcodeDecoded);
-        decodeInstruction();
-        fetchInstruction();
-        armCpu.step();
     }
 
     private void fetchInstruction() {
@@ -73,5 +51,27 @@ public class GbaCpu {
         }
         System.out.println("was Fetched");
         prevPc = pc + 4;
+    }
+
+    private static String getUnsignedStringFromByte(byte datum) {
+        String result = Integer.toUnsignedString(datum, 16);
+        if (result.length() == 8)
+            return result.substring(6);
+        if (result.length() == 1)
+            return "0" + result;
+        return result;
+    }
+
+    public Registers getState() {
+        return armCpu.getState();
+    }
+
+    public void runTimes(int times) {
+        try {
+            for (int i = 0; i < times; i++)
+                trigger();
+        } catch (UndefinedOpcodeException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

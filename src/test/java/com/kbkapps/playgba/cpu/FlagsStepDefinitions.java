@@ -3,6 +3,7 @@ package com.kbkapps.playgba.cpu;
 import com.kbkapps.playgba.cpu.constants.Flags;
 import com.kbkapps.playgba.cpu.constants.Instructions;
 import com.kbkapps.playgba.cpu.opcodes.ArithmeticLogical;
+import com.kbkapps.playgba.cpu.opcodes.Branch;
 import com.kbkapps.playgba.cpu.opcodes.OpCode;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -21,8 +22,9 @@ public class FlagsStepDefinitions {
     }
 
     @When("I try to execute B {word} {int}")
-    public void executeB(String condition, int label) {
-        armCpu.runOpcode("B", condition, label);
+    public void executeB(String condition, int label) throws UndefinedOpcodeException {
+        Flags cond = Flags.valueOf(condition);
+        armCpu.execute(new Branch(Instructions.B, cond, label));
     }
 
     @Then("^I should be at ([0-9]+)$")

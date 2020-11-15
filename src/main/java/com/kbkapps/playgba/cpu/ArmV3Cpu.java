@@ -13,6 +13,7 @@ import static com.kbkapps.playgba.cpu.constants.Flags.CS;
 public class ArmV3Cpu {
     public static final Flags HS = CS;
     public static final Flags LO = CC;
+    public static final int SP = 13;
     public static final int LR = 14;
     public static final int PC = 15;
     public static final int N = 0x80_00_00_00;
@@ -29,20 +30,6 @@ public class ArmV3Cpu {
     public ArmV3Cpu(Registers registers, GbaMemory gbaMemory) {
         this(registers);
         this.gbaMemory = gbaMemory;
-    }
-
-    public void runOpcode(String opCode, String condition, int label) {
-        Flags cond = Flags.valueOf(condition);
-        if (opCode.equals("B"))
-            if (reg.canExecute(cond))
-                branch(new Branch(Instructions.B, cond, label));
-    }
-
-    private void branch(OpCode opcode) {
-        Branch br = (Branch) opcode;
-        if (br.getInstruction() == Instructions.BL)
-            reg.setReg(LR, reg.getReg(PC) + 4);
-        reg.setReg(PC, (int) (Integer.toUnsignedLong(getPC()) + br.getOffset() * 4));
     }
 
     public void execute(OpCode opcode) throws UndefinedOpcodeException {
@@ -80,6 +67,13 @@ public class ArmV3Cpu {
         }
     }
 
+    private void branch(OpCode opcode) {
+        Branch br = (Branch) opcode;
+        if (br.getInstruction() == Instructions.BL)
+            reg.setReg(LR, reg.getReg(PC) + 4);
+        reg.setReg(PC, (int) (Integer.toUnsignedLong(getPC()) + br.getOffset() * 4));
+    }
+
     private void logicalOr(OpCode opcode) {
         ArithmeticLogical alu = (ArithmeticLogical) opcode;
         if (alu.hasImmediate()) {
@@ -109,12 +103,18 @@ public class ArmV3Cpu {
     }
 
     private void loadReg(SingleDataTransfer opcode) {
+
         if (opcode.hasImmediate()) {
             if (opcode.shouldAddOffsetBeforeTransfer()) {
                 if (opcode.shouldAdd()) {
                     //[r12+0x300]
                     int regNo = reg.getReg(opcode.getRegNo());
-                    int data = gbaMemory.read8(regNo + opcode.getImmediate());
+                    int data;
+                    if (opcode.isByteTransfer())
+                        data = gbaMemory.read8(regNo + opcode.getImmediate());
+                    else
+                        data = gbaMemory.read32(regNo + opcode.getImmediate());
+                    System.out.println("data = " + Integer.toHexString(data));
                     regNo = opcode.getRegDest();
                     reg.setReg(regNo, data);
                 } else {
@@ -136,7 +136,12 @@ public class ArmV3Cpu {
                 if (opcode.shouldAdd()) {
                     //[r12+0x300]
                     int regNo = reg.getReg(opcode.getRegNo());
-                    gbaMemory.write8(regNo + opcode.getImmediate(), (byte) regNo);
+                    try {
+                        gbaMemory.write8(regNo + opcode.getImmediate(), (byte) regNo);
+                    } catch (WriteDeniedException e) {
+                        e.printStackTrace();
+                        System.exit(-1);
+                    }
                 } else {
                     //[r12-0x300]
                 }

@@ -26,9 +26,9 @@ public class GbaMemory {
         }
     }
 
-    public void write8(int address, byte data) {
+    public void write8(int address, byte data) throws WriteDeniedException {
         if (address < BIOS_SIZE)
-            bios[address] = data;
+            throw new WriteDeniedException(address);
         else if (address < SLOW_WORK_RAM_END)
             slowWorkRam[address - SLOW_WORK_RAM_OFFSET] = data;
         else if (address < WORK_RAM_END)
@@ -45,5 +45,21 @@ public class GbaMemory {
         else if (address < WORK_RAM_END)
             return workRam[address - WORK_RAM_OFFSET];
         return registers.read8(address - IO_REG_OFFSET);
+    }
+
+    public void write32(int address, int data) throws WriteDeniedException {
+        for (int i = address; i < address + 4; i++) {
+            write8(i, (byte) data);
+            data = data >> 8;
+        }
+    }
+
+    public int read32(int address) {
+        int completeWord = 0;
+        for (int i = address; i < address + 4; i++) {
+            byte byteValue = read8(i);
+            completeWord += Byte.toUnsignedInt(byteValue) << (8 * i);
+        }
+        return completeWord;
     }
 }

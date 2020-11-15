@@ -68,12 +68,22 @@ public class InstructionStepDefinitions {
         assertThat(reg.getReg(Integer.parseInt(regNo))).isEqualTo(Integer.parseUnsignedInt(expectedData, 16));
     }
 
-    @Given("^([0-9a-f]{1,8}) is present in memory 0x([0-9a-f]{1,8})$")
-    public void isPresentInMemory(String data, String address) {
+    @Given("^word 0x([0-9a-f]{1,8}) is present in memory 0x([0-9a-f]{1,8})$")
+    public void isPresentInMemoryX(String data, String address) throws WriteDeniedException {
+        mem.write32(Integer.parseUnsignedInt(address, 16), Integer.parseUnsignedInt(data, 16));
+    }
+
+    @Given("^byte 0x([0-9a-f]{1,2}) is present in memory 0x([0-9a-f]{1,8})$")
+    public void bIsPresentInMemoryX(String data, String address) throws WriteDeniedException {
         mem.write8(Integer.parseUnsignedInt(address, 16), Byte.parseByte(data, 16));
     }
 
-    @And("^R([0-9]{1,2}) is 0x([0-9a-f]{1,8})$")
+    @Given("^byte ([0-9]+) is present in memory 0x([0-9a-f]{1,8})$")
+    public void bIsPresentInMemory(String data, String address) throws WriteDeniedException {
+        mem.write8(Integer.parseUnsignedInt(address, 16), Byte.parseByte(data));
+    }
+
+    @Given("^R([0-9]{1,2}) is 0x([0-9a-f]{1,8})$")
     public void rIsX(String regNo, String data) {
         reg.setReg(Integer.parseInt(regNo), Integer.parseUnsignedInt(data, 16));
     }
@@ -87,4 +97,34 @@ public class InstructionStepDefinitions {
     public void lrMustBe(String expectedPC) {
         assertThat(reg.getReg(ArmV3Cpu.LR)).isEqualTo(Integer.parseUnsignedInt(expectedPC));
     }
+
+    @Then("mode must be {word}")
+    public void modeMustBe(String expectedMode) {
+        assertThat(reg.getMode()).isEqualTo(expectedMode);
+    }
+
+    @Then("Irq must be disabled")
+    public void irqMustBeDisabled() {
+        assertThat(reg.irqEnable).isFalse();
+    }
+
+    @Then("Fiq must be disabled")
+    public void fiqMustBeDisabled() {
+        assertThat(reg.fiqEnable).isFalse();
+    }
+
+    @Then("CPU must run in ARM")
+    public void cpuMustRunInARM() {
+        assertThat(armCpu.getClass().getName()).matches(".*Arm.*");
+    }
+
+    @Then("^SP must be 0x([0-9a-f]{1,8})$")
+    public void spMustBeX(String expectedSP) {
+        assertThat(reg.getReg(ArmV3Cpu.SP)).inHexadecimal().isEqualTo(Integer.parseUnsignedInt(expectedSP, 16));
+    }
+
+//    @Given("^SP is ([0-9a-f]{1,8})$")
+//    public void spIs(String sp) {
+//        reg.setReg(ArmV3Cpu.SP,Integer.parseUnsignedInt(sp,16));
+//    }
 }
