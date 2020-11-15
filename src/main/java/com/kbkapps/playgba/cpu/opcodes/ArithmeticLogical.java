@@ -40,7 +40,9 @@ public class ArithmeticLogical extends OpCode {
     public ArithmeticLogical(Instructions opcode, Flags cond, boolean immediateFlag, boolean canChangePsr, int opcodeEncoded) {
         super(opcode, cond, immediateFlag);
         regNo = (opcodeEncoded >> 16) & 0xF;
+//        System.out.println("regNo = " + regNo);
         regDest = (opcodeEncoded >> 12) & 0xF;
+//        System.out.println("regDest = " + regDest);
         this.immediateFlag = immediateFlag;
         changePSR = canChangePsr;
         int shift = (opcodeEncoded >> 8) & 0xF;
@@ -63,6 +65,9 @@ public class ArithmeticLogical extends OpCode {
         Flags cond = values()[(opcodeEncoded >> 28) & 0xF];
         Instructions opcode = null;
         switch ((opcodeEncoded >> 21) & 0xF) {
+            case 0x4:
+                opcode = Instructions.ADD;
+                break;
             case 0x9:
                 opcode = Instructions.TEQ;
                 break;
@@ -123,6 +128,8 @@ public class ArithmeticLogical extends OpCode {
     @Override
     public String toString() {
 //        System.out.println("changePsr= " + changePSR);
+        if (instruction == Instructions.ADD)
+            return condition.toString() + " " + instruction.toString() + " " + getRegName(regDest) + ", " + getRegName(regNo) + ", 0x" + Integer.toUnsignedString(immediate, 16);
         if (instruction == Instructions.TEQ)
             return condition.toString() + " " + instruction.toString() + " " + getRegName(regNo) + ", 0x" + Integer.toUnsignedString(immediate, 16);
         if (instruction == Instructions.CMP)

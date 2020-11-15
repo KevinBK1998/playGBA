@@ -25,6 +25,11 @@ Feature: The Instruction Set
       | 00 e0 a0 e3 | always move lr, 0x0                   |
       | 0e f0 69 e1 | always move reg to psr SPSR_fc, lr    |
       | d2 00 a0 e3 | always move r0, 0xd2                  |
+      | b8 d0 9f e5 | always load word sp, [pc + 0xb8]      |
+      | 5f 00 a0 e3 | always move r0, 0x5f                  |
+      | a0 d0 9f e5 | always load word sp, [pc + 0xa0]      |
+      | 01 00 8f e2 | always add r0, pc, 0x1                |
+      #|             | always bx r0                          |
   #TODO:Add more instructions
 
 #  Scenario: Branch, Branch with Link (B, BL, BLX_imm)
@@ -147,15 +152,16 @@ Feature: The Instruction Set
     Then lr must be 4
     When i try to execute 01 c3 a0 e3
     Then R12 must be 0x4000000
-    When i try to execute df 00 a0 e3
-    Then R0 must be 0xdf
-    When i try to execute d3 00 a0 e3
-    Then R0 must be 0xd3
-    When i try to execute 00 e0 a0 e3
-    Then lr must be 0
+    When i try to execute 5f 00 a0 e3
+    Then R0 must be 0x5f
     When i try to execute d2 00 a0 e3
     Then R0 must be 0xd2
-
+    When i try to execute d3 00 a0 e3
+    Then R0 must be 0xd3
+    When i try to execute df 00 a0 e3
+    Then R0 must be 0xdf
+    When i try to execute 00 e0 a0 e3
+    Then lr must be 0
 
 #  Scenario: PSR Transfer
 #  These instructions occupy an unused area (TEQ,TST,CMP,CMN with S=0) of ALU opcodes.
@@ -193,6 +199,10 @@ Feature: The Instruction Set
     Then R12 must be 0
 
   Scenario: Move to spSr (fc) from Reg
+    Given CPSR is 00 00 00 d2
+    And lr is 0
+    When i try to execute 0e f0 69 e1
+    Then SPSR must be 00 00 00 00
     Given CPSR is 00 00 00 d3
     And lr is 0
     When i try to execute 0e f0 69 e1
@@ -202,6 +212,13 @@ Feature: The Instruction Set
     Given R12 is 0x0
     When i try to execute 0c f0 29 01
     Then CPSR must be 00 00 00 00
+    Given R0 is 0x5f
+    When i try to execute 00 f0 29 e1
+    Then CPSR must be 00 00 00 5f
+    And Irq must be enabled
+    And Fiq must be disabled
+    And CPU must run in ARM
+    And mode must be sys
     Given R0 is 0xd2
     When i try to execute 00 f0 29 e1
     Then CPSR must be 00 00 00 d2
@@ -260,6 +277,14 @@ Feature: The Instruction Set
     Then R12 must be 0
 
   Scenario: Load Register with word from memory
+    #Given word 0x03007f00 is present in memory 0x1b8
+    And pc is 280
+    When i try to execute a0 d0 9f e5
+    Then SP must be 0x03007f00
+    #Given word 0x03007fa0 is present in memory 0x1bc
+    And pc is 260
+    When i try to execute b8 d0 9f e5
+    Then SP must be 0x03007fa0
     #Given word 0x03007fe0 is present in memory 0x1c0
     And pc is 240
     When i try to execute d0 d0 9f e5

@@ -3,7 +3,7 @@ package com.kbkapps.playgba.cpu;
 import com.kbkapps.playgba.cpu.opcodes.OpCode;
 
 public class GbaCpu {
-    public static final int N_STEPS = 24;
+    public static final int N_STEPS = 48;
     public int opcodeEncoded;
     GbaMemory gbaMemory = new GbaMemory();
     ArmV3Cpu armCpu = new ArmV3Cpu(new Registers(), gbaMemory);
@@ -20,7 +20,8 @@ public class GbaCpu {
             System.out.println(e.getMessage());
         }
         System.out.println(i + " instructions executed");
-        System.out.println("Reg = " + cpu.armCpu.getState());
+        System.out.println("Registers:");
+        System.out.println(cpu.armCpu.getState());
     }
 
     public void trigger() throws UndefinedOpcodeException {

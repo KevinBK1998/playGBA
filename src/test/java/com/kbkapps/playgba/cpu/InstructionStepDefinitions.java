@@ -108,6 +108,11 @@ public class InstructionStepDefinitions {
         assertThat(reg.getMode()).isEqualTo(expectedMode);
     }
 
+    @Then("Irq must be enabled")
+    public void irqMustBeEnabled() {
+        assertThat(reg.irqEnable).isTrue();
+    }
+
     @Then("Irq must be disabled")
     public void irqMustBeDisabled() {
         assertThat(reg.irqEnable).isFalse();
