@@ -193,10 +193,10 @@ Feature: The Instruction Set
     Then R12 must be 0
 
   Scenario: Move to spSr (fc) from Reg
-    Given lr is 1
-    And CPSR is 00 00 00 d3
+    Given CPSR is 00 00 00 d3
+    And lr is 0
     When i try to execute 0e f0 69 e1
-    Then SPSR must be 00 00 00 01
+    Then SPSR must be 00 00 00 00
 
   Scenario: Move to cpSr (fc) from Reg
     Given R12 is 0x0

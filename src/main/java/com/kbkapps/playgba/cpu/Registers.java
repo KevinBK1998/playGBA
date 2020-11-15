@@ -11,7 +11,7 @@ public class Registers {
     public static final int ABORT = 3;
     public static final int UNDEFINED = 4;
     static final char CPSR = 'C';
-    private static final char SPSR = 'S';
+    static final char SPSR = 'S';
     //Registers 0-12
     private final int[] unbankedReg = new int[13];
     //Registers 13(SP) and 14(LR)

@@ -89,10 +89,8 @@ public class ArmV3Cpu {
         ArithmeticLogical alu = (ArithmeticLogical) opcode;
         if (alu.getInstruction() == Instructions.MRS)
             reg.setReg(alu.getRegDest(), reg.getPSR(alu.getPsr()));
-        else {
-            System.out.println("alu.getPsr() = " + alu.getPsr());
+        else
             reg.setPSR(alu.getPsr(), alu.getMask() & reg.getReg(alu.getRegSource()));
-        }
     }
 
     private void testExclusive(OpCode opcode) {

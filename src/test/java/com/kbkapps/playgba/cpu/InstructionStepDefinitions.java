@@ -130,7 +130,7 @@ public class InstructionStepDefinitions {
 
     @Then("^SPSR must be ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2})$")
     public void spsrMustBe(String arg0, String arg1, String arg2, String arg3) {
-        assertThat(reg.getPSR(Registers.CPSR)).inHexadecimal().isEqualTo(getIntFromBytes(arg3, arg2, arg1, arg0));
+        assertThat(reg.getPSR(Registers.SPSR)).inHexadecimal().isEqualTo(getIntFromBytes(arg3, arg2, arg1, arg0));
     }
 
 //    @Given("^SP is ([0-9a-f]{1,8})$")
