@@ -20,7 +20,7 @@ public class GbaMemory {
             FileInputStream in = new FileInputStream("src/main/resources/bios.bin");
             bios = new byte[in.available()];
             if (in.read(bios) < BIOS_SIZE)
-                System.out.println("ERROR: UNABLE TO READ COMPLETELY");
+                System.out.println("ERROR: UNABLE TO READ BIOS COMPLETELY");
         } catch (IOException e) {
             e.printStackTrace();
         }

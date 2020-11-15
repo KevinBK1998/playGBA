@@ -21,8 +21,10 @@ Feature: The Instruction Set
       | 08 42 c4 e5 | always store byte r4, [r4 + 0x208]    |
       | 0f 00 00 eb | always branch with link f             |
       | d3 00 a0 e3 | always move r0, 0xd3                  |
-      | 00 f0 29 e1 | always move reg to psr CPSR_fc, r0    |
       | d0 d0 9f e5 | always load word sp, [pc + 0xd0]      |
+      | 00 e0 a0 e3 | always move lr, 0x0                   |
+      | 0e f0 69 e1 | always move reg to psr SPSR_fc, lr    |
+      | d2 00 a0 e3 | always move r0, 0xd2                  |
   #TODO:Add more instructions
 
 #  Scenario: Branch, Branch with Link (B, BL, BLX_imm)
@@ -142,13 +144,18 @@ Feature: The Instruction Set
   Scenario: Move (with immediate) instruction is executed
     Given CPSR is 40 00 00 00
     When i try to execute 04 e0 a0 03
-    Then R14 must be 4
+    Then lr must be 4
     When i try to execute 01 c3 a0 e3
     Then R12 must be 0x4000000
     When i try to execute df 00 a0 e3
     Then R0 must be 0xdf
     When i try to execute d3 00 a0 e3
     Then R0 must be 0xd3
+    When i try to execute 00 e0 a0 e3
+    Then lr must be 0
+    When i try to execute d2 00 a0 e3
+    Then R0 must be 0xd2
+
 
 #  Scenario: PSR Transfer
 #  These instructions occupy an unused area (TEQ,TST,CMP,CMN with S=0) of ALU opcodes.
@@ -185,17 +192,23 @@ Feature: The Instruction Set
     When i try to execute 00 c0 0f 01
     Then R12 must be 0
 
+  Scenario: Move to spSr (fc) from Reg
+    Given lr is 1
+    And CPSR is 00 00 00 d3
+    When i try to execute 0e f0 69 e1
+    Then SPSR must be 00 00 00 01
+
   Scenario: Move to cpSr (fc) from Reg
     Given R12 is 0x0
     When i try to execute 0c f0 29 01
     Then CPSR must be 00 00 00 00
-    Given R0 is 0xdf
+    Given R0 is 0xd2
     When i try to execute 00 f0 29 e1
-    Then CPSR must be 00 00 00 df
+    Then CPSR must be 00 00 00 d2
     And Irq must be disabled
     And Fiq must be disabled
     And CPU must run in ARM
-    And mode must be sys
+    And mode must be irq
     Given R0 is 0xd3
     When i try to execute 00 f0 29 e1
     Then CPSR must be 00 00 00 d3
@@ -203,6 +216,14 @@ Feature: The Instruction Set
     And Fiq must be disabled
     And CPU must run in ARM
     And mode must be svc
+    Given R0 is 0xdf
+    When i try to execute 00 f0 29 e1
+    Then CPSR must be 00 00 00 df
+    And Irq must be disabled
+    And Fiq must be disabled
+    And CPU must run in ARM
+    And mode must be sys
+
 
 #  Scenario: Single Data Transfer (From Memory)
 #  Bit    Expl.

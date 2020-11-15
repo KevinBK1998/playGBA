@@ -10,8 +10,6 @@ public class ArithmeticLogical extends OpCode {
     boolean changePSR;
     private boolean isSavedPsr;
     int regM;
-
-
     int mask;
 
     public int getRegSource() {
@@ -24,6 +22,7 @@ public class ArithmeticLogical extends OpCode {
 
     public ArithmeticLogical(boolean isSavedPsr, Instructions opcode, Flags cond, int flags, int mReg) {
         super(opcode, cond, false);
+        this.isSavedPsr = isSavedPsr;
         mask = 0;
         for (int i = 3; i >= 0; i--) {
             mask = mask << 8;
@@ -117,7 +116,7 @@ public class ArithmeticLogical extends OpCode {
         }
         System.out.println("cond = " + cond);
         System.out.println("shouldChangePsr = " + shouldChangePsr);
-        System.out.println("rest of opcodeEncoded(ALU) = " + Integer.toUnsignedString(opcodeEncoded & 0xFF_FF_FF, 16));
+        System.out.println("rest of opcodeEncoded(ALUs) = " + Integer.toUnsignedString(opcodeEncoded & 0xFF_FF_FF, 16));
         throw new UndefinedOpcodeException(opcodeEncoded);
     }
 

@@ -93,6 +93,11 @@ public class InstructionStepDefinitions {
         assertThat(mem.read8(Integer.parseUnsignedInt(address, 16))).inHexadecimal().isEqualTo(Byte.parseByte(data, 16));
     }
 
+    @Given("^lr is ([0-9]+)$")
+    public void lrIs(String pc) {
+        reg.setReg(ArmV3Cpu.LR, Integer.parseUnsignedInt(pc));
+    }
+
     @Then("^lr must be ([0-9]+)$")
     public void lrMustBe(String expectedPC) {
         assertThat(reg.getReg(ArmV3Cpu.LR)).isEqualTo(Integer.parseUnsignedInt(expectedPC));
@@ -121,6 +126,11 @@ public class InstructionStepDefinitions {
     @Then("^SP must be 0x([0-9a-f]{1,8})$")
     public void spMustBeX(String expectedSP) {
         assertThat(reg.getReg(ArmV3Cpu.SP)).inHexadecimal().isEqualTo(Integer.parseUnsignedInt(expectedSP, 16));
+    }
+
+    @Then("^SPSR must be ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2})$")
+    public void spsrMustBe(String arg0, String arg1, String arg2, String arg3) {
+        assertThat(reg.getPSR(Registers.CPSR)).inHexadecimal().isEqualTo(getIntFromBytes(arg3, arg2, arg1, arg0));
     }
 
 //    @Given("^SP is ([0-9a-f]{1,8})$")
