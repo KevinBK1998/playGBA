@@ -7,9 +7,9 @@ import com.kbkapps.playgba.cpu.constants.Instructions;
 import static com.kbkapps.playgba.cpu.constants.Flags.values;
 
 public class ExchangingBranch extends OpCode {
-    public ExchangingBranch(Instructions opcode, Flags cond, int regDest) {
+    public ExchangingBranch(Instructions opcode, Flags cond, int regNo) {
         super(opcode, cond, false);
-        this.regDest = regDest;
+        this.regNo = regNo;
     }
 
     public static ExchangingBranch decodeOpcode(int opcodeEncoded) throws UndefinedOpcodeException {
@@ -24,7 +24,7 @@ public class ExchangingBranch extends OpCode {
     @Override
     public String toString() {
         if (instruction == Instructions.BX)
-            return condition.toString() + " " + instruction.toString() + " " + getRegName(regDest);
+            return condition.toString() + " " + instruction.toString() + " " + getRegName(regNo);
         return super.toString();
     }
 }

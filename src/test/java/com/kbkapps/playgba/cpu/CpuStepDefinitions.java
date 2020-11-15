@@ -15,7 +15,7 @@ public class CpuStepDefinitions {
 
     @When("clock is triggered")
     public void clockIsTriggered() throws UndefinedOpcodeException {
-        gbaCpu.trigger();
+        gbaCpu.armTrigger();
     }
 
     @Then("current instruction is executed")

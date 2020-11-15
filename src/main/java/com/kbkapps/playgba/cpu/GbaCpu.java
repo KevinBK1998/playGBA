@@ -6,7 +6,9 @@ public class GbaCpu {
     public static final int N_STEPS = 48;
     public int opcodeEncoded;
     GbaMemory gbaMemory = new GbaMemory();
-    ArmV3Cpu armCpu = new ArmV3Cpu(new Registers(), gbaMemory);
+    Registers reg = new Registers();
+    ArmV3Cpu armCpu = new ArmV3Cpu(reg, gbaMemory);
+    ThumbCpu thumbCpu = new ThumbCpu(reg, gbaMemory);
     OpCode opcodeDecoded;
     private int prevPc;
 
@@ -25,6 +27,20 @@ public class GbaCpu {
     }
 
     public void trigger() throws UndefinedOpcodeException {
+        if (reg.thumbMode)
+            thumbTrigger();
+        else
+            armTrigger();
+    }
+
+    private void thumbTrigger() throws UndefinedOpcodeException {
+        thumbCpu.execute(opcodeDecoded);
+        decodeInstruction();
+        fetchInstruction();
+        thumbCpu.step();
+    }
+
+    public void armTrigger() throws UndefinedOpcodeException {
         armCpu.execute(opcodeDecoded);
         decodeInstruction();
         fetchInstruction();

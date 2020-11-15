@@ -18,7 +18,7 @@ public class Registers {
     private final int[] bankedReg = new int[10];
     private final int[] savedStatusReg = new int[5];
     public boolean irqEnable;
-    public boolean fiqEnable;
+    public boolean thumbMode;
     private int mode;
     private boolean privileged;
     //PC
@@ -39,6 +39,7 @@ public class Registers {
 
     private void setControlBits() {
         irqEnable = (currentStatusReg & 0x80) == 0;
+        thumbMode = (currentStatusReg & 0x20) != 0;
         int modeMeta = currentStatusReg & 0x1F;
         switch (modeMeta) {
             case 0:

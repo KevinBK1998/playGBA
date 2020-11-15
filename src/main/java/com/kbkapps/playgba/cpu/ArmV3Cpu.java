@@ -41,6 +41,9 @@ public class ArmV3Cpu {
             if (reg.canExecute(opcode.getCondition())) {
                 branch(opcode);
             }
+        } else if (opcode.getInstruction() == Instructions.BX) {
+            if (reg.canExecute(opcode.getCondition()))
+                exBranch(opcode);
         } else if (opcode.getInstruction() == Instructions.MRS | opcode.getInstruction() == Instructions.MSR) {
             if (reg.canExecute(opcode.getCondition()))
                 psrTransfer(opcode);
@@ -70,11 +73,23 @@ public class ArmV3Cpu {
         }
     }
 
+    private void exBranch(OpCode opcode) {
+        if (opcode.getInstruction() == Instructions.BX) {
+            int regNo = reg.getReg(opcode.getRegNo());
+            boolean thumbMode = (regNo & 1) != 0;
+            regNo = regNo & 0xFF_FF_FF_FE;
+//            System.out.println("regNo = " + regNo);
+//            System.out.println("thumbMode = " + thumbMode);
+            reg.setReg(PC, regNo);
+            reg.setPSR(Registers.CPSR, reg.getPSR(Registers.CPSR) | 0x20);
+        }
+    }
+
     private void add(OpCode opcode) {
         ArithmeticLogical alu = (ArithmeticLogical) opcode;
         if (alu.hasImmediate()) {
             int result = reg.getReg(alu.getRegNo()) + alu.getImmediate();
-//            System.out.println("result = " + Integer.toUnsignedString((int) result, 16));
+            System.out.println("result = " + Integer.toUnsignedString(result, 16));
             reg.setReg(alu.getRegDest(), result);
             if (alu.canChangePsr())
                 reg.setPSR(Registers.CPSR, setFlags(result));

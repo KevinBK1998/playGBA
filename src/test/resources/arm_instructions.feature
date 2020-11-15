@@ -1,4 +1,4 @@
-Feature: The Instruction Set
+Feature: The Arm Instruction Set
 
   Scenario Outline: Correct instruction is decoded
     When i try to decode <opcodes>
@@ -66,6 +66,31 @@ Feature: The Instruction Set
     Then pc must be 228
     And lr must be 168
 
+#  Scenario:Branch and Exchange (BX, BLX_reg)
+#  Bit    Expl.
+#  31-28  Condition
+#  27-8   Must be "0001.0010.1111.1111.1111" for this instruction
+#  7-4    Opcode
+#  0001b: BX{cond}  Rn    ;PC=Rn, T=Rn.0   (ARMv4T and ARMv5 and up)
+#  0010b: BXJ{cond} Rn    ;Change to Jazelle bytecode (ARMv5TEJ and up)
+#  0011b: BLX{cond} Rn    ;PC=Rn, T=Rn.0, LR=PC+4     (ARMv5 and up)
+#  3-0    Rn - Operand Register  (R0-R14)
+#  Switching to THUMB Mode: Set Bit 0 of the value in Rn to 1, program continues then at Rn-1 in THUMB mode.
+#  Using BLX R14 is possible (sets PC=Old_LR, and New_LR=retadr).
+#  Using BX R15 acts as BX $+8 (tested and working on ARM7/ARM9, although it isn't officially defined as predictable behaviour).
+#  Execution Time: 2S + 1N
+#  Return: No flags affected.
+  Scenario: Exchanging Branch is executed
+    Given CPSR is 00 00 00 5f
+    And pc is 280
+    And R0 is 0x11d
+    When i try to execute 10 ff 2f e1
+    Then pc must be 288
+    And CPSR must be 00 00 00 7f
+    And Irq must be enabled
+    And CPU must run in THUMB
+    And mode must be sys
+
 #  Scenario: ALU
 #  Bit    Expl.
 #  31-28  Condition
@@ -131,7 +156,7 @@ Feature: The Instruction Set
 #Execution Time: (1+p)S+rI+pN. Whereas r=1 if I=0 and R=1 (ie. shift by register); otherwise r=0. And p=1 if Rd=R15; otherwise p=0.
 #  9: TEQ{cond}{P}    Rn,Op2    ;test exclusive  Void = Rn XOR Op2
   Scenario: Add (with immediate) instruction is executed
-    And pc is 284
+    Given pc is 284
     When i try to execute 01 00 8f e2
     Then R0 must be 0x11d
 
@@ -221,28 +246,24 @@ Feature: The Instruction Set
     When i try to execute 00 f0 29 e1
     Then CPSR must be 00 00 00 5f
     And Irq must be enabled
-    And Fiq must be disabled
     And CPU must run in ARM
     And mode must be sys
     Given R0 is 0xd2
     When i try to execute 00 f0 29 e1
     Then CPSR must be 00 00 00 d2
     And Irq must be disabled
-    And Fiq must be disabled
     And CPU must run in ARM
     And mode must be irq
     Given R0 is 0xd3
     When i try to execute 00 f0 29 e1
     Then CPSR must be 00 00 00 d3
     And Irq must be disabled
-    And Fiq must be disabled
     And CPU must run in ARM
     And mode must be svc
     Given R0 is 0xdf
     When i try to execute 00 f0 29 e1
     Then CPSR must be 00 00 00 df
     And Irq must be disabled
-    And Fiq must be disabled
     And CPU must run in ARM
     And mode must be sys
 

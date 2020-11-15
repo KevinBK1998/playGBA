@@ -8,7 +8,7 @@ import io.cucumber.java.en.When;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class InstructionStepDefinitions {
+public class ArmInstructionStepDefinitions {
     Registers reg = new Registers();
     GbaMemory mem = new GbaMemory();
     ArmV3Cpu armCpu = new ArmV3Cpu(reg, mem);
@@ -118,14 +118,14 @@ public class InstructionStepDefinitions {
         assertThat(reg.irqEnable).isFalse();
     }
 
-    @Then("Fiq must be disabled")
-    public void fiqMustBeDisabled() {
-        assertThat(reg.fiqEnable).isFalse();
-    }
-
     @Then("CPU must run in ARM")
     public void cpuMustRunInARM() {
-        assertThat(armCpu.getClass().getName()).matches(".*Arm.*");
+        assertThat(reg.thumbMode).isFalse();
+    }
+
+    @Then("CPU must run in THUMB")
+    public void cpuMustRunInTHUMB() {
+        assertThat(reg.thumbMode).isTrue();
     }
 
     @Then("^SP must be 0x([0-9a-f]{1,8})$")
