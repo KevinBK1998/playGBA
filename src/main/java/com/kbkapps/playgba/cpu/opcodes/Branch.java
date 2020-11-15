@@ -1,6 +1,5 @@
 package com.kbkapps.playgba.cpu.opcodes;
 
-import com.kbkapps.playgba.cpu.UndefinedOpcodeException;
 import com.kbkapps.playgba.cpu.constants.Flags;
 import com.kbkapps.playgba.cpu.constants.Instructions;
 
@@ -11,12 +10,10 @@ public class Branch extends OpCode {
 
     public Branch(Instructions opcode, Flags cond, int jumpBy) {
         super(opcode, cond, true);
-        instruction = opcode;
         offset = jumpBy;
-        condition = cond;
     }
 
-    public static Branch decodeOpcode(int opcodeEncoded) throws UndefinedOpcodeException {
+    public static Branch decodeOpcode(int opcodeEncoded) {
         Flags cond = values()[(opcodeEncoded >> 28) & 0xF];
         Instructions opcode;
         int jumpBy = opcodeEncoded & 0x00_FF_FF_FF;

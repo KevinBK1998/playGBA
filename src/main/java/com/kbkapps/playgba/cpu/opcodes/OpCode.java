@@ -31,6 +31,8 @@ public class OpCode {
     public static OpCode decodeOpcode(int opcodeEncoded) throws UndefinedOpcodeException {
         System.out.println("Decoding: " + Integer.toUnsignedString(opcodeEncoded, 16));
         Flags cond = values()[(opcodeEncoded >> 28) & 0xF];
+        if (((opcodeEncoded >> 8) & 0xF_FF_FF) == 0x12fff)
+            return ExchangingBranch.decodeOpcode(opcodeEncoded);
         if (((opcodeEncoded >> 25) & 0xF) == 0b101)
             return Branch.decodeOpcode(opcodeEncoded);
         if (((opcodeEncoded >> 26) & 0x3) == 0b00)

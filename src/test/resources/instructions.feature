@@ -29,7 +29,7 @@ Feature: The Instruction Set
       | 5f 00 a0 e3 | always move r0, 0x5f                  |
       | a0 d0 9f e5 | always load word sp, [pc + 0xa0]      |
       | 01 00 8f e2 | always add r0, pc, 0x1                |
-      | 10 ff 2f e1 | always bx r0                          |
+      | 10 ff 2f e1 | always exchanging branch r0           |
   #TODO:Add more instructions
 
 #  Scenario: Branch, Branch with Link (B, BL, BLX_imm)
