@@ -4,15 +4,27 @@ import com.kbkapps.playgba.cpu.UndefinedOpcodeException;
 import com.kbkapps.playgba.cpu.constants.Instructions;
 
 public class OpCode {
-    Instructions instructions;
+    Instructions instruction;
     byte regDest;
     byte immediate;
 
     public OpCode(Instructions instructions, byte regDest, byte immediate) {
         //Thumb 3
-        this.instructions = instructions;
+        this.instruction = instructions;
         this.regDest = regDest;
         this.immediate = immediate;
+    }
+
+    public Instructions getInstruction() {
+        return instruction;
+    }
+
+    public byte getRegDest() {
+        return regDest;
+    }
+
+    public byte getImmediate() {
+        return immediate;
     }
 
     public static OpCode decodeOpcode(short opcodeEncoded) throws UndefinedOpcodeException {
@@ -24,6 +36,6 @@ public class OpCode {
 
     @Override
     public String toString() {
-        return instructions.toString() + " r" + regDest + ", 0x" + Integer.toHexString(immediate);
+        return instruction.toString() + " r" + regDest + ", 0x" + Integer.toHexString(immediate);
     }
 }

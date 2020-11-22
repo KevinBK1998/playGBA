@@ -10,6 +10,7 @@ public class GbaCpu {
     ArmV3Cpu armCpu = new ArmV3Cpu(reg, gbaMemory);
     ThumbCpu thumbCpu = new ThumbCpu(reg, gbaMemory);
     OpCode opcodeDecoded;
+    com.kbkapps.playgba.cpu.opcodes.thumb.OpCode thumbOpcodeDecoded;
     private int prevPc;
     private int width = 4;
 
@@ -35,7 +36,7 @@ public class GbaCpu {
     }
 
     private void thumbTrigger() throws UndefinedOpcodeException {
-        thumbCpu.execute(opcodeDecoded);
+        thumbCpu.execute(thumbOpcodeDecoded);
         if (!reg.thumbMode) {
             width = 4;
             return;
@@ -64,7 +65,7 @@ public class GbaCpu {
         } else if (width > 2)
             opcodeDecoded = OpCode.decodeOpcode(opcodeEncoded);
         else
-            opcodeDecoded = OpCode.decodeOpcode((short) opcodeEncoded);
+            thumbOpcodeDecoded = com.kbkapps.playgba.cpu.opcodes.thumb.OpCode.decodeOpcode((short) opcodeEncoded);
     }
 
     private void fetchInstruction() {

@@ -19,3 +19,7 @@ Feature: The Thumb Instruction Set
 #  ARM equivalents for MOV/CMP/ADD/SUB are MOVS/CMP/ADDS/SUBS same format.
 #  Execution Time: 1S
 #  Return: Rd contains result (except CMP), N,Z,C,V affected (for MOV only N,Z).
+  Scenario: Move immediate
+    When I try to execute 00 20
+    Then r0 must be 0
+    And cpsr must be 40 00 00 00
