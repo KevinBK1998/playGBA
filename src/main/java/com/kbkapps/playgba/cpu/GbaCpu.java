@@ -11,6 +11,7 @@ public class GbaCpu {
     ThumbCpu thumbCpu = new ThumbCpu(reg, gbaMemory);
     OpCode opcodeDecoded;
     private int prevPc;
+    private int width = 4;
 
     public static void main(String[] args) {
         GbaCpu cpu = new GbaCpu();
@@ -35,7 +36,10 @@ public class GbaCpu {
 
     private void thumbTrigger() throws UndefinedOpcodeException {
         thumbCpu.execute(opcodeDecoded);
-        if (!reg.thumbMode) return;
+        if (!reg.thumbMode) {
+            width = 4;
+            return;
+        }
         decodeInstruction();
         fetchInstruction();
         reg.step();
@@ -43,7 +47,10 @@ public class GbaCpu {
 
     public void armTrigger() throws UndefinedOpcodeException {
         armCpu.execute(opcodeDecoded);
-        if (reg.thumbMode) return;
+        if (reg.thumbMode) {
+            width = 2;
+            return;
+        }
         decodeInstruction();
         fetchInstruction();
         reg.step();
@@ -54,21 +61,23 @@ public class GbaCpu {
         if (pc != prevPc || pc == 0) {
             System.out.println("Flushed Cache");
             opcodeDecoded = null;
-        } else
+        } else if (width > 2)
             opcodeDecoded = OpCode.decodeOpcode(opcodeEncoded);
+        else
+            opcodeDecoded = OpCode.decodeOpcode((short) opcodeEncoded);
     }
 
     private void fetchInstruction() {
         int pc = armCpu.getPC();
         opcodeEncoded = 0;
         System.out.println("Fetching: PC=" + pc);
-        for (int i = pc; i < pc + 4; i++) {
+        for (int i = pc; i < pc + width; i++) {
             byte byteValue = armCpu.gbaMemory.read8(i);
             System.out.print(getUnsignedStringFromByte(byteValue) + " ");
             this.opcodeEncoded += Byte.toUnsignedInt(byteValue) << (8 * i);
         }
         System.out.println("was Fetched");
-        prevPc = pc + 4;
+        prevPc = pc + width;
     }
 
     private static String getUnsignedStringFromByte(byte datum) {

@@ -4,6 +4,7 @@ import com.kbkapps.playgba.cpu.UndefinedOpcodeException;
 import com.kbkapps.playgba.cpu.constants.Flags;
 import com.kbkapps.playgba.cpu.constants.Instructions;
 
+import static com.kbkapps.playgba.cpu.constants.Flags.AL;
 import static com.kbkapps.playgba.cpu.constants.Flags.values;
 
 public class OpCode {
@@ -26,6 +27,20 @@ public class OpCode {
         instruction = opcode;
         condition = cond;
         this.immediateFlag = immediateFlag;
+    }
+
+    public static OpCode decodeOpcode(short opcodeEncoded) throws UndefinedOpcodeException {
+        if (((opcodeEncoded >> 13) & 7) == 1)
+            if (((opcodeEncoded >> 11) & 3) == 0) {
+                int data = opcodeEncoded & 0xFF;
+                data = data | ((opcodeEncoded << 4) & 0xF000);
+                return new ArithmeticLogical(Instructions.MOV,
+                        AL,
+                        true,
+                        true,
+                        data);
+            }
+        throw new UndefinedOpcodeException(Integer.toHexString(opcodeEncoded));
     }
 
     public static OpCode decodeOpcode(int opcodeEncoded) throws UndefinedOpcodeException {
