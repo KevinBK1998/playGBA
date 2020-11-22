@@ -1,4 +1,4 @@
-package com.kbkapps.playgba.cpu.opcodes;
+package com.kbkapps.playgba.cpu.opcodes.armv3;
 
 import com.kbkapps.playgba.cpu.constants.Flags;
 import com.kbkapps.playgba.cpu.constants.Instructions;

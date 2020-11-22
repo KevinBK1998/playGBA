@@ -4,8 +4,8 @@ Feature: The Thumb Instruction Set
     When I try to decode <opcodes>
     Then I should see "<message>"
     Examples:
-      | opcodes | message             |
-      | 00 20   | always move r0, 0x0 |
+      | opcodes | message      |
+      | 00 20   | move r0, 0x0 |
 
 #  THUMB.3: move/compare/add/subtract immediate
 #  15-13  Must be 001b for this type of instructions

@@ -2,9 +2,9 @@ package com.kbkapps.playgba.cpu;
 
 import com.kbkapps.playgba.cpu.constants.Flags;
 import com.kbkapps.playgba.cpu.constants.Instructions;
-import com.kbkapps.playgba.cpu.opcodes.ArithmeticLogical;
-import com.kbkapps.playgba.cpu.opcodes.Branch;
-import com.kbkapps.playgba.cpu.opcodes.OpCode;
+import com.kbkapps.playgba.cpu.opcodes.armv3.ArithmeticLogical;
+import com.kbkapps.playgba.cpu.opcodes.armv3.Branch;
+import com.kbkapps.playgba.cpu.opcodes.armv3.OpCode;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
