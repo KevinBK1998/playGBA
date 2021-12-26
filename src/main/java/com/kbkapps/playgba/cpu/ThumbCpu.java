@@ -14,10 +14,14 @@ public class ThumbCpu {
         reg = registers;
     }
 
-    public void execute(OpCode opCode) throws UndefinedOpcodeException {
-        if (opCode.getInstruction() == Instructions.MOV) {
-            int regD = opCode.getRegDest();
-            reg.setReg(regD, opCode.getImmediate());
+    public void execute(OpCode opcode) throws UndefinedOpcodeException {
+        if (opcode == null) {
+            System.out.println("tNOP");
+            return;
+        } else System.out.println("Executing: " + opcode);
+        if (opcode.getInstruction() == Instructions.MOV) {
+            int regD = opcode.getRegDest();
+            reg.setReg(regD, opcode.getImmediate());
             setFlags(reg.getReg(regD));
         }
     }
@@ -32,6 +36,6 @@ public class ThumbCpu {
 //            flags |= C;
 //        if ((result >> 32) > 0)
 //            flags |= V;
-        reg.setPSR(Registers.CPSR, flags);
+        reg.setFlags(flags);
     }
 }

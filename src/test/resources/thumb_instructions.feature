@@ -5,7 +5,8 @@ Feature: The Thumb Instruction Set
     Then I should see "<message>"
     Examples:
       | opcodes | message      |
-      | 00 20   | move r0, 0x0 |
+      | 00 20   | move r0, 0x0      |
+      | 00 20   | ldr r1, _00000280 |
 
 #  THUMB.3: move/compare/add/subtract immediate
 #  15-13  Must be 001b for this type of instructions

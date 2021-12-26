@@ -2,8 +2,10 @@ package com.kbkapps.playgba.cpu;
 
 import com.kbkapps.playgba.cpu.opcodes.armv3.OpCode;
 
+import static com.kbkapps.playgba.cpu.ArmV3Cpu.PC;
+
 public class GbaCpu {
-    public static final int N_STEPS = 48;
+    public static final int N_STEPS = 50;
     public int opcodeEncoded;
     GbaMemory gbaMemory = new GbaMemory();
     Registers reg = new Registers();
@@ -48,10 +50,8 @@ public class GbaCpu {
 
     public void armTrigger() throws UndefinedOpcodeException {
         armCpu.execute(opcodeDecoded);
-        if (reg.thumbMode) {
+        if (reg.thumbMode)
             width = 2;
-            return;
-        }
         decodeInstruction();
         fetchInstruction();
         reg.step();
@@ -69,13 +69,13 @@ public class GbaCpu {
     }
 
     private void fetchInstruction() {
-        int pc = armCpu.getPC();
+        int pc = reg.getReg(PC);
         opcodeEncoded = 0;
-        System.out.println("Fetching: PC=" + pc);
-        for (int i = pc; i < pc + width; i++) {
-            byte byteValue = armCpu.gbaMemory.read8(i);
+        System.out.println("Fetching: PC=" + pc + " (" + Integer.toHexString(pc) + ")");
+        for (int i = 0; i < width; i++) {
+            byte byteValue = armCpu.gbaMemory.read8(pc + i);
             System.out.print(getUnsignedStringFromByte(byteValue) + " ");
-            this.opcodeEncoded += Byte.toUnsignedInt(byteValue) << (8 * i);
+            opcodeEncoded += Byte.toUnsignedInt(byteValue) << (8 * i);
         }
         System.out.println("was Fetched");
         prevPc = pc + width;

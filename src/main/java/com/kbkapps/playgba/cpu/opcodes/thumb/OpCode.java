@@ -28,6 +28,7 @@ public class OpCode {
     }
 
     public static OpCode decodeOpcode(short opcodeEncoded) throws UndefinedOpcodeException {
+        System.out.println("Decoding: " + Integer.toUnsignedString(opcodeEncoded, 16));
         if (((opcodeEncoded >> 13) & 7) == 1)
             if (((opcodeEncoded >> 11) & 3) == 0)
                 return new OpCode(Instructions.MOV, (byte) ((opcodeEncoded >> 8) & 3), (byte) (opcodeEncoded & 0xFF));

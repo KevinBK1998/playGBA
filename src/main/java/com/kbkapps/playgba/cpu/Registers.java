@@ -117,6 +117,11 @@ public class Registers {
         else throw new IndexOutOfBoundsException();
     }
 
+    public void setFlags(int flags) {
+        currentStatusReg = currentStatusReg & 0xF_FF_FF_FF;
+        currentStatusReg = currentStatusReg | flags;
+    }
+
     public boolean canExecute(Flags cond) {
         //NegativeZeroCarryOverflow(V)----  --------  --------  IrqFiqThumbMMMMMode
         if (cond == AL) return true;
