@@ -31,7 +31,9 @@ public class OpCode {
         System.out.println("Decoding: " + Integer.toUnsignedString(opcodeEncoded, 16));
         if (((opcodeEncoded >> 13) & 7) == 1)
             if (((opcodeEncoded >> 11) & 3) == 0)
-                return new OpCode(Instructions.MOV, (byte) ((opcodeEncoded >> 8) & 3), (byte) (opcodeEncoded & 0xFF));
+                return new OpCode(Instructions.MOVS, (byte) ((opcodeEncoded >> 8) & 7), (byte) (opcodeEncoded & 0xFF));
+        if (((opcodeEncoded >> 11) & 0x1f) == 0b01001)
+            return new OpCode(Instructions.LDR_PC, (byte) ((opcodeEncoded >> 8) & 7), (byte) (opcodeEncoded & 0xFF));
         throw new UndefinedOpcodeException(Integer.toHexString(opcodeEncoded));
     }
 

@@ -4,9 +4,9 @@ Feature: The Thumb Instruction Set
     When I try to decode <opcodes>
     Then I should see "<message>"
     Examples:
-      | opcodes | message      |
-      | 00 20   | move r0, 0x0      |
-      | 00 20   | ldr r1, _00000280 |
+      | opcodes | message                   |
+      | 00 20   | move(s) r0, 0x0           |
+      | 58 49   | load pc-relative r1, 0x58 |
 
 #  THUMB.3: move/compare/add/subtract immediate
 #  15-13  Must be 001b for this type of instructions
@@ -24,3 +24,18 @@ Feature: The Thumb Instruction Set
     When I try to execute 00 20
     Then r0 must be 0
     And cpsr must be 40 00 00 00
+
+#  THUMB.6: load PC-relative (for loading immediates from literal pool)
+#  15-11  Must be 01001b for this type of instructions
+#  N/A    Opcode (fixed)
+#  LDR Rd,[PC,#nn]      ;load 32bit    Rd = WORD[PC+nn]
+#  10-8   Rd - Destination Register   (R0..R7)
+#  7-0    nn - Unsigned offset        (0-1020 in steps of 4)
+#  The value of PC will be interpreted as (($+4) AND NOT 2).
+#  Return: No flags affected, data loaded into Rd.
+#  Execution Time: 1S+1N+1I
+
+  Scenario: Load PC - relative immediate
+    Given the pc is 288
+    When I try to execute 58 49
+    Then r1 must be 0xfffffe00
