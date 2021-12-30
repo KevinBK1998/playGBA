@@ -10,6 +10,8 @@ public class GbaMemory {
     private static final int SLOW_WORK_RAM_END = 0x2040000;
     private static final int WORK_RAM_OFFSET = 0x3000000;
     private static final int WORK_RAM_END = 0x3008000;
+    public static final int IO_REG_END = 0x4000400;
+    public static final int VRAM_OFFSET = 0x5000000;
     byte[] bios;
     byte[] slowWorkRam = new byte[0x40000];   //256KB
     byte[] workRam = new byte[0x8000];   //32KB
@@ -29,22 +31,31 @@ public class GbaMemory {
     public void write8(int address, byte data) throws WriteDeniedException {
         if (address < BIOS_SIZE)
             throw new WriteDeniedException(address);
-        else if (address < SLOW_WORK_RAM_END)
+        else if (address >= SLOW_WORK_RAM_OFFSET && address < SLOW_WORK_RAM_END)
             slowWorkRam[address - SLOW_WORK_RAM_OFFSET] = data;
-        else if (address < WORK_RAM_END)
+        else if (address >= WORK_RAM_OFFSET && address < WORK_RAM_END)
             workRam[address - WORK_RAM_OFFSET] = data;
-        else
+        else if (address >= IO_REG_OFFSET && address < IO_REG_END)
             registers.write8(address - IO_REG_OFFSET, data);
+        else if (address >= VRAM_OFFSET)
+            throw new IndexOutOfBoundsException("W: Unknown Memory: 0x" + Integer.toHexString(address) + ", set to 0x" + Integer.toHexString(data));
+        else
+            System.out.println("Unused Memory: 0x" + Integer.toHexString(address) + ", set to 0x" + Integer.toHexString(data));
     }
 
     public byte read8(int address) {
         if (address < BIOS_SIZE)
             return bios[address];
-        else if (address < SLOW_WORK_RAM_END)
+        else if (address >= SLOW_WORK_RAM_OFFSET && address < SLOW_WORK_RAM_END)
             return slowWorkRam[address - SLOW_WORK_RAM_OFFSET];
-        else if (address < WORK_RAM_END)
+        else if (address >= WORK_RAM_OFFSET && address < WORK_RAM_END)
             return workRam[address - WORK_RAM_OFFSET];
-        return registers.read8(address - IO_REG_OFFSET);
+        else if (address >= IO_REG_OFFSET && address < IO_REG_END)
+            return registers.read8(address - IO_REG_OFFSET);
+        else if (address >= VRAM_OFFSET)
+            throw new IndexOutOfBoundsException("R: Unknown Memory: 0x" + Integer.toHexString(address));
+        System.out.println("R: Unused Memory: 0x" + Integer.toHexString(address));
+        return 0;
     }
 
     public void write32(int address, int data) throws WriteDeniedException {

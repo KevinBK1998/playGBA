@@ -22,7 +22,7 @@ public class GbaCpu {
         try {
             for (; i < N_STEPS; i++)
                 cpu.trigger();
-        } catch (UndefinedOpcodeException e) {
+        } catch (UndefinedOpcodeException | WriteDeniedException e) {
             System.out.println(e.getMessage());
         }
         System.out.println(i + " instructions executed");
@@ -30,14 +30,14 @@ public class GbaCpu {
         System.out.println(cpu.armCpu.getState());
     }
 
-    public void trigger() throws UndefinedOpcodeException {
+    public void trigger() throws UndefinedOpcodeException, WriteDeniedException {
         if (reg.thumbMode)
             thumbTrigger();
         else
             armTrigger();
     }
 
-    private void thumbTrigger() throws UndefinedOpcodeException {
+    private void thumbTrigger() throws UndefinedOpcodeException, WriteDeniedException {
         thumbCpu.execute(thumbOpcodeDecoded);
         if (!reg.thumbMode) {
             width = 4;
@@ -98,7 +98,7 @@ public class GbaCpu {
         try {
             for (int i = 0; i < times; i++)
                 trigger();
-        } catch (UndefinedOpcodeException e) {
+        } catch (UndefinedOpcodeException | WriteDeniedException e) {
             System.out.println(e.getMessage());
         }
     }

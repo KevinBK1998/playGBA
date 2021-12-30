@@ -15,6 +15,11 @@ public class OpCode {
         this.immediate = immediate;
     }
 
+    public OpCode(Instructions opcode, int data) {
+        instruction = opcode;
+        regDest = (byte) (data & 7);
+    }
+
     public Instructions getInstruction() {
         return instruction;
     }
@@ -34,11 +39,17 @@ public class OpCode {
                 return new OpCode(Instructions.MOVS, (byte) ((opcodeEncoded >> 8) & 7), (byte) (opcodeEncoded & 0xFF));
         if (((opcodeEncoded >> 11) & 0x1f) == 0b01001)
             return new OpCode(Instructions.LDR_PC, (byte) ((opcodeEncoded >> 8) & 7), (byte) (opcodeEncoded & 0xFF));
+        if (((opcodeEncoded >> 12) & 0xf) == 0b0101)
+            return SingleDataTransfer.decodeOpcode(opcodeEncoded);
         throw new UndefinedOpcodeException(Integer.toHexString(opcodeEncoded));
     }
 
     @Override
     public String toString() {
         return instruction.toString() + " r" + regDest + ", 0x" + Integer.toHexString(immediate);
+    }
+
+    protected final String getRegName(int index) {
+        return index < 13 ? ("r" + index) : (index == 13 ? "sp" : (index == 14 ? "lr" : "pc"));
     }
 }

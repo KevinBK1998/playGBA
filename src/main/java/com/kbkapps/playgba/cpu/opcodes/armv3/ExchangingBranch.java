@@ -16,7 +16,7 @@ public class ExchangingBranch extends OpCode {
         Flags cond = values()[(opcodeEncoded >> 28) & 0xF];
         if (((opcodeEncoded >> 4) & 0xF) == 1)
             return new ExchangingBranch(Instructions.BX, cond, opcodeEncoded & 0xf);
-        System.out.println("cond = " + cond);
+//        System.out.println("cond = " + cond);
         System.out.println("rest of opcodeEncoded(ExBranch) = 0x" + Integer.toUnsignedString(opcodeEncoded & 0xFF, 16));
         throw new UndefinedOpcodeException(opcodeEncoded);
     }
@@ -24,7 +24,7 @@ public class ExchangingBranch extends OpCode {
     @Override
     public String toString() {
         if (instruction == Instructions.BX)
-            return condition.toString() + " " + instruction.toString() + " " + getRegName(regNo);
+            return condition.toString() + " " + instruction + " " + getRegName(regNo);
         return super.toString();
     }
 }

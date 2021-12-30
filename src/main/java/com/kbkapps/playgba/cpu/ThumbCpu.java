@@ -2,6 +2,7 @@ package com.kbkapps.playgba.cpu;
 
 import com.kbkapps.playgba.cpu.constants.Instructions;
 import com.kbkapps.playgba.cpu.opcodes.thumb.OpCode;
+import com.kbkapps.playgba.cpu.opcodes.thumb.SingleDataTransfer;
 
 import static com.kbkapps.playgba.cpu.ArmV3Cpu.*;
 
@@ -15,7 +16,7 @@ public class ThumbCpu {
         gbaMem = gbaMemory;
     }
 
-    public void execute(OpCode opcode) throws UndefinedOpcodeException {
+    public void execute(OpCode opcode) throws UndefinedOpcodeException, WriteDeniedException {
         if (opcode == null) {
             System.out.println("tNOP");
             return;
@@ -28,9 +29,18 @@ public class ThumbCpu {
             int regD = opcode.getRegDest();
             int regDValue = gbaMem.read32(getPC() + opcode.getImmediate() * 4);
             reg.setReg(regD, regDValue);
+        } else if (opcode.getInstruction() == Instructions.STR) {
+            storeWord((SingleDataTransfer) opcode);
         } else {
             throw new UndefinedOpcodeException(opcode.toString());
         }
+    }
+
+    private void storeWord(SingleDataTransfer opcode) throws WriteDeniedException {
+        int regDValue = reg.getReg(opcode.getRegDest());
+        int memPointer = reg.getReg(opcode.getBaseReg()) + reg.getReg(opcode.getOffsetReg());
+//        System.out.println(Integer.toHexString(memPointer));
+        gbaMem.write32(memPointer, regDValue);
     }
 
     private void setFlags(long result) {

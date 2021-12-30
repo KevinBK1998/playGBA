@@ -126,7 +126,7 @@ public class ArmV3Cpu {
         if (opcode.hasImmediate()) {
             int before = reg.getReg(opcode.getRegNo());
             int result = before ^ opcode.getImmediate();
-            System.out.println("result = " + Integer.toUnsignedString(result, 16));
+//            System.out.println("result = " + Integer.toUnsignedString(result, 16));
             reg.setPSR(Registers.CPSR, setFlags(result));
         }
     }
@@ -143,7 +143,7 @@ public class ArmV3Cpu {
                         data = gbaMemory.read8(regNo + opcode.getImmediate());
                     else
                         data = gbaMemory.read32(regNo + opcode.getImmediate());
-                    System.out.println("data = " + Integer.toHexString(data));
+//                    System.out.println("data = " + Integer.toHexString(data));
                     regNo = opcode.getRegDest();
                     reg.setReg(regNo, data);
                 } else {
@@ -219,8 +219,8 @@ public class ArmV3Cpu {
         int flags = setFlags(result);
         System.out.println("expectsPositive = " + expectsPositive);
 //        if (expectsPositive) {
-        System.out.println("result = " + Long.toUnsignedString(result, 16));
-        System.out.println("(int)result = " + Integer.toUnsignedString((int) result, 16));
+//        System.out.println("result = " + Long.toUnsignedString(result, 16));
+//        System.out.println("(int)result = " + Integer.toUnsignedString((int) result, 16));
 //          if ((result>>32)>0)
 //              flags |= C;
 //        if ((result >> 32) > 0)

@@ -90,7 +90,7 @@ public class ArmInstructionStepDefinitions {
 
     @Then("^([0-9a-f]{1,8}) should be present in memory 0x([0-9a-f]{1,8})$")
     public void shouldBePresentInMemory(String data, String address) {
-        assertThat(mem.read8(Integer.parseUnsignedInt(address, 16))).inHexadecimal().isEqualTo(Byte.parseByte(data, 16));
+        assertThat(mem.read32(Integer.parseUnsignedInt(address, 16))).inHexadecimal().isEqualTo(Byte.parseByte(data, 16));
     }
 
     @Given("^lr is ([0-9]+)$")

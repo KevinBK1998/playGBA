@@ -11,7 +11,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ThumbInstructionsStepDefinitions {
     private OpCode opcode;
     Registers reg = new Registers();
-    ThumbCpu thumbCpu = new ThumbCpu(reg, new GbaMemory());
+    GbaMemory mem = new GbaMemory();
+    ThumbCpu thumbCpu = new ThumbCpu(reg, mem);
 
     @When("^I try to decode ([0-9a-f]{1,2}) ([0-9a-f]{1,2})$")
     public void decodeOpcode(String arg0, String arg1) throws UndefinedOpcodeException {
@@ -27,7 +28,7 @@ public class ThumbInstructionsStepDefinitions {
     }
 
     @When("^I try to execute ([0-9a-f]{1,2}) ([0-9a-f]{1,2})$")
-    public void iTryToExecute(String arg0, String arg1) throws UndefinedOpcodeException {
+    public void iTryToExecute(String arg0, String arg1) throws UndefinedOpcodeException, WriteDeniedException {
         thumbCpu.execute(OpCode.decodeOpcode(getIntFromBytes(arg0, arg1)));
         reg.step();
     }
@@ -58,5 +59,20 @@ public class ThumbInstructionsStepDefinitions {
     @Given("^the pc is ([0-9]+)$")
     public void thePcIs(String pc) {
         reg.setReg(ArmV3Cpu.PC, Integer.parseUnsignedInt(pc));
+    }
+
+    @Given("^that r([0-9]{1,2}) is ([0-9]+)$")
+    public void thatRIs(String regNo, String data) {
+        reg.setReg(Integer.parseInt(regNo), Integer.parseUnsignedInt(data));
+    }
+
+    @Given("^that r([0-9]{1,2}) is 0x([0-9a-f]{1,8})$")
+    public void thatRIsX(String regNo, String data) {
+        reg.setReg(Integer.parseInt(regNo), Integer.parseUnsignedInt(data, 16));
+    }
+
+    @Then("^([0-9a-f]{1,8}) should be present in the memory 0x([0-9a-f]{1,8})$")
+    public void shouldBePresentInTheMemoryX(String data, String address) {
+        assertThat(mem.read32(Integer.parseUnsignedInt(address, 16))).inHexadecimal().isEqualTo(Byte.parseByte(data, 16));
     }
 }

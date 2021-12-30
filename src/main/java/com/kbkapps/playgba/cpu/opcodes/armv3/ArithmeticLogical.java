@@ -81,7 +81,7 @@ public class ArithmeticLogical extends OpCode {
                 opcode = Instructions.MOV;
                 break;
             default:
-                System.out.println("cond = " + cond);
+//                System.out.println("cond = " + cond);
                 System.out.println("rest of opcodeEncoded(ALU) = " + Integer.toUnsignedString(opcodeEncoded & 0xF_FF_FF_FF, 16));
         }
         boolean shouldChangePsr = ((opcodeEncoded >> 20) & 0x1) != 0;
@@ -129,19 +129,19 @@ public class ArithmeticLogical extends OpCode {
     public String toString() {
 //        System.out.println("changePsr= " + changePSR);
         if (instruction == Instructions.ADD)
-            return condition.toString() + " " + instruction.toString() + " " + getRegName(regDest) + ", " + getRegName(regNo) + ", 0x" + Integer.toUnsignedString(immediate, 16);
+            return condition.toString() + " " + instruction + " " + getRegName(regDest) + ", " + getRegName(regNo) + ", 0x" + Integer.toUnsignedString(immediate, 16);
         if (instruction == Instructions.TEQ)
-            return condition.toString() + " " + instruction.toString() + " " + getRegName(regNo) + ", 0x" + Integer.toUnsignedString(immediate, 16);
+            return condition.toString() + " " + instruction + " " + getRegName(regNo) + ", 0x" + Integer.toUnsignedString(immediate, 16);
         if (instruction == Instructions.CMP)
-            return condition.toString() + " " + instruction.toString() + " " + getRegName(regNo) + ", 0x" + Integer.toUnsignedString(immediate, 16);
+            return condition.toString() + " " + instruction + " " + getRegName(regNo) + ", 0x" + Integer.toUnsignedString(immediate, 16);
         if (instruction == Instructions.ORR)
-            return condition.toString() + " " + instruction.toString() + " " + getRegName(regDest) + ", " + getRegName(regNo) + ", 0x" + Integer.toUnsignedString(immediate, 16);
+            return condition.toString() + " " + instruction + " " + getRegName(regDest) + ", " + getRegName(regNo) + ", 0x" + Integer.toUnsignedString(immediate, 16);
         if (instruction == Instructions.MOV)
-            return condition.toString() + " " + instruction.toString() + " " + getRegName(regDest) + ", 0x" + Integer.toUnsignedString(immediate, 16);
+            return condition.toString() + " " + instruction + " " + getRegName(regDest) + ", 0x" + Integer.toUnsignedString(immediate, 16);
         if (instruction == Instructions.MRS)
-            return condition.toString() + " " + instruction.toString() + " " + getRegName(regDest) + ", " + (isSavedPsr ? "S" : "C") + "PSR";
+            return condition.toString() + " " + instruction + " " + getRegName(regDest) + ", " + (isSavedPsr ? "S" : "C") + "PSR";
         if (instruction == Instructions.MSR)
-            return condition.toString() + " " + instruction.toString() + " " + (isSavedPsr ? "S" : "C") + "PSR" + getMaskAsString() + ", " + getRegName(regM);
+            return condition.toString() + " " + instruction + " " + (isSavedPsr ? "S" : "C") + "PSR" + getMaskAsString() + ", " + getRegName(regM);
         return null;
     }
 

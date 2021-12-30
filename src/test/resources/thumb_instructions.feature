@@ -7,6 +7,7 @@ Feature: The Thumb Instruction Set
       | opcodes | message                   |
       | 00 20   | move(s) r0, 0x0           |
       | 58 49   | load pc-relative r1, 0x58 |
+      | 60 50   | store word r0, [r4+r1]    |
 
 #  THUMB.3: move/compare/add/subtract immediate
 #  15-13  Must be 001b for this type of instructions
@@ -36,6 +37,41 @@ Feature: The Thumb Instruction Set
 #  Execution Time: 1S+1N+1I
 
   Scenario: Load PC - relative immediate
-    Given the pc is 288
+    Given the pc is 290
     When I try to execute 58 49
     Then r1 must be 0xfffffe00
+
+#  THUMB.7: load/store with register offset
+#  15-12  Must be 0101b for this type of instructions
+#  11-10  Opcode (0-3)
+#  0: STR  Rd,[Rb,Ro]   ;store 32bit data  WORD[Rb+Ro] = Rd
+#  1: STRB Rd,[Rb,Ro]   ;store  8bit data  BYTE[Rb+Ro] = Rd
+#  2: LDR  Rd,[Rb,Ro]   ;load  32bit data  Rd = WORD[Rb+Ro]
+#  3: LDRB Rd,[Rb,Ro]   ;load   8bit data  Rd = BYTE[Rb+Ro]
+#  9      Must be zero (0) for this type of instructions
+#  8-6    Ro - Offset Register              (R0..R7)
+#  5-3    Rb - Base Register                (R0..R7)
+#  2-0    Rd - Source/Destination Register  (R0..R7)
+#  Return: No flags affected, data loaded either into Rd or into memory.
+#  Execution Time: 1S+1N+1I for LDR, or 2N for STR
+#
+#  THUMB.8: load/store sign-extended byte/halfword
+#  15-12  Must be 0101b for this type of instructions
+#  11-10  Opcode (0-3)
+#  0: STRH Rd,[Rb,Ro]  ;store 16bit data          HALFWORD[Rb+Ro] = Rd
+#  1: LDSB Rd,[Rb,Ro]  ;load sign-extended 8bit   Rd = BYTE[Rb+Ro]
+#  2: LDRH Rd,[Rb,Ro]  ;load zero-extended 16bit  Rd = HALFWORD[Rb+Ro]
+#  3: LDSH Rd,[Rb,Ro]  ;load sign-extended 16bit  Rd = HALFWORD[Rb+Ro]
+#  9      Must be set (1) for this type of instructions
+#  8-6    Ro - Offset Register              (R0..R7)
+#  5-3    Rb - Base Register                (R0..R7)
+#  2-0    Rd - Source/Destination Register  (R0..R7)
+#  Return: No flags affected, data loaded either into Rd or into memory.
+#  Execution Time: 1S+1N+1I for LDR, or 2N for STR
+
+  Scenario: Store word into address
+    Given that r0 is 0
+    And that r1 is 0xfffffe00
+    And that r4 is 0x4000000
+    When I try to execute 60 50
+    Then 0 should be present in the memory 0x3fffe00
