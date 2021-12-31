@@ -15,9 +15,9 @@ public class OpCode {
         this.immediate = immediate;
     }
 
-    public OpCode(Instructions opcode, int data) {
+    public OpCode(Instructions opcode, byte regDest) {
         instruction = opcode;
-        regDest = (byte) (data & 7);
+        this.regDest = regDest;
     }
 
     public Instructions getInstruction() {
@@ -39,6 +39,8 @@ public class OpCode {
                 return new OpCode(Instructions.MOVS, (byte) ((opcodeEncoded >> 8) & 7), (byte) (opcodeEncoded & 0xFF));
         if (((opcodeEncoded >> 11) & 0x1f) == 0b01001)
             return new OpCode(Instructions.LDR_PC, (byte) ((opcodeEncoded >> 8) & 7), (byte) (opcodeEncoded & 0xFF));
+        if (((opcodeEncoded >> 11) & 0x1f) == 0b00011)
+            return ArithmeticLogical.decodeOpcode(opcodeEncoded);
         if (((opcodeEncoded >> 12) & 0xf) == 0b0101)
             return SingleDataTransfer.decodeOpcode(opcodeEncoded);
         throw new UndefinedOpcodeException(Integer.toHexString(opcodeEncoded));
@@ -46,7 +48,7 @@ public class OpCode {
 
     @Override
     public String toString() {
-        return instruction.toString() + " r" + regDest + ", 0x" + Integer.toHexString(immediate);
+        return instruction.toString() + " " + getRegName(regDest) + ", 0x" + Integer.toHexString(immediate);
     }
 
     protected final String getRegName(int index) {

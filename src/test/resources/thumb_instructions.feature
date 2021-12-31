@@ -5,9 +5,10 @@ Feature: The Thumb Instruction Set
     Then I should see "<message>"
     Examples:
       | opcodes | message                   |
-      | 00 20   | move(s) r0, 0x0           |
+      | 00 20   | move-s r0, 0x0            |
       | 58 49   | load pc-relative r1, 0x58 |
       | 60 50   | store word r0, [r4+r1]    |
+      | 09 1d   | add r1, r1, 0x4           |
 
 #  THUMB.3: move/compare/add/subtract immediate
 #  15-13  Must be 001b for this type of instructions
@@ -75,3 +76,26 @@ Feature: The Thumb Instruction Set
     And that r4 is 0x4000000
     When I try to execute 60 50
     Then 0 should be present in the memory 0x3fffe00
+
+#  THUMB.2: add/subtract
+#  15-11  Must be 00011b for 'add/subtract' instructions
+#  10-9   Opcode (0-3)
+#  0: ADD{S} Rd,Rs,Rn   ;add register        Rd=Rs+Rn
+#  1: SUB{S} Rd,Rs,Rn   ;subtract register   Rd=Rs-Rn
+#  2: ADD{S} Rd,Rs,#nn  ;add immediate       Rd=Rs+nn
+#  3: SUB{S} Rd,Rs,#nn  ;subtract immediate  Rd=Rs-nn
+#  Pseudo/alias opcode with Imm=0:
+#  2: MOV{ADDS} Rd,Rs      ;move (affects cpsr) Rd=Rs+0
+#  8-6    For Register Operand:
+#  Rn - Register Operand (R0..R7)
+#  For Immediate Operand:
+#  nn - Immediate Value  (0-7)
+#  5-3    Rs - Source register       (R0..R7)
+#  2-0    Rd - Destination register  (R0..R7)
+#  Return: Rd contains result, N,Z,C,V affected (including MOV).
+#  Execution Time: 1S
+  Scenario: Add regs
+    Given that r1 is 0xfffffe00
+    When I try to execute 09 1d
+    Then r1 must be 0xfffffe04
+    And cpsr must be 80 00 00 00

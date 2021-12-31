@@ -8,7 +8,7 @@ public class SingleDataTransfer extends OpCode {
     int offsetReg;
 
     public SingleDataTransfer(Instructions opcode, int data) {
-        super(opcode, data);
+        super(opcode, (byte) (data & 7));
         byteTransfer = ((data >> 9) & 1) != 0;//B
         baseReg = ((data >> 3) & 7);
         offsetReg = ((data >> 6) & 7);

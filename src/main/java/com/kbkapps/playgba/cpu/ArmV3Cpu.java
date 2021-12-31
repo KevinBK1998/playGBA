@@ -244,7 +244,7 @@ public class ArmV3Cpu {
             flags |= Z;
 //        if ((result>>32)>0)
 //            flags |= C;
-//        if ((result >> 32) > 0)
+// TODO       if ((result >> 32) > 0)
 //            flags |= V;
         return flags;
     }
