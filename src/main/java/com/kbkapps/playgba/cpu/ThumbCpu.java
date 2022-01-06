@@ -2,6 +2,7 @@ package com.kbkapps.playgba.cpu;
 
 import com.kbkapps.playgba.cpu.constants.Instructions;
 import com.kbkapps.playgba.cpu.opcodes.thumb.ArithmeticLogical;
+import com.kbkapps.playgba.cpu.opcodes.thumb.Branch;
 import com.kbkapps.playgba.cpu.opcodes.thumb.OpCode;
 import com.kbkapps.playgba.cpu.opcodes.thumb.SingleDataTransfer;
 
@@ -30,16 +31,26 @@ public class ThumbCpu {
             int regD = opcode.getRegDest();
             int regDValue = gbaMem.read32(getPC() + opcode.getImmediate() * 4);
             reg.setReg(regD, regDValue);
-        } else if (opcode.getInstruction() == Instructions.STR)
-            storeWord((SingleDataTransfer) opcode);
-        else if (opcode.getInstruction() == Instructions.ADD)
-            add((ArithmeticLogical) opcode);
-        else
-            throw new UndefinedOpcodeException(opcode.toString());
+        } else if (opcode.getInstruction() == Instructions.STR) storeWord((SingleDataTransfer) opcode);
+        else if (opcode.getInstruction() == Instructions.ADD) add((ArithmeticLogical) opcode);
+        else if (opcode.getInstruction() == Instructions.B) branch((Branch) opcode);
+        else throw new UndefinedOpcodeException(opcode.toString());
+    }
+
+    private void branch(Branch opcode) {
+//        System.out.println("opcode.getCondition() = " + opcode.getCondition());
+//        System.out.println("reg.canExecute(Flags.MI) = " + reg.canExecute(Flags.MI));
+//        System.out.println("reg.canExecute(Flags.VS) = " + reg.canExecute(Flags.VS));
+        if (reg.canExecute(opcode.getCondition())) {
+            int newPC = reg.getReg(PC) + opcode.getOffset();
+//            System.out.println("PC = " + newPC);
+            reg.setReg(PC, newPC);
+        }
     }
 
     private void add(ArithmeticLogical opcode) {
         int regD = opcode.getRegDest();
+        System.out.println("reg.getReg(regD) = " + reg.getReg(regD));
         int operand1 = reg.getReg(opcode.getRegSource());
 //        System.out.println("op1 = " + Integer.toHexString(operand1));
         int operand2 = opcode.isImmediate() ? opcode.getImmediate() : reg.getReg(opcode.getRegNext());
@@ -48,6 +59,7 @@ public class ThumbCpu {
         int regDValue = (int) result;
 //        System.out.println("Result = 0x" + Long.toHexString(result) + " => 0x" + Integer.toHexString(regDValue));
         reg.setReg(regD, regDValue);
+//        System.out.println("reg.getReg(1) = " + reg.getReg(1));
         setAllFlags(result);
     }
 
@@ -60,12 +72,9 @@ public class ThumbCpu {
 
     private void setAllFlags(long result) {
         int flags = 0;
-        if (((result >> 31) & 1) != 0)
-            flags |= N;
-        if (((int) result) == 0)
-            flags |= Z;
-        if ((result >> 32) > 0)
-            flags |= C;
+        if (((result >> 31) & 1) != 0) flags |= N;
+        if (((int) result) == 0) flags |= Z;
+        if ((result >> 32) > 0) flags |= C;
 //   TODO if ((result >> 32) > 0)
 //            flags |= V;
         reg.setFlags(flags);
@@ -73,10 +82,8 @@ public class ThumbCpu {
 
     private void setFlags(long result) {
         int flags = 0;
-        if (((result >> 31) & 1) != 0)
-            flags |= N;
-        if (((int) result) == 0)
-            flags |= Z;
+        if (((result >> 31) & 1) != 0) flags |= N;
+        if (((int) result) == 0) flags |= Z;
         reg.setFlags(flags);
     }
 

@@ -5,7 +5,7 @@ import com.kbkapps.playgba.cpu.opcodes.armv3.OpCode;
 import static com.kbkapps.playgba.cpu.ArmV3Cpu.PC;
 
 public class GbaCpu {
-    public static final int N_STEPS = 50;
+    public static final int N_STEPS = 600;
     public int opcodeEncoded;
     GbaMemory gbaMemory = new GbaMemory();
     Registers reg = new Registers();
@@ -62,6 +62,7 @@ public class GbaCpu {
         if (pc != prevPc || pc == 0) {
             System.out.println("Flushed Cache");
             opcodeDecoded = null;
+            thumbOpcodeDecoded = null;
         } else if (width > 2)
             opcodeDecoded = OpCode.decodeOpcode(opcodeEncoded);
         else

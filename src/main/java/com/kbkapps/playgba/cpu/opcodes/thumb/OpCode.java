@@ -20,6 +20,10 @@ public class OpCode {
         this.regDest = regDest;
     }
 
+    public OpCode(Instructions instructions) {
+        instruction = instructions;
+    }
+
     public Instructions getInstruction() {
         return instruction;
     }
@@ -33,7 +37,7 @@ public class OpCode {
     }
 
     public static OpCode decodeOpcode(short opcodeEncoded) throws UndefinedOpcodeException {
-        System.out.println("Decoding: " + Integer.toUnsignedString(opcodeEncoded, 16));
+        System.out.printf("Decoding: %04x\n", opcodeEncoded);
         if (((opcodeEncoded >> 13) & 7) == 1)
             if (((opcodeEncoded >> 11) & 3) == 0)
                 return new OpCode(Instructions.MOVS, (byte) ((opcodeEncoded >> 8) & 7), (byte) (opcodeEncoded & 0xFF));
@@ -43,7 +47,10 @@ public class OpCode {
             return ArithmeticLogical.decodeOpcode(opcodeEncoded);
         if (((opcodeEncoded >> 12) & 0xf) == 0b0101)
             return SingleDataTransfer.decodeOpcode(opcodeEncoded);
-        throw new UndefinedOpcodeException(Integer.toHexString(opcodeEncoded));
+        if (((opcodeEncoded >> 12) & 0xf) == 0b1101) {
+            return Branch.decodeOpcode(opcodeEncoded);
+        }
+        throw new UndefinedOpcodeException(opcodeEncoded);
     }
 
     @Override

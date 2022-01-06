@@ -4,11 +4,12 @@ Feature: The Thumb Instruction Set
     When I try to decode <opcodes>
     Then I should see "<message>"
     Examples:
-      | opcodes | message                   |
-      | 00 20   | move-s r0, 0x0            |
-      | 58 49   | load pc-relative r1, 0x58 |
-      | 60 50   | store word r0, [r4+r1]    |
-      | 09 1d   | add r1, r1, 0x4           |
+      | opcodes | message                     |
+      | 00 20   | move-s r0, 0x0              |
+      | 58 49   | load pc-relative r1, 0x58   |
+      | 60 50   | store word r0, [r4+r1]      |
+      | 09 1d   | add r1, r1, 0x4             |
+      | fc db   | branch signed less than, -8 |
 
 #  THUMB.3: move/compare/add/subtract immediate
 #  15-13  Must be 001b for this type of instructions
@@ -94,8 +95,40 @@ Feature: The Thumb Instruction Set
 #  2-0    Rd - Destination register  (R0..R7)
 #  Return: Rd contains result, N,Z,C,V affected (including MOV).
 #  Execution Time: 1S
-  Scenario: Add regs
+  Scenario: Addition
     Given that r1 is 0xfffffe00
     When I try to execute 09 1d
     Then r1 must be 0xfffffe04
     And cpsr must be 80 00 00 00
+
+#  THUMB.16: conditional branch
+#  15-12  Must be 1101b for this type of instructions
+#  11-8   Opcode/Condition (0-Fh)
+#  0: BEQ label        ;Z=1         ;equal (zero) (same)
+#  1: BNE label        ;Z=0         ;not equal (nonzero) (not same)
+#  2: BCS/BHS label    ;C=1         ;unsigned higher or same (carry set)
+#  3: BCC/BLO label    ;C=0         ;unsigned lower (carry cleared)
+#  4: BMI label        ;N=1         ;signed  negative (minus)
+#  5: BPL label        ;N=0         ;signed  positive or zero (plus)
+#  6: BVS label        ;V=1         ;signed  overflow (V set)
+#  7: BVC label        ;V=0         ;signed  no overflow (V cleared)
+#  8: BHI label        ;C=1 and Z=0 ;unsigned higher
+#  9: BLS label        ;C=0 or Z=1  ;unsigned lower or same
+#  A: BGE label        ;N=V         ;signed greater or equal
+#  B: BLT label        ;N<>V        ;signed less than
+#  C: BGT label        ;Z=0 and N=V ;signed greater than
+#  D: BLE label        ;Z=1 or N<>V ;signed less or equal
+#  E: Undefined, should not be used
+#  F: Reserved for SWI instruction (see SWI opcode)
+#  7-0    Signed Offset, step 2 ($+4-256..$+4+254)
+#  Destination address must by halfword aligned (ie. bit 0 cleared)
+#  Return: No flags affected, PC adjusted if condition true
+#  Execution Time:
+#  2S+1N   if condition true (jump executed)
+#  1S      if condition false
+
+  Scenario: Conditional Branching
+    Given the pc is 296
+    And cpsr is 80 00 00 00
+    When I try to execute fc db
+    Then the pc must be 292

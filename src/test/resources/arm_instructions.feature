@@ -319,4 +319,4 @@ Feature: The Arm Instruction Set
   Scenario: Store Register to a byte in memory
     And R4 is 0x4000000
     When i try to execute 08 42 c4 e5
-    Then 0 should be present in memory 0x4000208
+    Then byte 0 should be present in memory 0x4000208

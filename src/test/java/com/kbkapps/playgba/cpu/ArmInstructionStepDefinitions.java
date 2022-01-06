@@ -93,6 +93,11 @@ public class ArmInstructionStepDefinitions {
         assertThat(mem.read32(Integer.parseUnsignedInt(address, 16))).inHexadecimal().isEqualTo(Byte.parseByte(data, 16));
     }
 
+    @Then("^byte ([0-9a-f]{1,2}) should be present in memory 0x([0-9a-f]{1,8})$")
+    public void byteShouldBePresentInMemoryX(String data, String address) {
+        assertThat(mem.read8(Integer.parseUnsignedInt(address, 16))).inHexadecimal().isEqualTo(Byte.parseByte(data, 16));
+    }
+
     @Given("^lr is ([0-9]+)$")
     public void lrIs(String pc) {
         reg.setReg(ArmV3Cpu.LR, Integer.parseUnsignedInt(pc));

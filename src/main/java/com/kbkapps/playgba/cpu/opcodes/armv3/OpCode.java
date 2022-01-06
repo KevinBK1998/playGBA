@@ -44,7 +44,7 @@ public class OpCode {
     }
 
     public static OpCode decodeOpcode(int opcodeEncoded) throws UndefinedOpcodeException {
-        System.out.println("Decoding: " + Integer.toUnsignedString(opcodeEncoded, 16));
+        System.out.printf("Decoding: %08x\n", opcodeEncoded);
         Flags cond = values()[(opcodeEncoded >> 28) & 0xF];
         if (((opcodeEncoded >> 8) & 0xF_FF_FF) == 0x12fff)
             return ExchangingBranch.decodeOpcode(opcodeEncoded);

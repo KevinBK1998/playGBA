@@ -75,4 +75,14 @@ public class ThumbInstructionsStepDefinitions {
     public void shouldBePresentInTheMemoryX(String data, String address) {
         assertThat(mem.read32(Integer.parseUnsignedInt(address, 16))).inHexadecimal().isEqualTo(Byte.parseByte(data, 16));
     }
+
+    @And("^cpsr is ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2})")
+    public void cpsrIs(String arg0, String arg1, String arg2, String arg3) {
+        reg.setPSR(Registers.CPSR, getIntFromBytes(arg3, arg2, arg1, arg0));
+    }
+
+    @Then("^the pc must be ([0-9]+)")
+    public void thePcMustBe(String pc) {
+        assertThat(reg.getReg(ArmV3Cpu.PC)).isEqualTo(Integer.parseUnsignedInt(pc));
+    }
 }

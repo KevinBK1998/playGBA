@@ -6,6 +6,10 @@ public class UndefinedOpcodeException extends Exception {
     }
 
     public UndefinedOpcodeException(int opcodeEncoded) {
-        this(Integer.toUnsignedString(opcodeEncoded, 16));
+        this(String.format("%08x", opcodeEncoded));
+    }
+
+    public UndefinedOpcodeException(short opcodeEncoded) {
+        this(String.format("%04x", opcodeEncoded));
     }
 }
