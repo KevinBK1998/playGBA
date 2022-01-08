@@ -23,7 +23,7 @@ public class CpuStepDefinitions {
         int[] unbankedReg = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};//13
         int[] bankedReg = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};//10
         int[] savedStatusReg = {0, 0, 0, 0, 0};//5
-        assertThat(gbaCpu.getState()).isEqualTo(new Registers(unbankedReg, bankedReg, savedStatusReg, gbaCpu.armCpu.getPC(), 0));
+        assertThat(gbaCpu.getState()).isEqualTo(new Registers(unbankedReg, bankedReg, savedStatusReg, gbaCpu.reg.getPC(), 0));
     }
 
     @Then("next instruction is decoded")
@@ -35,7 +35,7 @@ public class CpuStepDefinitions {
     public void theNextInstructionAfterThatIsFetched() {
         try {
             FileInputStream in = new FileInputStream("src/main/resources/bios.bin");
-            int pc = gbaCpu.armCpu.getPC();
+            int pc = gbaCpu.reg.getPC();
             System.out.println("pc = " + pc);
             byte[] data = new byte[4];
             in.skip(pc - 4);

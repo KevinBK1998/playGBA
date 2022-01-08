@@ -99,8 +99,8 @@ public class ArmV3Cpu {
     private void branch(OpCode opcode) {
         Branch br = (Branch) opcode;
         if (br.getInstruction() == Instructions.BL)
-            reg.setReg(LR, reg.getReg(PC) + 4);
-        reg.setReg(PC, (int) (Integer.toUnsignedLong(getPC()) + br.getOffset() * 4));
+            reg.setReg(LR, reg.getReg(PC));
+        reg.setReg(PC, (int) (Integer.toUnsignedLong(reg.getReg(PC)) + br.getOffset() * 4));
     }
 
     private void logicalOr(OpCode opcode) {
@@ -247,10 +247,6 @@ public class ArmV3Cpu {
 // TODO       if ((result >> 32) > 0)
 //            flags |= V;
         return flags;
-    }
-
-    int getPC() {
-        return reg.getReg(PC);
     }
 
     public Registers getState() {

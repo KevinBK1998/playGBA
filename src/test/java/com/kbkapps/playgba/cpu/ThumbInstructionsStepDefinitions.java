@@ -85,4 +85,19 @@ public class ThumbInstructionsStepDefinitions {
     public void thePcMustBe(String pc) {
         assertThat(reg.getReg(ArmV3Cpu.PC)).isEqualTo(Integer.parseUnsignedInt(pc));
     }
+
+    @Then("cpu must run in ARM")
+    public void cpuMustRunInARM() {
+        assertThat(reg.thumbMode).isFalse();
+    }
+
+    @Then("irq must be enabled")
+    public void irqMustBeEnabled() {
+        assertThat(reg.irqEnable).isTrue();
+    }
+
+    @Then("the mode must be {word}")
+    public void modeMustBe(String expectedMode) {
+        assertThat(reg.getMode()).isEqualTo(expectedMode);
+    }
 }

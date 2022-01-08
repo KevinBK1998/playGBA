@@ -78,8 +78,12 @@ public class Registers {
         if (index < 15)
             return bankedReg[getBankedIndex(index)];
         if (index == 15)
-            return reg15;
+            return reg15 + getStepAmount();
         throw new IndexOutOfBoundsException();
+    }
+
+    int getPC() {
+        return reg15;
     }
 
     private int getBankedIndex(int index) {
@@ -94,9 +98,11 @@ public class Registers {
             unbankedReg[index] = data;
         else if (index < 15)
             bankedReg[getBankedIndex(index)] = data;
-        else if (index == 15)
-            reg15 = data;
-        else
+        else if (index == 15) {
+            int newPC = data - getStepAmount();
+            assert newPC > 0;
+            reg15 = newPC;
+        } else
             throw new IndexOutOfBoundsException();
     }
 
@@ -143,7 +149,11 @@ public class Registers {
     }
 
     public void step() {
-        reg15 += thumbMode ? 2 : 4;
+        reg15 += getStepAmount();
+    }
+
+    private int getStepAmount() {
+        return thumbMode ? 2 : 4;
     }
 
     @Override

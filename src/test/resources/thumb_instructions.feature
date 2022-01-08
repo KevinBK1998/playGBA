@@ -10,6 +10,7 @@ Feature: The Thumb Instruction Set
       | 60 50   | store word r0, [r4+r1]      |
       | 09 1d   | add r1, r1, 0x4             |
       | fc db   | branch signed less than, -8 |
+      | 70 47   | exchanging branch lr        |
 
 #  THUMB.3: move/compare/add/subtract immediate
 #  15-13  Must be 001b for this type of instructions
@@ -132,3 +133,43 @@ Feature: The Thumb Instruction Set
     And cpsr is 80 00 00 00
     When I try to execute fc db
     Then the pc must be 292
+
+#  THUMB.5: Hi register operations/branch exchange
+#  15-10  Must be 010001b for this type of instructions
+#  9-8    Opcode (0-3)
+#  0: ADD Rd,Rs   ;add        Rd = Rd+Rs
+#  1: CMP Rd,Rs   ;compare  Void = Rd-Rs  ;CPSR affected
+#  2: MOV Rd,Rs   ;move       Rd = Rs
+#  2: NOP         ;nop        R8 = R8
+#  3: BX  Rs      ;jump       PC = Rs     ;may switch THUMB/ARM
+#  3: BLX Rs      ;call       PC = Rs     ;may switch THUMB/ARM (ARM9)
+#  7      MSBd - Destination Register most significant bit (or BL/BLX flag)
+#  6      MSBs - Source Register most significant bit
+#  5-3    Rs - Source Register        (together with MSBs: R0..R15)
+#  2-0    Rd - Destination Register   (together with MSBd: R0..R15)
+#  Restrictions: For ADD/CMP/MOV, MSBs and/or MSBd must be set, ie. it is not allowed that both are cleared.
+#    When using R15 (PC) as operand, the value will be the address of the instruction plus 4 (ie. $+4). Except for BX R15: CPU switches to ARM state, and PC is auto-aligned as (($+4) AND NOT 2).
+#  For BX, MSBs may be 0 or 1, MSBd must be zero, Rd is not used/zero.
+#  For BLX, MSBs may be 0 or 1, MSBd must be set, Rd is not used/zero.
+#  For BX/BLX, when Bit 0 of the value in Rs is zero:
+#  Processor will be switched into ARM mode!
+#  If so, Bit 1 of Rs must be cleared (32bit word aligned).
+#  Thus, BX PC (switch to ARM) may be issued from word-aligned address
+#  only, the destination is PC+4 (ie. the following halfword is skipped).
+#  BLX may not use R15. BLX saves the return address as LR=PC+3 (with thumb bit).
+#  Using BLX R14 is possible (sets PC=Old_LR, and New_LR=retadr).
+#  Assemblers/Disassemblers should use MOV R8,R8 as NOP (in THUMB mode).
+#  Return: Only CMP affects CPSR condition flags!
+#  Execution Time:
+#  1S     for ADD/MOV/CMP
+#  2S+1N  for ADD/MOV with Rd=R15, and for BX
+  Scenario: Exchanging Branch is executed
+    Given cpsr is 40 00 00 7f
+    And the pc is 296
+    And that r14 is 0xa8
+    When I try to execute 70 47
+    Then the pc must be 172
+    And cpsr must be 40 00 00 5f
+    And irq must be enabled
+    And cpu must run in ARM
+    And the mode must be sys

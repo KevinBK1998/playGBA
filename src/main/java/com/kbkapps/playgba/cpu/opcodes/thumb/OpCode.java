@@ -41,15 +41,16 @@ public class OpCode {
         if (((opcodeEncoded >> 13) & 7) == 1)
             if (((opcodeEncoded >> 11) & 3) == 0)
                 return new OpCode(Instructions.MOVS, (byte) ((opcodeEncoded >> 8) & 7), (byte) (opcodeEncoded & 0xFF));
+        if (((opcodeEncoded >> 12) & 0xf) == 0b0101)
+            return SingleDataTransfer.decodeOpcode(opcodeEncoded);
+        if (((opcodeEncoded >> 12) & 0xf) == 0b1101)
+            return Branch.decodeOpcode(opcodeEncoded);
         if (((opcodeEncoded >> 11) & 0x1f) == 0b01001)
             return new OpCode(Instructions.LDR_PC, (byte) ((opcodeEncoded >> 8) & 7), (byte) (opcodeEncoded & 0xFF));
         if (((opcodeEncoded >> 11) & 0x1f) == 0b00011)
             return ArithmeticLogical.decodeOpcode(opcodeEncoded);
-        if (((opcodeEncoded >> 12) & 0xf) == 0b0101)
-            return SingleDataTransfer.decodeOpcode(opcodeEncoded);
-        if (((opcodeEncoded >> 12) & 0xf) == 0b1101) {
-            return Branch.decodeOpcode(opcodeEncoded);
-        }
+        if (((opcodeEncoded >> 10) & 0x3f) == 0b010001)
+            return new ExchangingBranch((byte) ((opcodeEncoded >> 3) & 0xf));
         throw new UndefinedOpcodeException(opcodeEncoded);
     }
 

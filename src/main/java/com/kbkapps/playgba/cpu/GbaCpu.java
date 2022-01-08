@@ -41,7 +41,6 @@ public class GbaCpu {
         thumbCpu.execute(thumbOpcodeDecoded);
         if (!reg.thumbMode) {
             width = 4;
-            return;
         }
         decodeInstruction();
         fetchInstruction();
@@ -58,7 +57,7 @@ public class GbaCpu {
     }
 
     private void decodeInstruction() throws UndefinedOpcodeException {
-        int pc = armCpu.getPC();
+        int pc = reg.getPC();
         if (pc != prevPc || pc == 0) {
             System.out.println("Flushed Cache");
             opcodeDecoded = null;
@@ -70,7 +69,7 @@ public class GbaCpu {
     }
 
     private void fetchInstruction() {
-        int pc = reg.getReg(PC);
+        int pc = reg.getPC();
         opcodeEncoded = 0;
         System.out.println("Fetching: PC=" + pc + " (" + Integer.toHexString(pc) + ")");
         for (int i = 0; i < width; i++) {
