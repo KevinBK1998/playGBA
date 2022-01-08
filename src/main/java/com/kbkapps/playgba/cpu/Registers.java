@@ -106,6 +106,11 @@ public class Registers {
             throw new IndexOutOfBoundsException();
     }
 
+    void setPC(int data) {
+        assert data > 0;
+        reg15 = data;
+    }
+
     public int getPSR(char type) {
         if (type == CPSR)
             return currentStatusReg;

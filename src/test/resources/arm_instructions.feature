@@ -85,7 +85,7 @@ Feature: The Arm Instruction Set
     And pc is 280
     And R0 is 0x11d
     When i try to execute 10 ff 2f e1
-    Then pc must be 286
+    Then pc must be 282
     And CPSR must be 00 00 00 7f
     And Irq must be enabled
     And CPU must run in THUMB
@@ -158,7 +158,7 @@ Feature: The Arm Instruction Set
   Scenario: Add (with immediate) instruction is executed
     Given pc is 284
     When i try to execute 01 00 8f e2
-    Then R0 must be 0x11d
+    Then R0 must be 0x121
 
   Scenario: Test Exclusive (with immediate) instruction is executed
     When i try to execute 01 00 3c e3

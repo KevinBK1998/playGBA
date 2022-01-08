@@ -89,7 +89,7 @@ public class ArmV3Cpu {
         ArithmeticLogical alu = (ArithmeticLogical) opcode;
         if (alu.hasImmediate()) {
             int result = reg.getReg(alu.getRegNo()) + alu.getImmediate();
-            System.out.println("result = " + Integer.toUnsignedString(result, 16));
+            System.out.printf("result = 0x%x\n", result);
             reg.setReg(alu.getRegDest(), result);
             if (alu.canChangePsr())
                 reg.setPSR(Registers.CPSR, setFlags(result));
@@ -132,20 +132,24 @@ public class ArmV3Cpu {
     }
 
     private void loadReg(SingleDataTransfer opcode) {
-
         if (opcode.hasImmediate()) {
             if (opcode.shouldAddOffsetBeforeTransfer()) {
                 if (opcode.shouldAdd()) {
                     //[r12+0x300]
-                    int regNo = reg.getReg(opcode.getRegNo());
+                    int regN = opcode.getRegNo();
+                    int regNValue = regN == PC ? reg.getPC() : reg.getReg(regN);
+//                    regNValue = regNValue:re
                     int data;
                     if (opcode.isByteTransfer())
-                        data = gbaMemory.read8(regNo + opcode.getImmediate());
+                        data = gbaMemory.read8(regNValue + opcode.getImmediate());
                     else
-                        data = gbaMemory.read32(regNo + opcode.getImmediate());
-//                    System.out.println("data = " + Integer.toHexString(data));
-                    regNo = opcode.getRegDest();
-                    reg.setReg(regNo, data);
+                        data = gbaMemory.read32(regNValue + opcode.getImmediate());
+                    System.out.printf("data = 0x%x\n", data);
+                    regN = opcode.getRegDest();
+                    if (regN == 15)
+                        reg.setPC(data - 12);
+                    else
+                        reg.setReg(regN, data);
                 } else {
                     //[r12-0x300]
                 }

@@ -17,7 +17,7 @@ public class RegistersStepDefinitions {
 
     @When("^I read from R([0-9]{1,2})$")
     public void readFromReg(int index) {
-        data = registers.getReg(index);
+        data = (index < 15) ? registers.getReg(index) : registers.getPC();
     }
 
     @Then("^I should get ([0-9]+)$")
@@ -27,12 +27,16 @@ public class RegistersStepDefinitions {
 
     @When("^I write ([0-9]+) to R([0-9]{1,2})$")
     public void writeToReg(String data, int index) {
-        registers.setReg(index, Integer.parseUnsignedInt(data));
+        if (index < 15)
+            registers.setReg(index, Integer.parseUnsignedInt(data));
+        else
+            registers.setPC(Integer.parseUnsignedInt(data));
     }
 
     @Then("^([0-9]+) should be present in R([0-9]{1,2})$")
     public void shouldBePresentInReg(String data, int index) {
-        assertThat(registers.getReg(index)).isEqualTo(Integer.parseUnsignedInt(data));
+        int regValue = index < 15 ? registers.getReg(index) : registers.getPC();
+        assertThat(regValue).isEqualTo(Integer.parseUnsignedInt(data));
     }
 
     @When("I switch mode to {word}")

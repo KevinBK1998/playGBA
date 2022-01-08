@@ -168,7 +168,7 @@ Feature: The Thumb Instruction Set
     And the pc is 296
     And that r14 is 0xa8
     When I try to execute 70 47
-    Then the pc must be 172
+    Then the pc must be 164
     And cpsr must be 40 00 00 5f
     And irq must be enabled
     And cpu must run in ARM

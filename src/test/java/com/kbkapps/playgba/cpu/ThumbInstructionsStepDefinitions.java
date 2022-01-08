@@ -58,7 +58,7 @@ public class ThumbInstructionsStepDefinitions {
 
     @Given("^the pc is ([0-9]+)$")
     public void thePcIs(String pc) {
-        reg.setReg(ArmV3Cpu.PC, Integer.parseUnsignedInt(pc));
+        reg.setPC(Integer.parseUnsignedInt(pc));
     }
 
     @Given("^that r([0-9]{1,2}) is ([0-9]+)$")
@@ -83,7 +83,7 @@ public class ThumbInstructionsStepDefinitions {
 
     @Then("^the pc must be ([0-9]+)")
     public void thePcMustBe(String pc) {
-        assertThat(reg.getReg(ArmV3Cpu.PC)).isEqualTo(Integer.parseUnsignedInt(pc));
+        assertThat(reg.getPC()).isEqualTo(Integer.parseUnsignedInt(pc));
     }
 
     @Then("cpu must run in ARM")

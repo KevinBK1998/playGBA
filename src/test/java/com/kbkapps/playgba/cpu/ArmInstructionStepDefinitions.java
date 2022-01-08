@@ -17,7 +17,7 @@ public class ArmInstructionStepDefinitions {
 
     @Given("^pc is ([0-9]+)$")
     public void pcIs(String pc) {
-        reg.setReg(ArmV3Cpu.PC, Integer.parseUnsignedInt(pc));
+        reg.setPC(Integer.parseUnsignedInt(pc));
     }
 
     @When("^i try to decode ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2})$")
@@ -46,7 +46,7 @@ public class ArmInstructionStepDefinitions {
 
     @Then("^pc must be ([0-9]+)$")
     public void pcMustBe(String expectedPC) {
-        assertThat(reg.getReg(ArmV3Cpu.PC)).isEqualTo(Integer.parseUnsignedInt(expectedPC));
+        assertThat(reg.getPC()).isEqualTo(Integer.parseUnsignedInt(expectedPC));
     }
 
     @Then("^CPSR must be ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2})$")
