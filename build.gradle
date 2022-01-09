@@ -9,6 +9,11 @@ repositories {
     }
 }
 
+task runCpuOnly(type: JavaExec) {
+    main = "com.kbkapps.playgba.cpu.GbaCpu"
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 dependencies {
     implementation 'io.cucumber:cucumber-junit:6.8.1'
     testImplementation 'io.cucumber:cucumber-java:6.8.1'
