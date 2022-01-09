@@ -34,7 +34,7 @@ public class ArmV3Cpu {
 
     public void execute(OpCode opcode) throws UndefinedOpcodeException {
         if (opcode == null) {
-            System.out.println("NOP");
+            System.out.println("Nothing to execute");
             return;
         } else System.out.printf("Executing PC=0x%x: %s\n", reg.getPC() - 4, opcode);
         if (opcode.getInstruction() == Instructions.B | opcode.getInstruction() == Instructions.BL) {
@@ -78,10 +78,11 @@ public class ArmV3Cpu {
             int regNo = reg.getReg(opcode.getRegNo());
             boolean thumbMode = (regNo & 1) != 0;
             regNo = regNo & 0xFF_FF_FF_FE;
-//            System.out.println("regNo = " + regNo);
+//            System.out.printf("regNo = 0x%x\n", regNo);
 //            System.out.println("thumbMode = " + thumbMode);
-            reg.setReg(PC, regNo);
-            reg.setPSR(Registers.CPSR, reg.getPSR(Registers.CPSR) | 0x20);
+            if (thumbMode)
+                reg.setPSR(Registers.CPSR, reg.getPSR(Registers.CPSR) | 0x20);
+            reg.setPC(regNo);
         }
     }
 

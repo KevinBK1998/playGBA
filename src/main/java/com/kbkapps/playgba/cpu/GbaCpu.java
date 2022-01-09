@@ -65,7 +65,7 @@ public class GbaCpu {
     private void fetchInstruction() {
         int pc = reg.getPC();
         if (pc != prevPc || pc == 0) {
-            System.out.println("Flushed Cache");
+            System.out.println("\nFlushed Cache");
             opcodeDecoded = null;
             thumbOpcodeDecoded = null;
         }
