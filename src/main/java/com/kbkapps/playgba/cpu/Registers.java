@@ -26,7 +26,6 @@ public class Registers {
     private int currentStatusReg;
 
     public Registers() {
-        System.out.println("Start State: " + this);
     }
 
     public Registers(int[] unbankedReg, int[] bankedReg, int[] savedStatusReg, int r15, int cpsr) {

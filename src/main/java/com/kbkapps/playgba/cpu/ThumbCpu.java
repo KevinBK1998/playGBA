@@ -23,53 +23,50 @@ public class ThumbCpu {
         if (opcode == null) {
             System.out.println("tNOP");
             return;
-        } else System.out.println("Executing: " + opcode);
+        } else System.out.printf("Executing PC=0x%x: %s\n", reg.getPC() - 2, opcode);
         if (opcode.getInstruction() == Instructions.MOVS) {
             int regD = opcode.getRegDest();
             reg.setReg(regD, opcode.getImmediate());
             setFlags(reg.getReg(regD));
         } else if (opcode.getInstruction() == Instructions.LDR_PC) {
             int regD = opcode.getRegDest();
-            int regDValue = gbaMem.read32(reg.getPC() - 2 + opcode.getImmediate() * 4);
+//            System.out.printf("regD = 0x%x\n", regD);
+            int regDValue = gbaMem.read32(reg.getPC() + opcode.getImmediate() * 4);
+//            System.out.printf("regDValue = 0x%x\n", regDValue);
             reg.setReg(regD, regDValue);
         } else if (opcode.getInstruction() == Instructions.STR) storeWord((SingleDataTransfer) opcode);
         else if (opcode.getInstruction() == Instructions.ADD) add((ArithmeticLogical) opcode);
         else if (opcode.getInstruction() == Instructions.B) branch((Branch) opcode);
-        else if (opcode.getInstruction() == Instructions.BX) branch((ExchangingBranch) opcode);
+        else if (opcode.getInstruction() == Instructions.BX) exBranch((ExchangingBranch) opcode);
         else throw new UndefinedOpcodeException(opcode.toString());
     }
 
-    private void branch(ExchangingBranch opcode) {
+    private void exBranch(ExchangingBranch opcode) {
         int regS = opcode.getRegSource();
-//        System.out.println("regS = " + regS);
         int regSValue = reg.getReg(regS);
-        System.out.printf("regSValue = 0x%x\n", regSValue);
+//        System.out.printf("regSValue = 0x%x\n", regSValue);
         boolean armMode = (regSValue & 1) == 0;
         if (armMode) {
             regSValue = regSValue & 0xFF_FF_FF_FC;
-//            System.out.printf("reg.getPSR(Registers.CPSR) = 0x%08x\n", reg.getPSR(Registers.CPSR));
-            System.out.printf("newCPSR = 0x%08x\n", reg.getPSR(Registers.CPSR) & 0xFF_FF_FF_DF);
+//            System.out.printf("newCPSR = 0x%08x\n", reg.getPSR(Registers.CPSR) & 0xFF_FF_FF_DF);
             reg.setPSR(Registers.CPSR, reg.getPSR(Registers.CPSR) & 0xFF_FF_FF_DF);
         }
-        System.out.printf("PC = 0x%x\n", regSValue);
-        reg.setReg(PC, regSValue - 4);
-        System.out.printf("reg.getPC() = 0x%x\n", reg.getPC());
+        reg.setReg(PC, regSValue);
+//        System.out.printf("reg.getPC() = 0x%x\n", reg.getPC());
     }
 
     private void branch(Branch opcode) {
-//        System.out.println("opcode.getCondition() = " + opcode.getCondition());
-//        System.out.println("reg.canExecute(Flags.MI) = " + reg.canExecute(Flags.MI));
-//        System.out.println("reg.canExecute(Flags.VS) = " + reg.canExecute(Flags.VS));
+        System.out.println("opcode.getCondition() = " + opcode.getCondition());
         if (reg.canExecute(opcode.getCondition())) {
-            int newPC = reg.getReg(PC) + opcode.getOffset();
-//            System.out.println("PC = " + newPC);
+            int newPC = reg.getReg(PC) + 2 + opcode.getOffset() * 2;
+            System.out.println("PC = " + newPC);
             reg.setReg(PC, newPC);
         }
     }
 
     private void add(ArithmeticLogical opcode) {
         int regD = opcode.getRegDest();
-        System.out.println("reg.getReg(regD) = " + reg.getReg(regD));
+//        System.out.println("reg.getReg(regD) = " + reg.getReg(regD));
         int operand1 = reg.getReg(opcode.getRegSource());
 //        System.out.println("op1 = " + Integer.toHexString(operand1));
         int operand2 = opcode.isImmediate() ? opcode.getImmediate() : reg.getReg(opcode.getRegNext());

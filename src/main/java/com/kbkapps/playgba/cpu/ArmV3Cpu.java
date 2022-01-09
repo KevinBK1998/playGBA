@@ -138,8 +138,7 @@ public class ArmV3Cpu {
         if (opcode.hasImmediate()) {
             int address = 0;
             if (opcode.shouldAddOffsetBeforeTransfer()) {
-                int regN = opcode.getRegNo();
-                int regNValue = regN == PC ? reg.getPC() : reg.getReg(regN);
+                int regNValue = reg.getReg(opcode.getRegNo());
                 if (opcode.shouldAdd())
                     address = regNValue + opcode.getImmediate();    //[r12+0x300]
                 else
@@ -149,11 +148,11 @@ public class ArmV3Cpu {
                     data = gbaMemory.read8(address);
                 else
                     data = gbaMemory.read32(address);
-                regN = opcode.getRegDest();
-                if (regN == 15)
+                int regDest = opcode.getRegDest();
+                if (regDest == 15)
                     reg.setPC(data - 12);
                 else
-                    reg.setReg(regN, data);
+                    reg.setReg(regDest, data);
             } else {
                 if (opcode.shouldAdd()) {
                     //[r12]+0x300
@@ -173,6 +172,7 @@ public class ArmV3Cpu {
                     address = regNo + opcode.getImmediate();    //[r12+0x300]
                 else
                     address = regNo - opcode.getImmediate();    //[r12-0x300]
+//                System.out.printf("Address=0x%x\n", address);
                 regNo = opcode.getRegDest();
                 int regNValue = regNo == PC ? reg.getPC() : reg.getReg(regNo);
                 try {
@@ -257,9 +257,5 @@ public class ArmV3Cpu {
 // TODO       if ((result >> 32) > 0)
 //            flags |= V;
         return flags;
-    }
-
-    public Registers getState() {
-        return reg;
     }
 }

@@ -20,7 +20,7 @@ public class CpuStepDefinitions {
         int[] unbankedReg = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};//13
         int[] bankedReg = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};//10
         int[] savedStatusReg = {0, 0, 0, 0, 0};//5
-        assertThat(gbaCpu.getState()).isEqualTo(new Registers(unbankedReg, bankedReg, savedStatusReg, gbaCpu.reg.getReg(15), 0));
+        assertThat(gbaCpu.reg).isEqualTo(new Registers(unbankedReg, bankedReg, savedStatusReg, gbaCpu.reg.getReg(15), 0));
     }
 
     @Then("next instruction is fetched")

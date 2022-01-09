@@ -304,15 +304,15 @@ Feature: The Arm Instruction Set
 
   Scenario: Load Register with word from memory
     #Given word 0x03007f00 is present in memory 0x1b8
-    And pc is 280
+    And pc is 276
     When i try to execute a0 d0 9f e5
     Then SP must be 0x03007f00
     #Given word 0x03007fa0 is present in memory 0x1bc
-    And pc is 260
+    And pc is 256
     When i try to execute b8 d0 9f e5
     Then SP must be 0x03007fa0
     #Given word 0x03007fe0 is present in memory 0x1c0
-    And pc is 240
+    And pc is 236
     When i try to execute d0 d0 9f e5
     Then SP must be 0x03007fe0
 

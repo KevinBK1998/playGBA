@@ -26,7 +26,7 @@ public class GbaCpu {
         }
         System.out.println(i + " instructions executed");
         System.out.println("Registers:");
-        System.out.println(cpu.armCpu.getState());
+        System.out.println(cpu.reg);
     }
 
     public void trigger() throws UndefinedOpcodeException, WriteDeniedException {
@@ -38,16 +38,18 @@ public class GbaCpu {
 
     private void thumbTrigger() throws UndefinedOpcodeException, WriteDeniedException {
         thumbCpu.execute(thumbOpcodeDecoded);
+//        System.out.println("reg = " + reg);
         if (!reg.thumbMode) {
             width = 4;
         }
-        decodeInstruction();
         fetchInstruction();
+        decodeInstruction();
         reg.step();
     }
 
     public void armTrigger() throws UndefinedOpcodeException {
         armCpu.execute(opcodeDecoded);
+//        System.out.println("reg = " + reg);
         if (reg.thumbMode)
             width = 2;
         fetchInstruction();
@@ -87,10 +89,6 @@ public class GbaCpu {
         if (result.length() == 1)
             return "0" + result;
         return result;
-    }
-
-    public Registers getState() {
-        return armCpu.getState();
     }
 
     public void runTimes(int times) {

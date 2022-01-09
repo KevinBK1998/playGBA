@@ -8,10 +8,10 @@ public class Branch extends OpCode {
     Flags condition;
     byte off;
 
-    public Branch(Flags cond, int offset) {
+    public Branch(Flags cond, byte offset) {
         super(Instructions.B);
         condition = cond;
-        off = (byte) (offset * 2);
+        off = offset;
     }
 
     public static Branch decodeOpcode(short opcodeEncoded) throws UndefinedOpcodeException {
@@ -19,7 +19,7 @@ public class Branch extends OpCode {
         int offset = opcodeEncoded & 0xff;
         switch (opcode) {
             case 0xB:
-                return new Branch(Flags.LT, offset);
+                return new Branch(Flags.LT, (byte) offset);
             default:
                 throw new UndefinedOpcodeException(opcodeEncoded);
         }

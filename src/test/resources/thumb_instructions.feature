@@ -9,7 +9,7 @@ Feature: The Thumb Instruction Set
       | 58 49   | load pc-relative r1, 0x58   |
       | 60 50   | store word r0, [r4+r1]      |
       | 09 1d   | add r1, r1, 0x4             |
-      | fc db   | branch signed less than, -8 |
+      | fc db   | branch signed less than, -4 |
       | 70 47   | exchanging branch lr        |
 
 #  THUMB.3: move/compare/add/subtract immediate
@@ -40,7 +40,7 @@ Feature: The Thumb Instruction Set
 #  Execution Time: 1S+1N+1I
 
   Scenario: Load PC - relative immediate
-    Given the pc is 290
+    Given the pc is 288
     When I try to execute 58 49
     Then r1 must be 0xfffffe00
 
@@ -132,7 +132,7 @@ Feature: The Thumb Instruction Set
     Given the pc is 296
     And cpsr is 80 00 00 00
     When I try to execute fc db
-    Then the pc must be 292
+    Then the pc must be 294
 
 #  THUMB.5: Hi register operations/branch exchange
 #  15-10  Must be 010001b for this type of instructions
@@ -168,7 +168,7 @@ Feature: The Thumb Instruction Set
     And the pc is 296
     And that r14 is 0xa8
     When I try to execute 70 47
-    Then the pc must be 164
+    Then the pc must be 168
     And cpsr must be 40 00 00 5f
     And irq must be enabled
     And cpu must run in ARM
