@@ -1,6 +1,9 @@
 Feature: The Instruction Set
   GBA has a 32 bit risc Cpu and every instruction is either 16 bit (thumb mode) or 32 bit.
 
+  Background: Reset the CPU
+    Given All registers are initialised
+
   Scenario Outline: Correct Flags are raised
   The flags available are:
   Bit   Expl.
@@ -37,24 +40,23 @@ Feature: The Instruction Set
   D:   LE     Z=1 or N<>V   signed less or equal
   E:   AL     -             always (the "AL" suffix can be omitted)
   F:   NV     -             never (ARMv1,v2 only) (Reserved ARMv3 and up)
-    Given All registers are initialised
     And PC is <prevPC>
     When I try to execute B <cond> <label>
     Then I should be at <expectedPC>
     Examples:
       | cond | prevPC | label | expectedPC |
-      | EQ   | 0      | 2     | 0          |
-      | NE   | 0      | 2     | 8          |
-      | CS   | 0      | 2     | 0          |
-      | CC   | 0      | 2     | 8          |
-      | MI   | 0      | 2     | 0          |
-      | PL   | 0      | 2     | 8          |
-      | VS   | 0      | 2     | 0          |
-      | VC   | 0      | 2     | 8          |
-      | HI   | 0      | 2     | 0          |
-      | LS   | 0      | 2     | 8          |
-      | GE   | 0      | 2     | 8          |
-      | LT   | 0      | 2     | 0          |
-      | GT   | 0      | 2     | 8          |
-      | LE   | 0      | 2     | 0          |
-      | AL   | 0      | 2     | 8          |
+      | EQ   | 4      | 2     | 4          |
+      | NE   | 4      | 2     | 16         |
+      | CS   | 4      | 2     | 4          |
+      | CC   | 4      | 2     | 16         |
+      | MI   | 4      | 2     | 4          |
+      | PL   | 4      | 2     | 16         |
+      | VS   | 4      | 2     | 4          |
+      | VC   | 4      | 2     | 16         |
+      | HI   | 4      | 2     | 4          |
+      | LS   | 4      | 2     | 16         |
+      | GE   | 4      | 2     | 16         |
+      | LT   | 4      | 2     | 4          |
+      | GT   | 4      | 2     | 16         |
+      | LE   | 4      | 2     | 4          |
+      | AL   | 4      | 2     | 16         |

@@ -9,6 +9,7 @@ import io.cucumber.java.en.When;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ArmInstructionStepDefinitions {
+    public static final int PC = 15;
     Registers reg = new Registers();
     GbaMemory mem = new GbaMemory();
     ArmV3Cpu armCpu = new ArmV3Cpu(reg, mem);

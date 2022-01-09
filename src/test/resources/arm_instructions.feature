@@ -52,19 +52,19 @@ Feature: The Arm Instruction Set
 #    When I try to execute B <cond> <label>
 #    Then I should be at <expectedPC>
   Scenario: Branch is executed
-    Given pc is 8
+    Given pc is 4
     When i try to execute 18 00 00 ea
     Then pc must be 108
-    Given pc is 140
+    Given pc is 144
     And CPSR is 00 00 00 00
     When i try to execute e3 ff ff 0a
-    Then pc must be 144
+    Then pc must be 148
 
   Scenario: Branch with Link is executed
-    Given pc is 164
+    Given pc is 160
     When i try to execute 0f 00 00 eb
     Then pc must be 228
-    And lr must be 168
+    And lr must be 164
 
 #  Scenario:Branch and Exchange (BX, BLX_reg)
 #  Bit    Expl.

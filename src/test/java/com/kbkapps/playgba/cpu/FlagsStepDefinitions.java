@@ -18,7 +18,7 @@ public class FlagsStepDefinitions {
 
     @Given("^PC is ([0-9]+)$")
     public void setPC(String data) {
-        reg.setReg(ArmV3Cpu.PC, Integer.parseUnsignedInt(data));
+        reg.setPC(Integer.parseUnsignedInt(data));
     }
 
     @When("I try to execute B {word} {int}")
@@ -29,7 +29,7 @@ public class FlagsStepDefinitions {
 
     @Then("^I should be at ([0-9]+)$")
     public void shouldBeAt(String expectedPC) {
-        assertThat(reg.getReg(ArmV3Cpu.PC)).isEqualTo(Integer.parseUnsignedInt(expectedPC));
+        assertThat(reg.getPC()).isEqualTo(Integer.parseUnsignedInt(expectedPC));
     }
 
     @Given("^CPSR is 0x([0-9a-f]{1,8})$")
