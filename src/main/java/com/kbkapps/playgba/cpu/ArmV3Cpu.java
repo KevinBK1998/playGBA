@@ -133,26 +133,24 @@ public class ArmV3Cpu {
 
     private void loadReg(SingleDataTransfer opcode) {
         if (opcode.hasImmediate()) {
+            int address = 0;
             if (opcode.shouldAddOffsetBeforeTransfer()) {
-                if (opcode.shouldAdd()) {
-                    //[r12+0x300]
-                    int regN = opcode.getRegNo();
-                    int regNValue = regN == PC ? reg.getPC() : reg.getReg(regN);
-//                    regNValue = regNValue:re
-                    int data;
-                    if (opcode.isByteTransfer())
-                        data = gbaMemory.read8(regNValue + opcode.getImmediate());
-                    else
-                        data = gbaMemory.read32(regNValue + opcode.getImmediate());
-                    System.out.printf("data = 0x%x\n", data);
-                    regN = opcode.getRegDest();
-                    if (regN == 15)
-                        reg.setPC(data - 12);
-                    else
-                        reg.setReg(regN, data);
-                } else {
-                    //[r12-0x300]
-                }
+                int regN = opcode.getRegNo();
+                int regNValue = regN == PC ? reg.getPC() : reg.getReg(regN);
+                if (opcode.shouldAdd())
+                    address = regNValue + opcode.getImmediate();    //[r12+0x300]
+                else
+                    address = regNValue - opcode.getImmediate();    //[r12-0x300]
+                int data;
+                if (opcode.isByteTransfer())
+                    data = gbaMemory.read8(address);
+                else
+                    data = gbaMemory.read32(address);
+                regN = opcode.getRegDest();
+                if (regN == 15)
+                    reg.setPC(data - 12);
+                else
+                    reg.setReg(regN, data);
             } else {
                 if (opcode.shouldAdd()) {
                     //[r12]+0x300
@@ -166,17 +164,22 @@ public class ArmV3Cpu {
     private void storeReg(SingleDataTransfer opcode) {
         if (opcode.hasImmediate()) {
             if (opcode.shouldAddOffsetBeforeTransfer()) {
-                if (opcode.shouldAdd()) {
-                    //[r12+0x300]
-                    int regNo = reg.getReg(opcode.getRegNo());
-                    try {
-                        gbaMemory.write8(regNo + opcode.getImmediate(), (byte) regNo);
-                    } catch (WriteDeniedException e) {
-                        e.printStackTrace();
-                        System.exit(-1);
-                    }
-                } else {
-                    //[r12-0x300]
+                int regNo = reg.getReg(opcode.getRegNo());
+                int address = 0;
+                if (opcode.shouldAdd())
+                    address = regNo + opcode.getImmediate();    //[r12+0x300]
+                else
+                    address = regNo - opcode.getImmediate();    //[r12-0x300]
+                regNo = opcode.getRegDest();
+                int regNValue = regNo == PC ? reg.getPC() : reg.getReg(regNo);
+                try {
+                    if (opcode.isByteTransfer())
+                        gbaMemory.write8(address, (byte) regNValue);
+                    else
+                        gbaMemory.write32(address, regNValue);
+                } catch (WriteDeniedException e) {
+                    e.printStackTrace();
+                    System.exit(-1);
                 }
             } else {
                 if (opcode.shouldAdd()) {

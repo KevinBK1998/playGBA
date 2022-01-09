@@ -2,8 +2,6 @@ package com.kbkapps.playgba.cpu;
 
 import com.kbkapps.playgba.cpu.opcodes.armv3.OpCode;
 
-import static com.kbkapps.playgba.cpu.ArmV3Cpu.PC;
-
 public class GbaCpu {
     public static final int N_STEPS = 600;
     public int opcodeEncoded;

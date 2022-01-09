@@ -29,6 +29,7 @@ public class GbaMemory {
     }
 
     public void write8(int address, byte data) throws WriteDeniedException {
+//        System.out.printf("Address: 0x%x, Data: 0x%x\n",address,data);
         if (address < BIOS_SIZE)
             throw new WriteDeniedException(address);
         else if (address >= SLOW_WORK_RAM_OFFSET && address < SLOW_WORK_RAM_END)
@@ -44,6 +45,7 @@ public class GbaMemory {
     }
 
     public byte read8(int address) {
+//        System.out.printf("Address: 0x%x\n",address);
         if (address < BIOS_SIZE)
             return bios[address];
         else if (address >= SLOW_WORK_RAM_OFFSET && address < SLOW_WORK_RAM_END)
@@ -59,6 +61,7 @@ public class GbaMemory {
     }
 
     public void write32(int address, int data) throws WriteDeniedException {
+//        System.out.printf("Address: 0x%x, Data: 0x%x\n", address, data);
         for (int i = address; i < address + 4; i++) {
             write8(i, (byte) data);
             data = data >> 8;
@@ -66,6 +69,7 @@ public class GbaMemory {
     }
 
     public int read32(int address) {
+//        System.out.printf("Address: 0x%x\n", address);
         int completeWord = 0;
         for (int i = address; i < address + 4; i++) {
             byte byteValue = read8(i);
