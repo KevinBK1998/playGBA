@@ -36,7 +36,7 @@ public class ArmV3Cpu {
         if (opcode == null) {
             System.out.println("NOP");
             return;
-        } else System.out.println("Executing: " + opcode);
+        } else System.out.printf("Executing PC=0x%x: %s\n", reg.getPC() - 4, opcode);
         if (opcode.getInstruction() == Instructions.B | opcode.getInstruction() == Instructions.BL) {
             if (reg.canExecute(opcode.getCondition())) {
                 branch(opcode);
@@ -98,9 +98,11 @@ public class ArmV3Cpu {
 
     private void branch(OpCode opcode) {
         Branch br = (Branch) opcode;
-        if (br.getInstruction() == Instructions.BL)
+        if (br.getInstruction() == Instructions.BL){
             reg.setReg(LR, reg.getReg(PC));
-        reg.setReg(PC, (int) (Integer.toUnsignedLong(reg.getReg(PC)) + br.getOffset() * 4));
+//            System.out.printf("LR=0x%x\n", reg.getReg(LR));
+        }
+        reg.setPC((int) (Integer.toUnsignedLong(reg.getReg(PC)) + br.getOffset() * 4));
     }
 
     private void logicalOr(OpCode opcode) {

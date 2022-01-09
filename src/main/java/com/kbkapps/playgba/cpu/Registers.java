@@ -22,10 +22,11 @@ public class Registers {
     private int mode;
     private boolean privileged;
     //PC
-    private int reg15;
+    private int reg15 = 4;
     private int currentStatusReg;
 
     public Registers() {
+        System.out.println("Start State: " + this);
     }
 
     public Registers(int[] unbankedReg, int[] bankedReg, int[] savedStatusReg, int r15, int cpsr) {
@@ -78,12 +79,12 @@ public class Registers {
         if (index < 15)
             return bankedReg[getBankedIndex(index)];
         if (index == 15)
-            return reg15 + getStepAmount();
+            return reg15;
         throw new IndexOutOfBoundsException();
     }
 
     int getPC() {
-        return reg15;
+        return reg15 - getStepAmount();
     }
 
     private int getBankedIndex(int index) {
@@ -99,16 +100,16 @@ public class Registers {
         else if (index < 15)
             bankedReg[getBankedIndex(index)] = data;
         else if (index == 15) {
-            int newPC = data - getStepAmount();
-            assert newPC > 0;
-            reg15 = newPC;
+            assert data > 0;
+            reg15 = data;
         } else
             throw new IndexOutOfBoundsException();
     }
 
     void setPC(int data) {
-        assert data > 0;
-        reg15 = data;
+        int newPC = data + getStepAmount();
+        assert newPC > 0;
+        reg15 = newPC;
     }
 
     public int getPSR(char type) {
@@ -173,6 +174,9 @@ public class Registers {
         StringBuilder regState = new StringBuilder();
         for (int i = 0; i < 13; i++)
             regState.append("r").append(i).append(":0x").append(Integer.toUnsignedString(unbankedReg[i], 16)).append(" ");
+        regState.append("r13:0x").append(Integer.toUnsignedString(getReg(13), 16)).append(" ");
+        regState.append("r14:0x").append(Integer.toUnsignedString(getReg(14), 16)).append(" ");
+        regState.append("r15:0x").append(Integer.toUnsignedString(reg15, 16)).append(" ");
         regState.append("\nsp: ");
         for (int i = 0; i < 5; i++)
             regState.append("0x").append(Integer.toUnsignedString(bankedReg[i], 16)).append(" ");
@@ -184,7 +188,7 @@ public class Registers {
             regState.append("0x").append(Integer.toUnsignedString(savedStatusReg[i], 16)).append(" ");
         regState.append("\nmode:").append(Integer.toUnsignedString(mode, 16)).append(" ")
                 .append("privileged:").append(privileged).append(" ")
-                .append("pc:0x").append(Integer.toUnsignedString(reg15, 16)).append(" ")
+                .append("pc:0x").append(Integer.toUnsignedString(getPC(), 16)).append(" ")
                 .append("cpsr:0x").append(Integer.toUnsignedString(currentStatusReg, 16));
 
         return regState.toString();

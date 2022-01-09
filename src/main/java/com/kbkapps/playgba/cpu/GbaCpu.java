@@ -16,6 +16,7 @@ public class GbaCpu {
 
     public static void main(String[] args) {
         GbaCpu cpu = new GbaCpu();
+        //TODO: BX in arm malfunctioning
         int i = 0;
         try {
             for (; i < N_STEPS; i++)
@@ -49,18 +50,13 @@ public class GbaCpu {
         armCpu.execute(opcodeDecoded);
         if (reg.thumbMode)
             width = 2;
-        decodeInstruction();
         fetchInstruction();
+        decodeInstruction();
         reg.step();
     }
 
     private void decodeInstruction() throws UndefinedOpcodeException {
-        int pc = reg.getPC();
-        if (pc != prevPc || pc == 0) {
-            System.out.println("Flushed Cache");
-            opcodeDecoded = null;
-            thumbOpcodeDecoded = null;
-        } else if (width > 2)
+        if (width > 2)
             opcodeDecoded = OpCode.decodeOpcode(opcodeEncoded);
         else
             thumbOpcodeDecoded = com.kbkapps.playgba.cpu.opcodes.thumb.OpCode.decodeOpcode((short) opcodeEncoded);
@@ -68,8 +64,13 @@ public class GbaCpu {
 
     private void fetchInstruction() {
         int pc = reg.getPC();
+        if (pc != prevPc || pc == 0) {
+            System.out.println("Flushed Cache");
+            opcodeDecoded = null;
+            thumbOpcodeDecoded = null;
+        }
         opcodeEncoded = 0;
-        System.out.println("Fetching: PC=" + pc + " (" + Integer.toHexString(pc) + ")");
+        System.out.println("Fetching: PC=" + pc + " (0x" + Integer.toHexString(pc) + ")");
         for (int i = 0; i < width; i++) {
             byte byteValue = armCpu.gbaMemory.read8(pc + i);
             System.out.print(getUnsignedStringFromByte(byteValue) + " ");
