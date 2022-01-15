@@ -11,6 +11,7 @@ Feature: The Thumb Instruction Set
       | 09 1d   | add r1, r1, 0x4             |
       | fc db   | branch signed less than, -4 |
       | 70 47   | exchanging branch lr        |
+      | f0 b5   | STMIA Rb!,{Rlist}           |
 
 #  THUMB.3: move/compare/add/subtract immediate
 #  15-13  Must be 001b for this type of instructions
@@ -173,3 +174,18 @@ Feature: The Thumb Instruction Set
     And irq must be enabled
     And cpu must run in ARM
     And the mode must be sys
+
+#  THUMB.15: multiple load/store
+#  15-12  Must be 1100b for this type of instructions
+#  11     Opcode (0-1)
+#  0: STMIA Rb!,{Rlist}   ;store in memory, increments Rb
+#  1: LDMIA Rb!,{Rlist}   ;load from memory, increments Rb
+#  10-8   Rb - Base register (modified) (R0-R7)
+#  7-0    Rlist - List of Registers     (R7..R0)
+#  Both STM and LDM are incrementing the Base Register.
+#  The lowest register in the list (ie. R0, if it's in the list) is stored/loaded at the lowest memory address.
+#    Examples:
+#    STMIA R7!,{R0-R2}  ;store R0,R1,R2
+#    LDMIA R0!,{R1,R5}  ;store R1,R5
+#    Return: No flags affected, Rb adjusted, registers loaded/stored.
+#    Execution Time: nS+1N+1I for LDM, or (n-1)S+2N for STM.
