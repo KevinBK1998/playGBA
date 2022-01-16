@@ -6,12 +6,12 @@ import com.kbkapps.playgba.cpu.constants.Instructions;
 
 public class Branch extends OpCode {
     Flags condition;
-    byte off;
+    byte offset;
 
-    public Branch(Flags cond, byte offset) {
+    public Branch(Flags cond, byte off) {
         super(Instructions.B);
         condition = cond;
-        off = offset;
+        offset = off;
     }
 
     public static Branch decodeOpcode(short opcodeEncoded) throws UndefinedOpcodeException {
@@ -30,11 +30,11 @@ public class Branch extends OpCode {
     }
 
     public byte getOffset() {
-        return off;
+        return offset;
     }
 
     @Override
     public String toString() {
-        return instruction.toString() + " " + condition + ", " + off;
+        return instruction.toString() + " " + condition + ", " + offset;
     }
 }

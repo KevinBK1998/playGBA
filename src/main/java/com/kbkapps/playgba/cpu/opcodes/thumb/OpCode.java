@@ -43,7 +43,7 @@ public class OpCode {
                 return new OpCode(Instructions.MOVS, (byte) ((opcodeEncoded >> 8) & 7), (byte) (opcodeEncoded & 0xFF));
         if (((opcodeEncoded >> 12) & 0xf) == 0b0101)
             return SingleDataTransfer.decodeOpcode(opcodeEncoded);
-        if (((opcodeEncoded >> 12) & 0xf) == 0b1011 && ((opcodeEncoded >> 9) & 3) != 0b10)
+        if (((opcodeEncoded >> 12) & 0xf) == 0b1011 && ((opcodeEncoded >> 9) & 3) == 0b10)
             return MultipleDataTransfer.decodeOpcode(opcodeEncoded);
         if (((opcodeEncoded >> 12) & 0xf) == 0b1100)
             return MultipleDataTransfer.decodeOpcode(opcodeEncoded);
@@ -55,6 +55,8 @@ public class OpCode {
             return ArithmeticLogical.decodeOpcode(opcodeEncoded);
         if (((opcodeEncoded >> 10) & 0x3f) == 0b010001)
             return new ExchangingBranch((byte) ((opcodeEncoded >> 3) & 0xf));
+        if (((opcodeEncoded >> 8) & 0xff) == 0b10110000)
+            return new AddSP((byte) (opcodeEncoded & 0xff));
         throw new UndefinedOpcodeException(opcodeEncoded);
     }
 

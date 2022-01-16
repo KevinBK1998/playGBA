@@ -1,6 +1,7 @@
 package com.kbkapps.playgba.cpu;
 
 import com.kbkapps.playgba.cpu.constants.Instructions;
+import com.kbkapps.playgba.cpu.opcodes.thumb.AddSP;
 import com.kbkapps.playgba.cpu.opcodes.thumb.ArithmeticLogical;
 import com.kbkapps.playgba.cpu.opcodes.thumb.Branch;
 import com.kbkapps.playgba.cpu.opcodes.thumb.ExchangingBranch;
@@ -40,9 +41,22 @@ public class ThumbCpu {
         } else if (opcode.getInstruction() == Instructions.STR) storeWord((SingleDataTransfer) opcode);
         else if (opcode.getInstruction() == Instructions.PUSH) pushToStack((MultipleDataTransfer) opcode);
         else if (opcode.getInstruction() == Instructions.ADD) add((ArithmeticLogical) opcode);
+        else if (opcode.getInstruction() == Instructions.ADD_SP) addSp((AddSP) opcode);
         else if (opcode.getInstruction() == Instructions.B) branch((Branch) opcode);
         else if (opcode.getInstruction() == Instructions.BX) exBranch((ExchangingBranch) opcode);
         else throw new UndefinedOpcodeException(opcode.toString());
+    }
+
+    private void addSp(AddSP opcode) {
+        byte offset = opcode.getOffset();
+//        System.out.printf("offset = 0x%08x\n", offset);
+        int immediate = (offset > 0 ? offset : -(offset & 0x7f)) * 4;
+//        System.out.println("immediate = " + immediate);
+        int currentSP = reg.getReg(SP);
+//        System.out.printf("currentSP = 0x%08x\n", currentSP);
+        var newSP = currentSP + immediate;
+//        System.out.printf("newSP = 0x%08x\n", newSP);
+        reg.setReg(SP, newSP);
     }
 
     private void pushToStack(MultipleDataTransfer opcode) throws WriteDeniedException {

@@ -12,6 +12,7 @@ Feature: The Thumb Instruction Set
       | fc db   | branch signed less than, -4 |
       | 70 47   | exchanging branch lr        |
       | f0 b5   | push sp!, {r4,r5,r6,r7,lr}  |
+      | 8d b0   | add sp, -0xd                |
 
 #  THUMB.3: move/compare/add/subtract immediate
 #  15-13  Must be 001b for this type of instructions
@@ -210,3 +211,16 @@ Feature: The Thumb Instruction Set
     Then 0x0 should be present in the memory 0x3007ef0
     Then 0x4000000 should be present in the memory 0x3007eec
     Then r13 must be 0x3007eec
+
+#  THUMB.13: add offset to stack pointer
+#  15-8   Must be 10110000b for this type of instructions
+#  7      Opcode/Sign
+#  0: ADD  SP,#nn       ;SP = SP + nn
+#  1: ADD  SP,#-nn      ;SP = SP - nn
+#  6-0    nn - Unsigned Offset    (0-508, step 4)
+#  Return: No flags affected, SP adjusted.
+#  Execution Time: 1S
+  Scenario: Add offset to sp
+    Given that r13 is 0x3007eec
+    When I try to execute 8d b0
+    Then r13 must be 0x3007eb8

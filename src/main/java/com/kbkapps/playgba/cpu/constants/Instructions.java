@@ -18,7 +18,8 @@ public enum Instructions {
     ADD("add"),
     BX("exchanging branch"),
     PUSH("push"),
-    POP("pop");
+    POP("pop"),
+    ADD_SP("add sp");
 
     private final String message;
 
