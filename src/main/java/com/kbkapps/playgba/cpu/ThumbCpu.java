@@ -4,8 +4,11 @@ import com.kbkapps.playgba.cpu.constants.Instructions;
 import com.kbkapps.playgba.cpu.opcodes.thumb.ArithmeticLogical;
 import com.kbkapps.playgba.cpu.opcodes.thumb.Branch;
 import com.kbkapps.playgba.cpu.opcodes.thumb.ExchangingBranch;
+import com.kbkapps.playgba.cpu.opcodes.thumb.MultipleDataTransfer;
 import com.kbkapps.playgba.cpu.opcodes.thumb.OpCode;
 import com.kbkapps.playgba.cpu.opcodes.thumb.SingleDataTransfer;
+
+import java.util.List;
 
 import static com.kbkapps.playgba.cpu.ArmV3Cpu.*;
 
@@ -35,10 +38,28 @@ public class ThumbCpu {
 //            System.out.printf("regDValue = 0x%x\n", regDValue);
             reg.setReg(regD, regDValue);
         } else if (opcode.getInstruction() == Instructions.STR) storeWord((SingleDataTransfer) opcode);
+        else if (opcode.getInstruction() == Instructions.PUSH) pushToStack((MultipleDataTransfer) opcode);
         else if (opcode.getInstruction() == Instructions.ADD) add((ArithmeticLogical) opcode);
         else if (opcode.getInstruction() == Instructions.B) branch((Branch) opcode);
         else if (opcode.getInstruction() == Instructions.BX) exBranch((ExchangingBranch) opcode);
         else throw new UndefinedOpcodeException(opcode.toString());
+    }
+
+    private void pushToStack(MultipleDataTransfer opcode) throws WriteDeniedException {
+        byte regDest = opcode.getRegDest();
+//        System.out.println("opcode.getRegDest() = " + regDest);
+        int memPointer = reg.getReg(regDest);
+        List<Integer> listOfRegisters = opcode.getListOfRegisters();
+        for (int i = listOfRegisters.size(); i > 0; i--) {
+            memPointer -= 4;
+            int regN = listOfRegisters.get(i - 1);
+//            System.out.println("regN = " + regDest);
+            int regNValue = reg.getReg(regN);
+//            System.out.printf("memPointer = 0x%08x\n", memPointer);
+//            System.out.printf("regNValue = 0x%x\n", regNValue);
+            gbaMem.write32(memPointer, regNValue);
+        }
+        reg.setReg(regDest, memPointer);
     }
 
     private void exBranch(ExchangingBranch opcode) {

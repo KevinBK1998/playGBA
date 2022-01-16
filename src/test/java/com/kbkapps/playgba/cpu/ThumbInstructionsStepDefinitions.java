@@ -71,9 +71,9 @@ public class ThumbInstructionsStepDefinitions {
         reg.setReg(Integer.parseInt(regNo), Integer.parseUnsignedInt(data, 16));
     }
 
-    @Then("^([0-9a-f]{1,8}) should be present in the memory 0x([0-9a-f]{1,8})$")
+    @Then("^0x([0-9a-f]{1,8}) should be present in the memory 0x([0-9a-f]{1,8})$")
     public void shouldBePresentInTheMemoryX(String data, String address) {
-        assertThat(mem.read32(Integer.parseUnsignedInt(address, 16))).inHexadecimal().isEqualTo(Byte.parseByte(data, 16));
+        assertThat(mem.read32(Integer.parseUnsignedInt(address, 16))).inHexadecimal().isEqualTo(Integer.parseUnsignedInt(data, 16));
     }
 
     @And("^cpsr is ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2}) ([0-9a-f]{1,2})")

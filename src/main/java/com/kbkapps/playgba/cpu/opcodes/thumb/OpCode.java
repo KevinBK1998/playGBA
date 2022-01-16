@@ -43,6 +43,10 @@ public class OpCode {
                 return new OpCode(Instructions.MOVS, (byte) ((opcodeEncoded >> 8) & 7), (byte) (opcodeEncoded & 0xFF));
         if (((opcodeEncoded >> 12) & 0xf) == 0b0101)
             return SingleDataTransfer.decodeOpcode(opcodeEncoded);
+        if (((opcodeEncoded >> 12) & 0xf) == 0b1011 && ((opcodeEncoded >> 9) & 3) != 0b10)
+            return MultipleDataTransfer.decodeOpcode(opcodeEncoded);
+        if (((opcodeEncoded >> 12) & 0xf) == 0b1100)
+            return MultipleDataTransfer.decodeOpcode(opcodeEncoded);
         if (((opcodeEncoded >> 12) & 0xf) == 0b1101)
             return Branch.decodeOpcode(opcodeEncoded);
         if (((opcodeEncoded >> 11) & 0x1f) == 0b01001)
