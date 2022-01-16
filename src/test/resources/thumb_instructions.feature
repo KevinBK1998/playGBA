@@ -14,6 +14,7 @@ Feature: The Thumb Instruction Set
       | f0 b5   | push sp!, {r4,r5,r6,r7,lr}  |
       | 8d b0   | add sp, -0xd                |
       | 05 90   | store sp-relative r0, 0x5   |
+      | cf 43   | invert r7, r1               |
 
 #  THUMB.3: move/compare/add/subtract immediate
 #  15-13  Must be 001b for this type of instructions
@@ -238,3 +239,43 @@ Feature: The Thumb Instruction Set
     Given that r13 is 0x3007eec
     When I try to execute 8d b0
     Then r13 must be 0x3007eb8
+
+#  THUMB.4: ALU operations
+#  15-10  Must be 010000b for this type of instructions
+#  9-6    Opcode (0-Fh)
+#  0: AND{S} Rd,Rs     ;AND logical       Rd = Rd AND Rs
+#  1: EOR{S} Rd,Rs     ;XOR logical       Rd = Rd XOR Rs
+#  2: LSL{S} Rd,Rs     ;log. shift left   Rd = Rd << (Rs AND 0FFh)
+#  3: LSR{S} Rd,Rs     ;log. shift right  Rd = Rd >> (Rs AND 0FFh)
+#  4: ASR{S} Rd,Rs     ;arit shift right  Rd = Rd SAR (Rs AND 0FFh)
+#  5: ADC{S} Rd,Rs     ;add with carry    Rd = Rd + Rs + Cy
+#  6: SBC{S} Rd,Rs     ;sub with carry    Rd = Rd - Rs - NOT Cy
+#  7: ROR{S} Rd,Rs     ;rotate right      Rd = Rd ROR (Rs AND 0FFh)
+#  8: TST    Rd,Rs     ;test            Void = Rd AND Rs
+#  9: NEG{S} Rd,Rs     ;negate            Rd = 0 - Rs
+#  A: CMP    Rd,Rs     ;compare         Void = Rd - Rs
+#  B: CMN    Rd,Rs     ;neg.compare     Void = Rd + Rs
+#  C: ORR{S} Rd,Rs     ;OR logical        Rd = Rd OR Rs
+#  D: MUL{S} Rd,Rs     ;multiply          Rd = Rd * Rs
+#  E: BIC{S} Rd,Rs     ;bit clear         Rd = Rd AND NOT Rs
+#  F: MVN{S} Rd,Rs     ;not               Rd = NOT Rs
+#  5-3    Rs - Source Register       (R0..R7)
+#  2-0    Rd - Destination Register  (R0..R7)
+#  ARM equivalent for NEG would be RSBS.
+#  Return: Rd contains result (except TST,CMP,CMN),
+#  Affected Flags:
+#  N,Z,C,V for  ADC,SBC,NEG,CMP,CMN
+#  N,Z,C   for  LSL,LSR,ASR,ROR (carry flag unchanged if zero shift amount)
+#  N,Z,C   for  MUL on ARMv4 and below: carry flag destroyed
+#  N,Z     for  MUL on ARMv5 and above: carry flag unchanged
+#  N,Z     for  AND,EOR,TST,ORR,BIC,MVN
+#  Execution Time:
+#  1S      for  AND,EOR,ADC,SBC,TST,NEG,CMP,CMN,ORR,BIC,MVN
+#  1S+1I   for  LSL,LSR,ASR,ROR
+#  1S+mI   for  MUL on ARMv4 (m=1..4; depending on MSBs of incoming Rd value)
+#  1S+mI   for  MUL on ARMv5 (m=3; fucking slow, no matter of MSBs of Rd value)
+  Scenario: Inversion
+    Given that r1 is 0xfffffe00
+    When I try to execute cf 43
+    Then r7 must be 0x1ff
+    And cpsr must be 00 00 00 00

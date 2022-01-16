@@ -20,7 +20,8 @@ public enum Instructions {
     PUSH("push"),
     POP("pop"),
     ADD_SP("add sp"),
-    STR_SP("store sp-relative");
+    STR_SP("store sp-relative"),
+    MVN("invert");
 
     private final String message;
 

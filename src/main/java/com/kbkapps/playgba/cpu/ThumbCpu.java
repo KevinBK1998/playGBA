@@ -2,6 +2,7 @@ package com.kbkapps.playgba.cpu;
 
 import com.kbkapps.playgba.cpu.constants.Instructions;
 import com.kbkapps.playgba.cpu.opcodes.thumb.AddSP;
+import com.kbkapps.playgba.cpu.opcodes.thumb.Addition;
 import com.kbkapps.playgba.cpu.opcodes.thumb.ArithmeticLogical;
 import com.kbkapps.playgba.cpu.opcodes.thumb.Branch;
 import com.kbkapps.playgba.cpu.opcodes.thumb.ExchangingBranch;
@@ -46,11 +47,24 @@ public class ThumbCpu {
             gbaMem.write32(reg.getReg(SP) + opcode.getImmediate() * 4, regDValue);
         } else if (opcode.getInstruction() == Instructions.STR) storeWord((SingleDataTransfer) opcode);
         else if (opcode.getInstruction() == Instructions.PUSH) pushToStack((MultipleDataTransfer) opcode);
-        else if (opcode.getInstruction() == Instructions.ADD) add((ArithmeticLogical) opcode);
+        else if (opcode.getInstruction() == Instructions.ADD) add((Addition) opcode);
+        else if (opcode.getInstruction() == Instructions.MVN) invert((ArithmeticLogical) opcode);
         else if (opcode.getInstruction() == Instructions.ADD_SP) addSp((AddSP) opcode);
         else if (opcode.getInstruction() == Instructions.B) branch((Branch) opcode);
         else if (opcode.getInstruction() == Instructions.BX) exBranch((ExchangingBranch) opcode);
         else throw new UndefinedOpcodeException(opcode.toString());
+    }
+
+    private void invert(ArithmeticLogical opcode) {
+        int regD = opcode.getRegDest();
+//        System.out.println("reg.getReg(regD) = " + reg.getReg(regD));
+        int operand = reg.getReg(opcode.getRegSource());
+//        System.out.println("op1 = " + Integer.toHexString(operand));
+        int regDValue = ~operand;
+//        System.out.println("Result = 0x" + Integer.toHexString(regDValue));
+        reg.setReg(regD, regDValue);
+        setFlags(regDValue);
+//        System.out.println("Flags = 0x" + Integer.toHexString(reg.getPSR('C')));
     }
 
     private void addSp(AddSP opcode) {
@@ -105,7 +119,7 @@ public class ThumbCpu {
         }
     }
 
-    private void add(ArithmeticLogical opcode) {
+    private void add(Addition opcode) {
         int regD = opcode.getRegDest();
 //        System.out.println("reg.getReg(regD) = " + reg.getReg(regD));
         int operand1 = reg.getReg(opcode.getRegSource());
@@ -116,7 +130,6 @@ public class ThumbCpu {
         int regDValue = (int) result;
 //        System.out.println("Result = 0x" + Long.toHexString(result) + " => 0x" + Integer.toHexString(regDValue));
         reg.setReg(regD, regDValue);
-//        System.out.println("reg.getReg(1) = " + reg.getReg(1));
         setAllFlags(result);
     }
 
