@@ -38,6 +38,12 @@ public class ThumbCpu {
             int regDValue = gbaMem.read32(reg.getPC() + opcode.getImmediate() * 4);
 //            System.out.printf("regDValue = 0x%x\n", regDValue);
             reg.setReg(regD, regDValue);
+        } else if (opcode.getInstruction() == Instructions.STR_SP) {
+            int regD = opcode.getRegDest();
+//            System.out.printf("regD = 0x%x\n", regD);
+            int regDValue = reg.getReg(regD);
+//            System.out.printf("regDValue = 0x%x\n", regDValue);
+            gbaMem.write32(reg.getReg(SP) + opcode.getImmediate() * 4, regDValue);
         } else if (opcode.getInstruction() == Instructions.STR) storeWord((SingleDataTransfer) opcode);
         else if (opcode.getInstruction() == Instructions.PUSH) pushToStack((MultipleDataTransfer) opcode);
         else if (opcode.getInstruction() == Instructions.ADD) add((ArithmeticLogical) opcode);

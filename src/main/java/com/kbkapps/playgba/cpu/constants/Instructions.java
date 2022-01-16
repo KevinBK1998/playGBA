@@ -19,7 +19,8 @@ public enum Instructions {
     BX("exchanging branch"),
     PUSH("push"),
     POP("pop"),
-    ADD_SP("add sp");
+    ADD_SP("add sp"),
+    STR_SP("store sp-relative");
 
     private final String message;
 

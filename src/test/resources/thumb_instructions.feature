@@ -13,6 +13,7 @@ Feature: The Thumb Instruction Set
       | 70 47   | exchanging branch lr        |
       | f0 b5   | push sp!, {r4,r5,r6,r7,lr}  |
       | 8d b0   | add sp, -0xd                |
+      | 05 90   | store sp-relative r0, 0x5   |
 
 #  THUMB.3: move/compare/add/subtract immediate
 #  15-13  Must be 001b for this type of instructions
@@ -40,11 +41,26 @@ Feature: The Thumb Instruction Set
 #  The value of PC will be interpreted as (($+4) AND NOT 2).
 #  Return: No flags affected, data loaded into Rd.
 #  Execution Time: 1S+1N+1I
-
   Scenario: Load PC - relative immediate
     Given the pc is 288
     When I try to execute 58 49
     Then r1 must be 0xfffffe00
+
+
+#  THUMB.11: load/store SP-relative
+#  15-12  Must be 1001b for this type of instructions
+#  11     Opcode (0-1)
+#  0: STR  Rd,[SP,#nn]  ;store 32bit data   WORD[SP+nn] = Rd
+#  1: LDR  Rd,[SP,#nn]  ;load  32bit data   Rd = WORD[SP+nn]
+#  10-8   Rd - Source/Destination Register  (R0..R7)
+#  7-0    nn - Unsigned Offset              (0-1020, step 4)
+#  Return: No flags affected, data loaded either into Rd or into memory.
+#  Execution Time: 1S+1N+1I for LDR, or 2N for STR
+  Scenario: Load SP - relative immediate
+    Given that r0 is 0
+    And that r13 is 0x3007eb8
+    When I try to execute 05 90
+    Then 0x0 should be present in the memory 0x3007ecc
 
 #  THUMB.7: load/store with register offset
 #  15-12  Must be 0101b for this type of instructions
@@ -73,7 +89,6 @@ Feature: The Thumb Instruction Set
 #  2-0    Rd - Source/Destination Register  (R0..R7)
 #  Return: No flags affected, data loaded either into Rd or into memory.
 #  Execution Time: 1S+1N+1I for LDR, or 2N for STR
-
   Scenario: Store word into address
     Given that r0 is 0
     And that r1 is 0xfffffe00
@@ -129,7 +144,6 @@ Feature: The Thumb Instruction Set
 #  Execution Time:
 #  2S+1N   if condition true (jump executed)
 #  1S      if condition false
-
   Scenario: Conditional Branching
     Given the pc is 296
     And cpsr is 80 00 00 00

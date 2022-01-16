@@ -53,6 +53,8 @@ public class OpCode {
             return new OpCode(Instructions.LDR_PC, (byte) ((opcodeEncoded >> 8) & 7), (byte) (opcodeEncoded & 0xFF));
         if (((opcodeEncoded >> 11) & 0x1f) == 0b00011)
             return ArithmeticLogical.decodeOpcode(opcodeEncoded);
+        if (((opcodeEncoded >> 11) & 0x1f) == 0b10010)
+            return new OpCode(Instructions.STR_SP, (byte) ((opcodeEncoded >> 8) & 7), (byte) (opcodeEncoded & 0xFF));
         if (((opcodeEncoded >> 10) & 0x3f) == 0b010001)
             return new ExchangingBranch((byte) ((opcodeEncoded >> 3) & 0xf));
         if (((opcodeEncoded >> 8) & 0xff) == 0b10110000)
