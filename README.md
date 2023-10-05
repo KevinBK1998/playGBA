@@ -1,2 +1,2 @@
 # playGBA
-GameBoy Advance Emulator written in Java
+GameBoy Advance Emulator written in C++ with SFML

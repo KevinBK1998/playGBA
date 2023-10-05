@@ -3,3 +3,7 @@
 .idea
 .gradle
 build
+.vscode
+a.out
+playGBA
+gba_bios.bin
