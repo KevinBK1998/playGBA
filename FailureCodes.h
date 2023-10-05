@@ -7,5 +7,6 @@
 #define FAILED_TO_DECODE_ALU 3
 #define FAILED_DECODED_TO_STRING 4
 #define FAILED_TO_EXECUTE 5
+#define FAILED_DMA 6
 
 #endif

@@ -17,7 +17,6 @@ void Registers::setPC(int imm){
     reg15 = imm + 4;
 }
 
-
 int Registers::getReg(int index){
     if (index < 13)
         return unbankedReg[index];
@@ -44,6 +43,10 @@ void Registers::setCPSR(int data){
 
 void Registers::branch(int imm){
     reg15 = reg15 + imm*4 + 4;
+}
+
+bool Registers::isThumbMode(){
+    return thumbMode;
 }
 
 void Registers::step(){

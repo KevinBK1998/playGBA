@@ -15,14 +15,18 @@ void load(char *fileName){
     // cout << "Loaded Rom:" << fileName << endl;
 }
 
+void status(Registers reg){
+    cout << "PC: " << hex << showbase << reg.getPC() << " \tMODE: " << (reg.isThumbMode()?"THUMB":"ARM") << endl;
+}
+
 int main(int argc, char *args[]){
     if (argc > 1)
         load(args[argc - 1]);
     Registers reg;
     ArmCpu cpu = ArmCpu(&reg);
-    cpu.step();
-    cpu.step();
-    cpu.step();
-    cpu.step();
+    while(true){
+        status(reg);
+        cpu.step();
+    }
     return 0;
 }

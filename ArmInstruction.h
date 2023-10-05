@@ -9,6 +9,7 @@ enum Opcode {
     B,
     CMP,
     MOV,
+    LDR,
 };
 class ArmInstruction
 {
@@ -17,12 +18,16 @@ private:
     int regDest;
     int regN;
     int immediate;
+    bool preFlag;
+    bool addFlag;
+    bool byteTransfer;
 public:
     ArmInstruction();
     ArmInstruction(Opcode);
     ArmInstruction(Opcode, int);
     ArmInstruction(Opcode, char, int);
     ArmInstruction(Opcode, int, char);
+    ArmInstruction(Opcode, char, int, int, char);
     ~ArmInstruction();
     string toString();
     Opcode getOpcode();

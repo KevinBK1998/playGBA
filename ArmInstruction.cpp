@@ -27,6 +27,15 @@ ArmInstruction::ArmInstruction(Opcode operation, int imm, char destReg): ArmInst
     regDest = destReg;
 }
 
+ArmInstruction::ArmInstruction(Opcode operation, char op1, int flags, int data, char destReg): ArmInstruction::ArmInstruction(operation){
+    preFlag = ((flags >> 2) & 1) != 0;//P
+    addFlag = ((flags >> 1) & 1) != 0;//U
+    byteTransfer = (flags & 1) != 0;//B
+    immediate = data & 0xFFF;
+    regN = op1;
+    regDest = destReg;
+}
+
 string ArmInstruction::toString(){
     stringstream stream;
     switch (opcode)
@@ -39,6 +48,9 @@ string ArmInstruction::toString(){
         return stream.str();
     case MOV:
         stream << showbase << "MOV R" << regDest << hex << ", " << immediate;
+        return stream.str();
+    case LDR:
+        stream << showbase << "LDR R" << regDest << ", [R"<<regN<< hex << ", " << immediate<<"]";
         return stream.str();
     default:
         exit(FAILED_DECODED_TO_STRING);

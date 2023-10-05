@@ -71,6 +71,7 @@ public:
     void setReg(char, int);
     void setCPSR(int);
     void branch(int);
+    bool isThumbMode();
     void step();
 };
 

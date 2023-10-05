@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "Memory.h"
+#include "IORegisters.cpp"
 
 using namespace std;
 
@@ -8,6 +9,7 @@ class Memory
 {
 private:
     int bios[BIOS_FILE_SIZE];
+    IORegisters registers;
     void loadBios(const char *fileName){
         char c;
         ifstream fin(fileName);
@@ -37,11 +39,12 @@ public:
         //     return slowWorkRam[address - SLOW_WORK_RAM_OFFSET];
         // else if (address >= WORK_RAM_OFFSET && address < WORK_RAM_END)
         //     return workRam[address - WORK_RAM_OFFSET];
-        // else if (address >= IO_REG_OFFSET && address < IO_REG_END)
-        //     return registers.read8(address - IO_REG_OFFSET);
+        else if (address >= IO_REG_OFFSET && address < IO_REG_END)
+            return registers.read8(address - IO_REG_OFFSET);
         // else if (address >= VRAM_OFFSET)
         //     throw new IndexOutOfBoundsException("R: Unknown Memory: 0x" + Integer.toHexString(address));
         cout << "R: Unused Memory: 0x"<<address<<endl;
+        exit(FAILED_DMA);
         return 0;
     }
     int read32(int address) {
