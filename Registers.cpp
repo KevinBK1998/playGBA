@@ -17,6 +17,7 @@ void Registers::setPC(int imm){
     reg15 = imm + 4;
 }
 
+
 int Registers::getReg(int index){
     if (index < 13)
         return unbankedReg[index];
@@ -25,6 +26,15 @@ int Registers::getReg(int index){
     }
     if (index == 15)
         return reg15;
+}
+
+void Registers::setReg(char index, int data){
+    if (index < 13)
+        unbankedReg[index] = data;
+    else if (index < 15)
+        bankedReg[getBankedIndex(index)] = data;
+    else if (index == 15)
+        reg15 = data;
 }
 
 void Registers::setCPSR(int data){

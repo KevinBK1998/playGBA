@@ -68,6 +68,7 @@ public:
     int getPC();
     void setPC(int);
     int getReg(int);
+    void setReg(char, int);
     void setCPSR(int);
     void branch(int);
     void step();

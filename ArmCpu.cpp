@@ -16,8 +16,33 @@ private:
     Memory mem;
     ArmInstruction decodedInstruction;
     int fetchedPC;
+    void decodeALU(int opcode){
+        char rN = (opcode >> 16) & 0xF;
+        char rDest = (opcode >> 12) & 0xF;
+        int imm = opcode & 0xFF;
+        switch ((opcode >> 21) & 0xF)
+        {
+        case 0xA:
+            decodedInstruction = ArmInstruction(CMP, rN, imm);
+            break;
+        case 0xD:
+            decodedInstruction = ArmInstruction(MOV, imm, rDest);
+            break;
+        default:
+            exit(FAILED_TO_DECODE_ALU);
+        }
+    }
+    int setFlags(int result){
+        int flags = 0;
+        if (((result >> 31) & 1) != 0)
+            flags |= N;
+        if (((int) result) == 0)
+            flags |= Z;
+        return flags;
+    }
     void branch();
     void compare();
+    void move();
 public:
     ArmCpu(){
     }
@@ -33,9 +58,7 @@ public:
         fetchedPC = currentPC + 4;
         if (((opcode>>26) & 0b11) == 0b00){
             cout << "Incomplete ALU{cond} Rd, Rn, Op2 = " << hex << opcode << endl;
-            int op1 = (opcode >> 16) & 0xF;
-            int imm = opcode & 0xFF;
-            decodedInstruction = ArmInstruction(CMP, imm, op1);
+            decodeALU(opcode);
         }
         else if (((opcode>>25) & 0b111) == 0b101){
             cout << "Incomplete B{LX} {cond} label = " << hex << opcode << endl;
@@ -59,6 +82,9 @@ public:
             break;
         case CMP:
             compare();
+            break;
+        case MOV:
+            move();
             break;
         default:
             cout << "Undefined: " << decodedInstruction.toString() << endl;
@@ -87,10 +113,12 @@ void ArmCpu::compare(){
     int immediate = decodedInstruction.getImmediate();
     int result = before - immediate;
     cout<<"result = "<< hex << result << endl;
-    int flags = 0;
-    if (((result >> 31) & 1) != 0)
-        flags |= N;
-    if (((int) result) == 0)
-        flags |= Z;
-    reg->setCPSR(flags);
+    reg->setCPSR(setFlags(result));
+}
+
+void ArmCpu::move(){
+    int immediate = decodedInstruction.getImmediate();
+    reg->setReg(decodedInstruction.getRegDest(), immediate);
+    cout<<"result = "<< hex << immediate << endl;
+    reg->setCPSR(setFlags(immediate));
 }
