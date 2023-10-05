@@ -22,5 +22,7 @@ int main(int argc, char *args[]){
     ArmCpu cpu = ArmCpu(&reg);
     cpu.step();
     cpu.step();
+    cpu.step();
+    cpu.step();
     return 0;
 }

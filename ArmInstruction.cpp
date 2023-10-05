@@ -19,12 +19,19 @@ ArmInstruction::ArmInstruction(Opcode operation, int imm): ArmInstruction::ArmIn
     immediate = imm;
 }
 
+ArmInstruction::ArmInstruction(Opcode operation, int imm, int tempReg): ArmInstruction::ArmInstruction(operation, imm){
+    regN = tempReg;
+}
+
 string ArmInstruction::toString(){
     stringstream stream;
     switch (opcode)
     {
     case B:
         stream << showbase << hex << "B " << immediate;
+        return stream.str();
+    case CMP:
+        stream << showbase << "CMP R" << regN << hex << ", " << immediate;
         return stream.str();
     default:
         exit(FAILED_DECODED_TO_STRING);
@@ -38,4 +45,8 @@ Opcode ArmInstruction::getOpcode(){
 
 int ArmInstruction::getImmediate(){
     return immediate;
+}
+
+int ArmInstruction::getRegN(){
+    return regN;
 }
