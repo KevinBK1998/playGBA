@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
-#include "Memory.cpp"
+#include "Registers.h"
+#include "ArmCpu.cpp"
 
 using namespace std;
 
@@ -17,11 +18,9 @@ void load(char *fileName){
 int main(int argc, char *args[]){
     if (argc > 1)
         load(args[argc - 1]);
-    Memory mem;
-    cout << "Test:0x" << hex << unsigned(mem.read8(0)) << endl;
-    cout << "Test:0x" << unsigned(mem.read8(1)) << endl;
-    cout << "Test:0x" << unsigned(mem.read8(2)) << endl;
-    cout << "Test:0x" << unsigned(mem.read8(3)) << endl;
-    cout << "Test:0x" << mem.read32(0) << endl;
+    Registers reg;
+    ArmCpu cpu = ArmCpu(&reg);
+    cpu.step();
+    cpu.step();
     return 0;
 }

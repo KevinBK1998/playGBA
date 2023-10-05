@@ -14,7 +14,7 @@ private:
         if (!fin)
         {
             cout << "Error Opening BIOS\n";
-            exit(-1);
+            exit(FAILED_TO_LOAD_BIOS);
         }
         int i = 0;
         while (i < BIOS_FILE_SIZE && fin)
@@ -30,7 +30,7 @@ public:
     }
     ~Memory();
     uint8_t read8(int address) {
-        cout << "Address: 0x"<<address<<endl;
+        // cout << "Address: 0x"<<address<<endl;
         if (address < BIOS_FILE_SIZE)
             return bios[address];
         // else if (address >= SLOW_WORK_RAM_OFFSET && address < SLOW_WORK_RAM_END)
@@ -45,7 +45,7 @@ public:
         return 0;
     }
     int read32(int address) {
-        cout << "Address: 0x"<<address<<endl;
+        // cout << "Address: 0x"<<address<<endl;
         int completeWord = 0;
         for (int i = address; i < address + 4; i++) {
             uint8_t byteValue = read8(i);

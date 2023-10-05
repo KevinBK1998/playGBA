@@ -1,17 +1,4 @@
-class Registers
-{
-private:
-    // Registers 0-12
-    int unbankedReg[13];
-    // Registers 13(SP) and 14(LR)
-    int bankedReg[10];
-    int savedStatusReg[5];
-    int currentStatusReg;
-    int reg15 = 4;
-public:
-    Registers(/* args */);
-    ~Registers();
-};
+#include "Registers.h"
 
 Registers::Registers(/* args */)
 {
@@ -19,4 +6,20 @@ Registers::Registers(/* args */)
 
 Registers::~Registers()
 {
+}
+
+int Registers::getPC(){
+    return reg15 - 4;
+}
+
+void Registers::setPC(int imm){
+    reg15 = imm + 4;
+}
+
+void Registers::branch(int imm){
+    reg15 = reg15 + imm*4;
+}
+
+void Registers::step(){
+    reg15 += 4;
 }

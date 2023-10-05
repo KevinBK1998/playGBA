@@ -1,0 +1,9 @@
+#ifndef FAIL_CODE_H
+#define FAIL_CODE_H
+
+#define FAILED_TO_LOAD_BIOS -1
+#define FAILED_TO_DECODE -2
+#define FAILED_DECODED_TO_STRING -3
+#define FAILED_TO_EXECUTE -4
+
+#endif
