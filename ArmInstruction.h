@@ -16,6 +16,37 @@ enum Opcode {
     LDR,
 };
 
+enum ConditionConstant {
+    EQ,
+    NE,
+    CS,
+    CC,
+    MI,
+    PL,
+    VS, //Signed Overflow
+    VC, //No signed Overflow
+    HI, //Unsigned higher
+    LS, //Unsigned lower or same
+    GE,
+    LT,
+    GT,
+    LE,
+    ALWAYS,
+};
+
+class Condition{
+public:
+    int value;
+    Condition(){
+        value = 0xF;
+    }
+    Condition(int cond){
+        value = cond;
+    }
+    ~Condition(){}
+    string toString();
+};
+
 class ArmInstruction
 {
 private:
@@ -27,14 +58,21 @@ private:
     bool addFlag;
     bool byteTransfer;
 public:
+    Condition condition;
     ArmInstruction();
     ArmInstruction(Opcode);
-    ArmInstruction(Opcode, int);
+    ArmInstruction(Condition, Opcode);
+    ArmInstruction(Condition, Opcode, int);
     ArmInstruction(Opcode, char);
+    ArmInstruction(Condition, Opcode, char);
     ArmInstruction(Opcode, char, char);
+    ArmInstruction(Condition, Opcode, char, char);
     ArmInstruction(Opcode, char, char, int);
+    ArmInstruction(Condition, Opcode, char, char, int);
     ArmInstruction(Opcode, char, int);
+    ArmInstruction(Condition, Opcode, char, int);
     ArmInstruction(Opcode, int, char);
+    ArmInstruction(Condition, Opcode, int, char);
     ArmInstruction(Opcode, char, int, int, char);
     ~ArmInstruction();
     Opcode getOpcode();

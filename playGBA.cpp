@@ -16,7 +16,7 @@ void load(char *fileName){
 }
 
 void status(Registers reg){
-    cout << "PC: " << hex << showbase << reg.getPC() << " \tMODE: " << (reg.isThumbMode()?"THUMB":"ARM") << endl;
+    cout << "\nPC: " << hex << showbase << reg.getPC() << " \tMODE: " << (reg.isThumbMode()?"THUMB":"ARM") << endl;
     cout << "CPSR: " << reg.getCPSR() << endl;
 }
 

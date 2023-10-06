@@ -13,7 +13,7 @@ private:
     bool byteTransfer;
 public:
     ArmSdtInstruction():ArmInstruction(){}
-    ArmSdtInstruction(Opcode operation, char op1, int flags, int data, char destReg):ArmInstruction(operation, op1, destReg){
+    ArmSdtInstruction(Condition cond, Opcode operation, char op1, int flags, int data, char destReg):ArmInstruction(cond, operation, op1, destReg){
         preFlag = ((flags >> 2) & 1) != 0;//P
         addFlag = ((flags >> 1) & 1) != 0;//U
         byteTransfer = (flags & 1) != 0;//B

@@ -32,7 +32,7 @@ public:
     }
     ~Memory();
     uint8_t read8(int address) {
-        // cout << "Address: 0x"<<address<<endl;
+        // cout << "Address: "<<address<<endl;
         if (address < BIOS_FILE_SIZE)
             return bios[address];
         // else if (address >= SLOW_WORK_RAM_OFFSET && address < SLOW_WORK_RAM_END)

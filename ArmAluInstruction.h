@@ -32,9 +32,12 @@ private:
 public:
     ArmAluInstruction():ArmInstruction(){}
     ArmAluInstruction(Opcode opcode, int imm, char op1): ArmInstruction(opcode, op1, imm){}
+    ArmAluInstruction(Condition cond, Opcode opcode, int imm, char op1): ArmInstruction(cond, opcode, op1, imm){}
     ArmAluInstruction(Opcode opcode, char destReg, int imm): ArmInstruction(opcode, imm, destReg){}
+    ArmAluInstruction(Condition cond, Opcode opcode, char destReg, int imm): ArmInstruction(cond, opcode, imm, destReg){}
     ArmAluInstruction(Opcode opcode, char destReg, char op1, int imm): ArmInstruction(opcode, op1, destReg, imm){}
-    ArmAluInstruction(Opcode opcode, int imm, char op1, int maskFlags): ArmInstruction(opcode, op1, imm){
+    ArmAluInstruction(Condition cond, Opcode opcode, char destReg, char op1, int imm): ArmInstruction(cond, opcode, op1, destReg, imm){}
+    ArmAluInstruction(Condition cond, Opcode opcode, int imm, char op1, int maskFlags): ArmInstruction(cond, opcode, op1, imm){
         mask = maskFlags;
     }
     
@@ -49,6 +52,7 @@ public:
     }
 
     static ArmAluInstruction* decodeALU(int opcode){
+        Condition cond = Condition((opcode >> 28) & 0xF);
         char rN = (opcode >> 16) & 0xF;
         // cout << "rN = " << dec << unsigned(rN) << endl;
         char rDest = (opcode >> 12) & 0xF;
@@ -61,24 +65,24 @@ public:
         {
         case 0x9:
             if (((opcode >> 25) & 0b1) != 0)
-                return new ArmAluInstruction(TEQ, imm, rN);
+                return new ArmAluInstruction(cond, TEQ, imm, rN);
             break;
         case 0xA:
-            return new ArmAluInstruction(CMP, imm, rN);
+            return new ArmAluInstruction(cond, CMP, imm, rN);
         case 0xC:
-            return new ArmAluInstruction(ORR, rDest, rN, imm);
+            return new ArmAluInstruction(cond, ORR, rDest, rN, imm);
         case 0xD:
-            return new ArmAluInstruction(MOV, rDest, imm);
+            return new ArmAluInstruction(cond, MOV, rDest, imm);
         }
         if (((opcode >> 23) & 0b11) == 0b10) {
             bool psr = ((opcode >> 22) & 0b1) != 0;
             if((opcode >> 21) & 0b1){
                 char rM = opcode & 0xF;
                 int maskFlags = (opcode >> 16) & 0xF;
-                return new ArmAluInstruction(MSR, psr, rM, maskFlags);
+                return new ArmAluInstruction(cond, MSR, psr, rM, maskFlags);
             }
             else
-                return new ArmAluInstruction(MRS, rDest, psr);
+                return new ArmAluInstruction(cond, MRS, rDest, psr);
         }
         cout << "ALU = " << hex << ((opcode >> 21) & 0xF) << endl;
         exit(FAILED_TO_DECODE_ALU);
@@ -89,23 +93,23 @@ public:
         switch (getOpcode())
         {
         case MRS:
-            stream << showbase << "MRS R" << getRegDest() << hex << ", " << (getImmediate()?'S':'C') << "PSR";
+            stream << showbase << "MRS"<<condition.toString()<<" R" << getRegDest() << hex << ", " << (getImmediate()?'S':'C') << "PSR";
             return stream.str();
         case MSR:
-            stream << showbase << "MSR " << (getImmediate()?'S':'C') << "PSR_" << getMaskString() << ", R" << getRegN();
+            stream << showbase << "MSR"<<condition.toString()<<" " << (getImmediate()?'S':'C') << "PSR_" << getMaskString() << ", R" << getRegN();
             return stream.str();
         case TEQ:
-            stream << showbase << "TEQ R" << getRegN() << hex << ", " << getImmediate();
+            stream << showbase << "TEQ"<<condition.toString()<<" R" << getRegN() << hex << ", " << getImmediate();
             return stream.str();
         case CMP:
-            stream << showbase << "CMP R" << getRegN() << hex << ", " << getImmediate();
+            stream << showbase << "CMP"<<condition.toString()<<" R" << getRegN() << hex << ", " << getImmediate();
             return stream.str();
         case ORR:
-            stream << showbase << "ORR R" << getRegDest() << ", R" << getRegN() << hex << ", " << getImmediate();
+            stream << showbase << "ORR"<<condition.toString()<<" R" << getRegDest() << ", R" << getRegN() << hex << ", " << getImmediate();
             return stream.str();
 
         case MOV:
-            stream << showbase << "MOV R" << getRegDest() << hex << ", " << getImmediate();
+            stream << showbase << "MOV"<<condition.toString()<<" R" << getRegDest() << hex << ", " << getImmediate();
             return stream.str();
 
         default:

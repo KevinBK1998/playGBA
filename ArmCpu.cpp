@@ -37,6 +37,7 @@ private:
     void logicalOR();
     void move();
     void loadToReg();
+    bool canExecute(Condition);
 public:
     ArmCpu(){
     }
@@ -51,23 +52,25 @@ public:
         int opcode = mem.read32(currentPC);
         fetchedPC = currentPC + 4;
         if (((opcode>>26) & 0b11) == 0b00){
-            cout << "Incomplete ALU{cond} Rd, Rn, Op2 = " << hex << opcode << endl;
+            // cout << "Incomplete ALU{cond} Rd, Rn, Op2 = " << hex << opcode << endl;
             decodedInstruction=ArmAluInstruction::decodeALU(opcode);
         }
         else if (((opcode>>26) & 0b11) == 0b01){
-            cout << "Incomplete PLD/STR/LDR{cond}{B}{T} Rd, <Address> = " << hex << opcode << endl;
+            // cout << "Incomplete PLD/STR/LDR{cond}{B}{T} Rd, <Address> = " << hex << opcode << endl;
             if (((opcode >> 20) & 1) != 0){
+                Condition cond = Condition((opcode >> 28) & 0xF);
                 int flags = ((opcode >> 22) & 0xF);
                 int data = opcode & 0xFFFFF;
                 char rN = (opcode >> 16) & 0xF;
                 char rDest = (opcode >> 12) & 0xF;
-                decodedInstruction=new ArmSdtInstruction(LDR, rN, flags, data, rDest);
+                decodedInstruction=new ArmSdtInstruction(cond, LDR, rN, flags, data, rDest);
             }
         }
         else if (((opcode>>25) & 0b111) == 0b101){
-            cout << "Incomplete B{LX} {cond} label = " << hex << opcode << endl;
+            Condition cond = Condition((opcode >> 28) & 0xF);
+            // cout << "Incomplete B{LX} {cond} label = " << hex << opcode << endl;
             int imm = opcode & 0xFFF;
-            decodedInstruction = new ArmInstruction(B, imm);
+            decodedInstruction = new ArmInstruction(cond, B, imm);
         }
         else{
             cout << "Undefined Opcode: " << hex << opcode << endl;
@@ -79,33 +82,35 @@ public:
         if (decodedInstruction->getOpcode() == NOT_INITIALISED)
             return;
         cout << "Debug Decoded: " << hex << decodedInstruction->toString() << endl;
-        switch (decodedInstruction->getOpcode())
-        {
-        case B:
-            branch();
-            break;
-        case MRS:
-        case MSR:
-            psrTransfer();
-            break;
-        case TEQ:
-            testXOR();
-            break;
-        case CMP:
-            compare();
-            break;
-        case ORR:
-            logicalOR();
-            break;
-        case MOV:
-            move();
-            break;
-        case LDR:
-            loadToReg();
-            break;
-        default:
-            cout << "Undefined: " << decodedInstruction->toString() << endl;
-            exit(FAILED_TO_EXECUTE);
+        if (canExecute(decodedInstruction->condition)){
+            switch (decodedInstruction->getOpcode())
+            {
+            case B:
+                branch();
+                break;
+            case MRS:
+            case MSR:
+                psrTransfer();
+                break;
+            case TEQ:
+                testXOR();
+                break;
+            case CMP:
+                compare();
+                break;
+            case ORR:
+                logicalOR();
+                break;
+            case MOV:
+                move();
+                break;
+            case LDR:
+                loadToReg();
+                break;
+            default:
+                cout << "Undefined: " << decodedInstruction->toString() << endl;
+                exit(FAILED_TO_EXECUTE);
+            }
         }
     }
 
@@ -115,6 +120,35 @@ public:
         reg->step();
     }
 };
+
+bool ArmCpu::canExecute(Condition cond){
+    int status = reg->getCPSR();
+    switch (cond.value)
+    {
+    case EQ:
+        return (status & Z) != 0;
+    case ALWAYS:
+        return true;
+    default:
+        cout << "Undefined: " << cond.toString() << endl;
+        exit(FAILED_TO_EXECUTE);
+    }
+    return false;
+        // if (cond == MI) return reg->getCPSR() < 0;
+        // else if (cond == PL) return currentStatusReg >= 0;
+        // else if (cond == NE) return (currentStatusReg & 0x40_00_00_00) == 0;
+        // else if (cond == CS) return (currentStatusReg & 0x20_00_00_00) != 0;
+        // else if (cond == CC) return (currentStatusReg & 0x20_00_00_00) == 0;
+        // else if (cond == VS) return (currentStatusReg & 0x10_00_00_00) != 0;
+        // else if (cond == VC) return (currentStatusReg & 0x10_00_00_00) == 0;
+        // else if (cond == HI) return canExecute(CS) && canExecute(NE);
+        // else if (cond == LS) return canExecute(CC) || canExecute(EQ);
+        // else if (cond == GE) return canExecute(MI) == canExecute(VS);
+        // else if (cond == LT) return canExecute(MI) != canExecute(VS);
+        // else if (cond == GT) return canExecute(NE) && canExecute(GE);
+        // else if (cond == LE) return canExecute(EQ) || canExecute(LT);
+        // else throw new IndexOutOfBoundsException(cond.name());
+}
 
 void ArmCpu::branch(){
     reg->branch(decodedInstruction->getImmediate());
