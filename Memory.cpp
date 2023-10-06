@@ -43,7 +43,7 @@ public:
             return registers.read8(address - IO_REG_OFFSET);
         // else if (address >= VRAM_OFFSET)
         //     throw new IndexOutOfBoundsException("R: Unknown Memory: 0x" + Integer.toHexString(address));
-        cout << "R: Unused Memory: 0x"<<address<<endl;
+        cout << "R: Unused Memory: "<<address<<endl;
         exit(FAILED_DMA);
         return 0;
     }

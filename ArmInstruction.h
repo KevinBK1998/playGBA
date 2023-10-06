@@ -8,7 +8,10 @@ enum Opcode {
     NOT_INITIALISED,
     B,
     TEQ,
+    MRS,
+    MSR,
     CMP,
+    ORR,
     MOV,
     LDR,
 };
@@ -29,16 +32,18 @@ public:
     ArmInstruction(Opcode, int);
     ArmInstruction(Opcode, char);
     ArmInstruction(Opcode, char, char);
+    ArmInstruction(Opcode, char, char, int);
     ArmInstruction(Opcode, char, int);
     ArmInstruction(Opcode, int, char);
     ArmInstruction(Opcode, char, int, int, char);
     ~ArmInstruction();
-    string toString();
     Opcode getOpcode();
     int getImmediate();
     void setImmediate(int);
     int getRegDest();
     int getRegN();
+
+    virtual string toString();
 };
 
 #endif

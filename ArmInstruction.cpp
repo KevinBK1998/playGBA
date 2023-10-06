@@ -23,6 +23,10 @@ ArmInstruction::ArmInstruction(Opcode operation, char op1, char destReg): ArmIns
     regDest = destReg;
 }
 
+ArmInstruction::ArmInstruction(Opcode operation, char op1, char destReg, int imm): ArmInstruction::ArmInstruction(operation, op1, destReg){
+    immediate = imm;
+}
+
 ArmInstruction::ArmInstruction(Opcode operation, int imm): ArmInstruction::ArmInstruction(operation){
     immediate = imm;
 }
@@ -50,15 +54,6 @@ string ArmInstruction::toString(){
     {
     case B:
         stream << showbase << hex << "B " << immediate;
-        return stream.str();
-    case TEQ:
-        stream << showbase << "TEQ R" << regN << hex << ", " << immediate;
-        return stream.str();
-    case CMP:
-        stream << showbase << "CMP R" << regN << hex << ", " << immediate;
-        return stream.str();
-    case MOV:
-        stream << showbase << "MOV R" << regDest << hex << ", " << immediate;
         return stream.str();
     case LDR:
         stream << showbase << "LDR R" << regDest << ", [R"<<regN<< hex << ", " << immediate<<"]";

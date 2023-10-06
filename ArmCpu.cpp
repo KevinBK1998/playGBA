@@ -20,7 +20,7 @@ class ArmCpu
 private:
     Registers* reg;
     Memory mem;
-    ArmInstruction decodedInstruction;
+    ArmInstruction* decodedInstruction = new ArmInstruction();
     int fetchedPC;
     int setFlags(int result){
         int flags = 0;
@@ -31,8 +31,10 @@ private:
         return flags;
     }
     void branch();
+    void psrTransfer();
     void testXOR();
     void compare();
+    void logicalOR();
     void move();
     void loadToReg();
 public:
@@ -50,7 +52,7 @@ public:
         fetchedPC = currentPC + 4;
         if (((opcode>>26) & 0b11) == 0b00){
             cout << "Incomplete ALU{cond} Rd, Rn, Op2 = " << hex << opcode << endl;
-            decodedInstruction= ArmAluInstruction::decodeALU(opcode);
+            decodedInstruction=ArmAluInstruction::decodeALU(opcode);
         }
         else if (((opcode>>26) & 0b11) == 0b01){
             cout << "Incomplete PLD/STR/LDR{cond}{B}{T} Rd, <Address> = " << hex << opcode << endl;
@@ -59,13 +61,13 @@ public:
                 int data = opcode & 0xFFFFF;
                 char rN = (opcode >> 16) & 0xF;
                 char rDest = (opcode >> 12) & 0xF;
-                decodedInstruction=ArmSdtInstruction(LDR, rN, flags, data, rDest);
+                decodedInstruction=new ArmSdtInstruction(LDR, rN, flags, data, rDest);
             }
         }
         else if (((opcode>>25) & 0b111) == 0b101){
             cout << "Incomplete B{LX} {cond} label = " << hex << opcode << endl;
             int imm = opcode & 0xFFF;
-            decodedInstruction = ArmInstruction(B, imm);
+            decodedInstruction = new ArmInstruction(B, imm);
         }
         else{
             cout << "Undefined Opcode: " << hex << opcode << endl;
@@ -74,19 +76,26 @@ public:
     }
 
     void execute(){
-        if (decodedInstruction.getOpcode() == NOT_INITIALISED)
+        if (decodedInstruction->getOpcode() == NOT_INITIALISED)
             return;
-        cout << "Debug Decoded: " << hex << decodedInstruction.toString() << endl;
-        switch (decodedInstruction.getOpcode())
+        cout << "Debug Decoded: " << hex << decodedInstruction->toString() << endl;
+        switch (decodedInstruction->getOpcode())
         {
         case B:
             branch();
+            break;
+        case MRS:
+        case MSR:
+            psrTransfer();
             break;
         case TEQ:
             testXOR();
             break;
         case CMP:
             compare();
+            break;
+        case ORR:
+            logicalOR();
             break;
         case MOV:
             move();
@@ -95,7 +104,7 @@ public:
             loadToReg();
             break;
         default:
-            cout << "Undefined: " << decodedInstruction.toString() << endl;
+            cout << "Undefined: " << decodedInstruction->toString() << endl;
             exit(FAILED_TO_EXECUTE);
         }
     }
@@ -108,37 +117,61 @@ public:
 };
 
 void ArmCpu::branch(){
-    reg->branch(decodedInstruction.getImmediate());
+    reg->branch(decodedInstruction->getImmediate());
+}
+
+void ArmCpu::psrTransfer(){
+    if (decodedInstruction->getOpcode() == MRS){
+        int data = decodedInstruction->getImmediate() ? reg->getSPSR(): reg->getCPSR();
+        cout<<"result = "<< hex << data << endl;
+        reg->setReg(decodedInstruction->getRegDest(), data);
+    }
+    else{
+        ArmAluInstruction* psrTfr = (ArmAluInstruction*) decodedInstruction;
+        cout<<"mask = "<<psrTfr->getMask()<<"\tresult = "<<(psrTfr->getMask() & reg->getReg(psrTfr->getRegN()))<<endl;
+        if(decodedInstruction->getImmediate())
+            reg->setCPSR(psrTfr->getMask() & reg->getReg(psrTfr->getRegN()));
+        else
+            reg->setSPSR(psrTfr->getMask() & reg->getReg(psrTfr->getRegN()));
+    }
 }
 
 void ArmCpu::testXOR(){
-    int before = reg->getReg(decodedInstruction.getRegN());
-    int immediate = decodedInstruction.getImmediate();
+    int before = reg->getReg(decodedInstruction->getRegN());
+    int immediate = decodedInstruction->getImmediate();
     int result = before ^ immediate;
     cout<<"result = "<< hex << result << endl;
     reg->setCPSR(setFlags(result));
 }
 
 void ArmCpu::compare(){
-    int before = reg->getReg(decodedInstruction.getRegN());
-    int immediate = decodedInstruction.getImmediate();
+    int before = reg->getReg(decodedInstruction->getRegN());
+    int immediate = decodedInstruction->getImmediate();
     int result = before - immediate;
     cout<<"result = "<< hex << result << endl;
     reg->setCPSR(setFlags(result));
 }
 
+void ArmCpu::logicalOR(){
+    int result = reg->getReg(decodedInstruction->getRegN()) | decodedInstruction->getImmediate();
+    reg->setReg(decodedInstruction->getRegDest(), result);
+    cout<<"result = "<< hex << result << endl;
+    // if (alu.canChangePsr())
+    //     reg.setPSR(Registers.CPSR, setFlags(result));
+}
+
 void ArmCpu::move(){
-    int immediate = decodedInstruction.getImmediate();
-    reg->setReg(decodedInstruction.getRegDest(), immediate);
+    int immediate = decodedInstruction->getImmediate();
+    reg->setReg(decodedInstruction->getRegDest(), immediate);
     cout<<"result = "<< hex << immediate << endl;
     reg->setCPSR(setFlags(immediate));
 }
 
 void ArmCpu::loadToReg(){
     int address = 0;
-    int regNValue = reg->getReg(decodedInstruction.getRegN());
-    address = regNValue + decodedInstruction.getImmediate();
+    int regNValue = reg->getReg(decodedInstruction->getRegN());
+    address = regNValue + decodedInstruction->getImmediate();
     int data = mem.read8(address);
-    cout<<"result = "<< data << endl;
-    reg->setReg(decodedInstruction.getRegDest(), data);
+    cout<<"data = "<< data << endl;
+    reg->setReg(decodedInstruction->getRegDest(), data);
 }

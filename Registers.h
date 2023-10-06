@@ -69,7 +69,10 @@ public:
     void setPC(int);
     int getReg(int);
     void setReg(char, int);
+    int getCPSR();
     void setCPSR(int);
+    int getSPSR();
+    void setSPSR(int);
     void branch(int);
     bool isThumbMode();
     void step();

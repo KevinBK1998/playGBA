@@ -36,9 +36,21 @@ void Registers::setReg(char index, int data){
         reg15 = data;
 }
 
+int Registers::getCPSR(){
+    return currentStatusReg;
+}
+
 void Registers::setCPSR(int data){
     currentStatusReg = data;
     setControlBits();
+}
+
+int Registers::getSPSR(){
+    return savedStatusReg[mode];
+}
+
+void Registers::setSPSR(int data){
+    savedStatusReg[mode] = data;
 }
 
 void Registers::branch(int imm){
