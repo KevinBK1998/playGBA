@@ -10,8 +10,9 @@ private:
     uint8_t postBootFlag;
     bool ime;
 public:
-    IORegisters(/* args */);
-    ~IORegisters();
+    IORegisters(/* args */){}
+    ~IORegisters(){}
+
     uint8_t read8(int address) {
         if (address == POST_BOOT_FLAG)
             return postBootFlag;
@@ -32,12 +33,3 @@ public:
         }
     }
 };
-
-IORegisters::IORegisters(/* args */)
-{
-}
-
-IORegisters::~IORegisters()
-{
-}
-

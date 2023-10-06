@@ -15,6 +15,14 @@ ArmInstruction::ArmInstruction(Opcode operation){
     opcode = operation;
 }
 
+ArmInstruction::ArmInstruction(Opcode operation, char op1): ArmInstruction::ArmInstruction(operation){
+    regN = op1;
+}
+
+ArmInstruction::ArmInstruction(Opcode operation, char op1, char destReg): ArmInstruction::ArmInstruction(operation, op1){
+    regDest = destReg;
+}
+
 ArmInstruction::ArmInstruction(Opcode operation, int imm): ArmInstruction::ArmInstruction(operation){
     immediate = imm;
 }
@@ -43,6 +51,9 @@ string ArmInstruction::toString(){
     case B:
         stream << showbase << hex << "B " << immediate;
         return stream.str();
+    case TEQ:
+        stream << showbase << "TEQ R" << regN << hex << ", " << immediate;
+        return stream.str();
     case CMP:
         stream << showbase << "CMP R" << regN << hex << ", " << immediate;
         return stream.str();
@@ -64,6 +75,10 @@ Opcode ArmInstruction::getOpcode(){
 
 int ArmInstruction::getImmediate(){
     return immediate;
+}
+
+void ArmInstruction::setImmediate(int data){
+    immediate=data;
 }
 
 int ArmInstruction::getRegDest(){
