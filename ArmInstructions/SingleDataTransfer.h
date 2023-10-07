@@ -1,8 +1,8 @@
-#ifndef ARM_SDT_INSTR_H
-#define ARM_SDT_INSTR_H
+#ifndef ARM_SDT_H
+#define ARM_SDT_H
 
 #include <string.h>
-#include "ArmInstruction.h"
+#include "Instruction.h"
 using namespace std;
 
 class ArmSdtInstruction : public ArmInstruction

@@ -1,9 +1,9 @@
-#ifndef ARM_ALU_INSTR_H
-#define ARM_ALU_INSTR_H
+#ifndef ARM_ALU_H
+#define ARM_ALU_H
 
 #include <iostream>
 #include "FailureCodes.h"
-#include "ArmInstruction.h"
+#include "Instruction.h"
 using namespace std;
 
 
@@ -52,6 +52,7 @@ public:
     }
 
     static ArmAluInstruction* decodeALU(int opcode){
+        // cout << "Incomplete ALU{cond} Rd, Rn, Op2 = " << hex << opcode << endl;
         Condition cond = Condition((opcode >> 28) & 0xF);
         char rN = (opcode >> 16) & 0xF;
         // cout << "rN = " << dec << unsigned(rN) << endl;
@@ -107,7 +108,6 @@ public:
         case ORR:
             stream << showbase << "ORR"<<condition.toString()<<" R" << getRegDest() << ", R" << getRegN() << hex << ", " << getImmediate();
             return stream.str();
-
         case MOV:
             stream << showbase << "MOV"<<condition.toString()<<" R" << getRegDest() << hex << ", " << getImmediate();
             return stream.str();

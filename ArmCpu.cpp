@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string.h>
 #include "Registers.cpp"
-#include "ArmInstruction.cpp"
-#include "ArmSdtInstruction.h"
-#include "ArmAluInstruction.h"
+#include "ArmInstructions/Instruction.cpp"
+#include "ArmInstructions/SingleDataTransfer.h"
+#include "ArmInstructions/ALU.h"
 #include "Memory.cpp"
 
 using namespace std;
@@ -39,6 +39,7 @@ private:
     void loadToReg();
     bool canExecute(Condition);
 public:
+    long time=0;
     ArmCpu(){
     }
     ArmCpu(Registers* registers){
@@ -51,12 +52,10 @@ public:
         int currentPC = reg->getPC();
         int opcode = mem.read32(currentPC);
         fetchedPC = currentPC + 4;
-        if (((opcode>>26) & 0b11) == 0b00){
-            // cout << "Incomplete ALU{cond} Rd, Rn, Op2 = " << hex << opcode << endl;
+        if (((opcode>>26) & 0b11) == 0b00)
             decodedInstruction=ArmAluInstruction::decodeALU(opcode);
-        }
         else if (((opcode>>26) & 0b11) == 0b01){
-            // cout << "Incomplete PLD/STR/LDR{cond}{B}{T} Rd, <Address> = " << hex << opcode << endl;
+            cout << "Incomplete PLD/STR/LDR{cond}{B}{T} Rd, <Address> = " << hex << opcode << endl;
             if (((opcode >> 20) & 1) != 0){
                 Condition cond = Condition((opcode >> 28) & 0xF);
                 int flags = ((opcode >> 22) & 0xF);
@@ -64,7 +63,7 @@ public:
                 char rN = (opcode >> 16) & 0xF;
                 char rDest = (opcode >> 12) & 0xF;
                 decodedInstruction=new ArmSdtInstruction(cond, LDR, rN, flags, data, rDest);
-            }
+            } else exit(FAILED_TO_DECODE);
         }
         else if (((opcode>>25) & 0b111) == 0b101){
             Condition cond = Condition((opcode >> 28) & 0xF);
@@ -111,7 +110,8 @@ public:
                 cout << "Undefined: " << decodedInstruction->toString() << endl;
                 exit(FAILED_TO_EXECUTE);
             }
-        }
+        } else cout << "Skipping, condition failed" << endl;
+        time++;
     }
 
     void step(){
@@ -162,11 +162,12 @@ void ArmCpu::psrTransfer(){
     }
     else{
         ArmAluInstruction* psrTfr = (ArmAluInstruction*) decodedInstruction;
-        cout<<"mask = "<<psrTfr->getMask()<<"\tresult = "<<(psrTfr->getMask() & reg->getReg(psrTfr->getRegN()))<<endl;
+        int result = psrTfr->getMask() & reg->getReg(psrTfr->getRegN());
+        cout<<"mask = "<<psrTfr->getMask()<<"\tresult = "<<result<<endl;
         if(decodedInstruction->getImmediate())
-            reg->setCPSR(psrTfr->getMask() & reg->getReg(psrTfr->getRegN()));
+            reg->setSPSR(result);
         else
-            reg->setSPSR(psrTfr->getMask() & reg->getReg(psrTfr->getRegN()));
+            reg->setCPSR(result);
     }
 }
 
@@ -191,14 +192,15 @@ void ArmCpu::logicalOR(){
     reg->setReg(decodedInstruction->getRegDest(), result);
     cout<<"result = "<< hex << result << endl;
     // if (alu.canChangePsr())
-    //     reg.setPSR(Registers.CPSR, setFlags(result));
+    //     reg->setCPSR(setFlags(result));
 }
 
 void ArmCpu::move(){
     int immediate = decodedInstruction->getImmediate();
     reg->setReg(decodedInstruction->getRegDest(), immediate);
     cout<<"result = "<< hex << immediate << endl;
-    reg->setCPSR(setFlags(immediate));
+    // if (alu.canChangePsr())
+    //     reg->setCPSR(setFlags(immediate));
 }
 
 void ArmCpu::loadToReg(){
