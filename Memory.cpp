@@ -48,7 +48,6 @@ public:
             fin.get(c);
             rom[i++] = c;
         }
-        rom[0x9c]=0xa5;
         cout << "Loaded Rom:" << fileName << endl;
     }
 

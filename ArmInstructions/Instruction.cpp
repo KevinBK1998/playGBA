@@ -76,16 +76,18 @@ string ArmInstruction::toString(){
     stringstream stream;
     switch (opcode)
     {
-    case B:
-        stream<<hex<<showbase<<"B"<<condition.toString()<<" "<<immediate<<dec<<" ("<<immediate*4<<")";
-        return stream.str();
-    case LDR:
-        stream << showbase << "LDR" << condition.toString() <<" R" << regDest << ", [R"<<regN<< hex << ", " << immediate<<"]";
-        return stream.str();
     default:
         exit(FAILED_DECODED_TO_STRING);
     }
     return "Undefined";
+}
+
+string ArmInstruction::getCondition(){
+    return condition.toString();
+}
+
+Condition ArmInstruction::getPreCheck(){
+    return condition;
 }
 
 Opcode ArmInstruction::getOpcode(){

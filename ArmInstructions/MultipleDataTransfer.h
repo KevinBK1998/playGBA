@@ -70,7 +70,7 @@ public:
                 stream<<"STM[R"<< getRegN() <<"]";
             break;
         }
-        stream << condition.toString() << " {";
+        stream << getCondition() << " {";
         int list = regList;
         for (int i = 0; i < 16; i++){
             if (list & 1)

@@ -63,7 +63,13 @@ public:
         // cout << "imm = " << hex << imm << endl;
         switch ((opcode >> 21) & 0xF)
         {
-        case 0x9:
+        case 0:
+            return new ALU(cond, AND, rDest, rN, imm);
+        case 2:
+            return new ALU(cond, SUB, rDest, rN, imm);
+        case 4:
+            return new ALU(cond, ADD, rDest, rN, imm);
+        case 9:
             if (((opcode >> 25) & 0b1) != 0)
                 return new ALU(cond, TEQ, imm, rN);
             break;
@@ -92,23 +98,32 @@ public:
         stringstream stream;
         switch (getOpcode())
         {
+        case AND:
+            stream << showbase << "AND"<<getCondition()<<" R" << getRegDest() << ", R" << getRegN() << hex << ", " << getImmediate();
+            return stream.str();
+        case SUB:
+            stream << showbase << "SUB"<<getCondition()<<" R" << getRegDest() << ", R" << getRegN() << hex << ", " << getImmediate();
+            return stream.str();
+        case ADD:
+            stream << showbase << "ADD"<<getCondition()<<" R" << getRegDest() << ", R" << getRegN() << hex << ", " << getImmediate();
+            return stream.str();
         case MRS:
-            stream << showbase << "MRS"<<condition.toString()<<" R" << getRegDest() << hex << ", " << (getImmediate()?'S':'C') << "PSR";
+            stream << showbase << "MRS"<<getCondition()<<" R" << getRegDest() << hex << ", " << (getImmediate()?'S':'C') << "PSR";
             return stream.str();
         case MSR:
-            stream << showbase << "MSR"<<condition.toString()<<" " << (getImmediate()?'S':'C') << "PSR_" << getMaskString() << ", R" << getRegN();
+            stream << showbase << "MSR"<<getCondition()<<" " << (getImmediate()?'S':'C') << "PSR_" << getMaskString() << ", R" << getRegN();
             return stream.str();
         case TEQ:
-            stream << showbase << "TEQ"<<condition.toString()<<" R" << getRegN() << hex << ", " << getImmediate();
+            stream << showbase << "TEQ"<<getCondition()<<" R" << getRegN() << hex << ", " << getImmediate();
             return stream.str();
         case CMP:
-            stream << showbase << "CMP"<<condition.toString()<<" R" << getRegN() << hex << ", " << getImmediate();
+            stream << showbase << "CMP"<<getCondition()<<" R" << getRegN() << hex << ", " << getImmediate();
             return stream.str();
         case ORR:
-            stream << showbase << "ORR"<<condition.toString()<<" R" << getRegDest() << ", R" << getRegN() << hex << ", " << getImmediate();
+            stream << showbase << "ORR"<<getCondition()<<" R" << getRegDest() << ", R" << getRegN() << hex << ", " << getImmediate();
             return stream.str();
         case MOV:
-            stream << showbase << "MOV"<<condition.toString()<<" R" << getRegDest() << hex << ", " << getImmediate();
+            stream << showbase << "MOV"<<getCondition()<<" R" << getRegDest() << hex << ", " << getImmediate();
             return stream.str();
 
         default:

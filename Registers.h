@@ -1,17 +1,23 @@
-#include "ArmInstructions/FailureCodes.h"
-
 #ifndef REGISTERS_H
 #define REGISTERS_H
 
+#include <string>
+#include "ArmInstructions/FailureCodes.h"
+
+using namespace std;
+
 enum Mode{
     SYSTEM_OR_USER,
-    INTERRUPT_REQUEST,
     SUPERVISOR,
+    INTERRUPT_REQUEST,
     ABORT,
     UNDEFINED,
 };
 
 #define WORD_SIZE 4
+#define SP 13
+#define LR 14
+#define PC 15
 
 class Registers
 {
@@ -30,6 +36,27 @@ private:
     int getBankedIndex(int index) {
         index -= 13;
         return index * 5 + mode;
+    }
+
+    string getMode() {
+        switch (mode) {
+            case SYSTEM_OR_USER:
+                // if (privileged)
+                    return "sys";
+                // else
+                    return "usr";
+            case INTERRUPT_REQUEST:
+                return "irq";
+            case SUPERVISOR:
+                return "svc";
+            case ABORT:
+                return "abt";
+            case UNDEFINED:
+                return "und";
+            default:
+                exit(PENDING_CODE);
+                return "";
+        }
     }
 
     void setControlBits() {
@@ -64,6 +91,7 @@ private:
                 exit(PENDING_CODE);
         }
     }
+
 public:
     Registers(/* args */);
     ~Registers();
@@ -77,6 +105,7 @@ public:
     void setSPSR(int);
     void branch(int);
     bool isThumbMode();
+    void exchange(bool);
     void step();
     void status();
 };

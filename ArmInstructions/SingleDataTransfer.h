@@ -45,10 +45,10 @@ public:
         switch (getOpcode())
         {
         case LDR:
-            stream << "LDR" << (byteTransfer?"B":"") << condition.toString() <<" R" << getRegDest() << ", [R"<< getRegN() << showbase << hex << ", " << getImmediate() <<"]";
+            stream << "LDR" << (byteTransfer?"B":"") << getCondition() <<" R" << getRegDest() << ", [R"<< getRegN() << showbase << hex << ", " << getImmediate() <<"]";
             return stream.str();
         case STR:
-            stream << "STR" << (byteTransfer?"B":"") << condition.toString() <<" R" << getRegDest() << ", [R"<< getRegN() << showbase << hex << ", " << getImmediate() <<"]";
+            stream << "STR" << (byteTransfer?"B":"") << getCondition() <<" R" << getRegDest() << ", [R"<< getRegN() << showbase << hex << ", " << getImmediate() <<"]";
             return stream.str();
         default:
             exit(FAILED_DECODED_TO_STRING);

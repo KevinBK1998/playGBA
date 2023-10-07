@@ -64,15 +64,20 @@ bool Registers::isThumbMode(){
     return thumbMode;
 }
 
+void Registers::exchange(bool toggle){
+    cout<<"\nTOGGLE: "<<toggle<<endl;
+    thumbMode=toggle;
+}
+
 void Registers::step(){
     reg15 += WORD_SIZE;
 }
 
 void Registers::status(){
-    cout<<"\nMODE: "<<(thumbMode?"THUMB":"ARM")<<" \tPC: "<<getPC()<<endl;
+    cout<<"\nMODE: "<<(thumbMode?"THUMB":"ARM")<<"("<<getMode()<<")"<<" \tPC: "<<getPC()<<endl;
     cout<<"R0: "<<unbankedReg[0]<<"\tR1: "<<unbankedReg[1]<<"\tR2: "<< unbankedReg[2]<<"\tR3: "<< unbankedReg[3]<< endl;
     cout<<"R4: "<<unbankedReg[4]<<"\tR5: "<<unbankedReg[5]<<"\tR6: "<< unbankedReg[6]<<"\tR7: "<< unbankedReg[7]<< endl;
     cout<<"R8: "<<getReg(8)<<"\tR9: "<<getReg(9)<<"\tR10: "<< getReg(10)<<"\tR11: "<< getReg(11)<< endl;
-    cout<<"R12: "<<getReg(12)<<"\tR13(SP): "<<getReg(13)<<"\tR14(LR): "<< getReg(14)<<"\tR15(PC+"<<WORD_SIZE<<"): "<< reg15<< endl;
-    cout<<"CPSR: "<<currentStatusReg<< "\tSPSR["<<mode<<"]:"<<getSPSR()<< endl;
+    cout<<"R12: "<<getReg(12)<<"\tR13(SP): "<<getReg(SP)<<"\tR14(LR): "<< getReg(LR)<<"\tR15(PC+"<<WORD_SIZE<<"): "<< reg15<< endl;
+    cout<<"CPSR: "<<currentStatusReg<< "\tSPSR:"<<getSPSR()<< endl;
 }

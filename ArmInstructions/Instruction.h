@@ -7,6 +7,10 @@ using namespace std;
 enum Opcode {
     NOT_INITIALISED,
     B,
+    BX,
+    AND,
+    SUB,
+    ADD,
     TEQ,
     MRS,
     MSR,
@@ -60,8 +64,8 @@ private:
     bool preFlag;
     bool addFlag;
     bool byteTransfer;
-public:
     Condition condition;
+public:
     ArmInstruction();
     ArmInstruction(Opcode);
     ArmInstruction(Condition, Opcode);
@@ -78,6 +82,8 @@ public:
     ArmInstruction(Condition, Opcode, int, char);
     ArmInstruction(Opcode, char, int, int, char);
     ~ArmInstruction();
+    string getCondition();
+    Condition getPreCheck();
     Opcode getOpcode();
     int getImmediate();
     int getRegDest();
