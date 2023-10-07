@@ -96,10 +96,6 @@ int ArmInstruction::getImmediate(){
     return immediate;
 }
 
-void ArmInstruction::setImmediate(int data){
-    immediate=data;
-}
-
 int ArmInstruction::getRegDest(){
     return regDest;
 }

@@ -37,6 +37,7 @@ private:
     void logicalOR();
     void move();
     void loadToReg();
+    void storeFromReg();
     bool canExecute(Condition);
 public:
     long time=0;
@@ -54,21 +55,13 @@ public:
         fetchedPC = currentPC + 4;
         if (((opcode>>26) & 0b11) == 0b00)
             decodedInstruction=ArmAluInstruction::decodeALU(opcode);
-        else if (((opcode>>26) & 0b11) == 0b01){
-            cout << "Incomplete PLD/STR/LDR{cond}{B}{T} Rd, <Address> = " << hex << opcode << endl;
-            if (((opcode >> 20) & 1) != 0){
-                Condition cond = Condition((opcode >> 28) & 0xF);
-                int flags = ((opcode >> 22) & 0xF);
-                int data = opcode & 0xFFFFF;
-                char rN = (opcode >> 16) & 0xF;
-                char rDest = (opcode >> 12) & 0xF;
-                decodedInstruction=new ArmSdtInstruction(cond, LDR, rN, flags, data, rDest);
-            } else exit(FAILED_TO_DECODE);
-        }
+        else if (((opcode>>26) & 0b11) == 0b01)
+            decodedInstruction=SingleDataTransfer::decodeSDT(opcode);
         else if (((opcode>>25) & 0b111) == 0b101){
             Condition cond = Condition((opcode >> 28) & 0xF);
-            // cout << "Incomplete B{LX} {cond} label = " << hex << opcode << endl;
-            int imm = opcode & 0xFFF;
+            if ((opcode>>24) & 0b1)
+                cout << "Incomplete BL{X} label = " << opcode << endl;
+            int imm = opcode & 0xFFFFFF;
             decodedInstruction = new ArmInstruction(cond, B, imm);
         }
         else{
@@ -80,7 +73,7 @@ public:
     void execute(){
         if (decodedInstruction->getOpcode() == NOT_INITIALISED)
             return;
-        cout << "Debug Decoded: " << hex << decodedInstruction->toString() << endl;
+        cout << "Debug Execute: " << hex << decodedInstruction->toString() << endl;
         if (canExecute(decodedInstruction->condition)){
             switch (decodedInstruction->getOpcode())
             {
@@ -105,6 +98,9 @@ public:
                 break;
             case LDR:
                 loadToReg();
+                break;
+            case STR:
+                storeFromReg();
                 break;
             default:
                 cout << "Undefined: " << decodedInstruction->toString() << endl;
@@ -204,10 +200,29 @@ void ArmCpu::move(){
 }
 
 void ArmCpu::loadToReg(){
-    int address = 0;
+    SingleDataTransfer* sdt = (SingleDataTransfer*) decodedInstruction;
     int regNValue = reg->getReg(decodedInstruction->getRegN());
-    address = regNValue + decodedInstruction->getImmediate();
-    int data = mem.read8(address);
+    int address = regNValue + decodedInstruction->getImmediate();
+    int data;
+    if (sdt->byteTransfer)
+        data = mem.read8(address);
+    else
+        data = mem.read32(address);
     cout<<"data = "<< data << endl;
     reg->setReg(decodedInstruction->getRegDest(), data);
+}
+
+void ArmCpu::storeFromReg(){
+    SingleDataTransfer* sdt = (SingleDataTransfer*) decodedInstruction;
+    int regNValue = reg->getReg(decodedInstruction->getRegN());
+    int address = regNValue + decodedInstruction->getImmediate();
+    int data = reg->getReg(decodedInstruction->getRegDest());
+    if (sdt->byteTransfer){
+        cout<<"data = "<< (data & 0xFF) << endl;
+        mem.write8(address, data);
+    }
+    else{
+        mem.write32(address, data);
+        cout<<"data = "<< data << endl;
+    }
 }

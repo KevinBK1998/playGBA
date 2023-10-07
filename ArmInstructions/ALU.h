@@ -52,7 +52,6 @@ public:
     }
 
     static ArmAluInstruction* decodeALU(int opcode){
-        // cout << "Incomplete ALU{cond} Rd, Rn, Op2 = " << hex << opcode << endl;
         Condition cond = Condition((opcode >> 28) & 0xF);
         char rN = (opcode >> 16) & 0xF;
         // cout << "rN = " << dec << unsigned(rN) << endl;
@@ -85,7 +84,7 @@ public:
             else
                 return new ArmAluInstruction(cond, MRS, rDest, psr);
         }
-        cout << "ALU = " << hex << ((opcode >> 21) & 0xF) << endl;
+        cout << "Incomplete ALU Rd, Rn, Op2 = " << opcode << ", Funcode = " << ((opcode >> 21) & 0xF) << endl;
         exit(FAILED_TO_DECODE_ALU);
     }
 

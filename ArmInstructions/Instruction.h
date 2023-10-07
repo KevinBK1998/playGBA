@@ -14,6 +14,7 @@ enum Opcode {
     ORR,
     MOV,
     LDR,
+    STR,
 };
 
 enum ConditionConstant {
@@ -77,7 +78,6 @@ public:
     ~ArmInstruction();
     Opcode getOpcode();
     int getImmediate();
-    void setImmediate(int);
     int getRegDest();
     int getRegN();
 

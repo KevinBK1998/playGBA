@@ -76,6 +76,7 @@ public:
     void branch(int);
     bool isThumbMode();
     void step();
+    void status();
 };
 
 #endif

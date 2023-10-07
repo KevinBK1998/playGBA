@@ -30,7 +30,8 @@ public:
     Memory(/* args */){
         loadBios(BIOS_FILE_NAME);
     }
-    ~Memory();
+    ~Memory(){}
+
     uint8_t read8(int address) {
         // cout << "Address: "<<address<<endl;
         if (address < BIOS_FILE_SIZE)
@@ -47,6 +48,29 @@ public:
         exit(FAILED_DMA);
         return 0;
     }
+
+    void write8(int address, uint8_t data) {
+        // cout << "Address: "<<address<<", Data: "<<unsigned(data)<<endl;
+        if (address >= IO_REG_OFFSET && address < IO_REG_END)
+            registers.write8(address - IO_REG_OFFSET, data);
+        else{
+            cout << "W: Unused Memory: "<<address<<", Data: "<<unsigned(data)<<endl;
+            exit(FAILED_DMA);
+        }
+        // if (address < BIOS_SIZE)
+        //     throw new WriteDeniedException(address);
+        // else if (address >= SLOW_WORK_RAM_OFFSET && address < SLOW_WORK_RAM_END)
+        //     slowWorkRam[address - SLOW_WORK_RAM_OFFSET] = data;
+        // else if (address >= WORK_RAM_OFFSET && address < WORK_RAM_END)
+        //     workRam[address - WORK_RAM_OFFSET] = data;
+        // else if (address >= IO_REG_OFFSET && address < IO_REG_END)
+        //     registers.write8(address - IO_REG_OFFSET, data);
+        // else if (address >= VRAM_OFFSET)
+        //     throw new IndexOutOfBoundsException("W: Unknown Memory: 0x" + Integer.toHexString(address) + ", set to 0x" + Integer.toHexString(data));
+        // else
+        //     System.out.println("Unused Memory: 0x" + Integer.toHexString(address) + ", set to 0x" + Integer.toHexString(data));
+    }
+
     int read32(int address) {
         // cout << "Address: 0x"<<address<<endl;
         int completeWord = 0;
@@ -56,8 +80,12 @@ public:
         }
         return completeWord;
     }
-};
 
-Memory::~Memory()
-{
-}
+    void write32(int address, int data) {
+        // cout << "Address: "<<address<<", Data: "<<data<<endl;
+        for (int i = 0; i < 4; i++) {
+            write8(address + i, data);
+            data = data >> 8;
+        }
+    }
+};
