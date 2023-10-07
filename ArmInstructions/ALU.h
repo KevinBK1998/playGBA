@@ -11,7 +11,7 @@ int rotateRight(int data, int shift){
     return (data>>shift) | (data << (32-shift));
 }
 
-class ArmAluInstruction : public ArmInstruction
+class ALU : public ArmInstruction
 {
 private:
     bool isSavedPsr;
@@ -30,14 +30,14 @@ private:
         return stream.str();
     }
 public:
-    ArmAluInstruction():ArmInstruction(){}
-    ArmAluInstruction(Opcode opcode, int imm, char op1): ArmInstruction(opcode, op1, imm){}
-    ArmAluInstruction(Condition cond, Opcode opcode, int imm, char op1): ArmInstruction(cond, opcode, op1, imm){}
-    ArmAluInstruction(Opcode opcode, char destReg, int imm): ArmInstruction(opcode, imm, destReg){}
-    ArmAluInstruction(Condition cond, Opcode opcode, char destReg, int imm): ArmInstruction(cond, opcode, imm, destReg){}
-    ArmAluInstruction(Opcode opcode, char destReg, char op1, int imm): ArmInstruction(opcode, op1, destReg, imm){}
-    ArmAluInstruction(Condition cond, Opcode opcode, char destReg, char op1, int imm): ArmInstruction(cond, opcode, op1, destReg, imm){}
-    ArmAluInstruction(Condition cond, Opcode opcode, int imm, char op1, int maskFlags): ArmInstruction(cond, opcode, op1, imm){
+    ALU():ArmInstruction(){}
+    ALU(Opcode opcode, int imm, char op1): ArmInstruction(opcode, op1, imm){}
+    ALU(Condition cond, Opcode opcode, int imm, char op1): ArmInstruction(cond, opcode, op1, imm){}
+    ALU(Opcode opcode, char destReg, int imm): ArmInstruction(opcode, imm, destReg){}
+    ALU(Condition cond, Opcode opcode, char destReg, int imm): ArmInstruction(cond, opcode, imm, destReg){}
+    ALU(Opcode opcode, char destReg, char op1, int imm): ArmInstruction(opcode, op1, destReg, imm){}
+    ALU(Condition cond, Opcode opcode, char destReg, char op1, int imm): ArmInstruction(cond, opcode, op1, destReg, imm){}
+    ALU(Condition cond, Opcode opcode, int imm, char op1, int maskFlags): ArmInstruction(cond, opcode, op1, imm){
         mask = maskFlags;
     }
     
@@ -51,7 +51,7 @@ public:
         return expMask;
     }
 
-    static ArmAluInstruction* decodeALU(int opcode){
+    static ALU* decodeALU(int opcode){
         Condition cond = Condition((opcode >> 28) & 0xF);
         char rN = (opcode >> 16) & 0xF;
         // cout << "rN = " << dec << unsigned(rN) << endl;
@@ -65,24 +65,24 @@ public:
         {
         case 0x9:
             if (((opcode >> 25) & 0b1) != 0)
-                return new ArmAluInstruction(cond, TEQ, imm, rN);
+                return new ALU(cond, TEQ, imm, rN);
             break;
         case 0xA:
-            return new ArmAluInstruction(cond, CMP, imm, rN);
+            return new ALU(cond, CMP, imm, rN);
         case 0xC:
-            return new ArmAluInstruction(cond, ORR, rDest, rN, imm);
+            return new ALU(cond, ORR, rDest, rN, imm);
         case 0xD:
-            return new ArmAluInstruction(cond, MOV, rDest, imm);
+            return new ALU(cond, MOV, rDest, imm);
         }
         if (((opcode >> 23) & 0b11) == 0b10) {
             bool psr = ((opcode >> 22) & 0b1) != 0;
             if((opcode >> 21) & 0b1){
                 char rM = opcode & 0xF;
                 int maskFlags = (opcode >> 16) & 0xF;
-                return new ArmAluInstruction(cond, MSR, psr, rM, maskFlags);
+                return new ALU(cond, MSR, psr, rM, maskFlags);
             }
             else
-                return new ArmAluInstruction(cond, MRS, rDest, psr);
+                return new ALU(cond, MRS, rDest, psr);
         }
         cout << "Incomplete ALU Rd, Rn, Op2 = " << opcode << ", Funcode = " << ((opcode >> 21) & 0xF) << endl;
         exit(FAILED_TO_DECODE_ALU);
@@ -117,7 +117,7 @@ public:
         }
         return "Undefined";
     }
-    ~ArmAluInstruction(){}
+    ~ALU(){}
 };
 
 #endif

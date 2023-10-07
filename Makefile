@@ -1,5 +1,5 @@
 run: playGBA
-	./playGBA TEMP.gb
+	./playGBA key_demo.gba
 run-default: playGBA
 	./playGBA
 clean: playGBA

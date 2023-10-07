@@ -109,6 +109,8 @@ string Condition::toString(){
     {
     case EQ:
         return "{eq}";
+    case NE:
+        return "{ne}";
     case ALWAYS:
         return "";
     default:

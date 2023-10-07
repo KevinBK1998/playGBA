@@ -10,6 +10,7 @@ class Memory
 private:
     int bios[BIOS_FILE_SIZE];
     int wram[WRAM_FILE_SIZE];
+    int rom[BIOS_FILE_SIZE];
     IORegisters registers;
     void loadBios(const char *fileName){
         char c;
@@ -28,10 +29,28 @@ private:
         cout << "Loaded Bios:" << fileName << endl;
     }
 public:
-    Memory(/* args */){
+    ~Memory(){}
+    Memory(){
         loadBios(BIOS_FILE_NAME);
     }
-    ~Memory(){}
+
+    Memory(char *fileName):Memory::Memory(){
+        char c;
+        ifstream fin(fileName);
+        if (!fin)
+        {
+            cout << "Error Opening ROM\n";
+            exit(FAILED_TO_LOAD_ROM);
+        }
+        int i = 0;
+        while (i < BIOS_FILE_SIZE && fin)
+        {
+            fin.get(c);
+            rom[i++] = c;
+        }
+        rom[0x9c]=0xa5;
+        cout << "Loaded Rom:" << fileName << endl;
+    }
 
     uint8_t read8(int address) {
         // cout << "Address: "<<address<<endl;
@@ -43,6 +62,8 @@ public:
             return wram[address - WRAM_OFFSET];
         else if (address >= IO_REG_OFFSET && address < IO_REG_END)
             return registers.read8(address - IO_REG_OFFSET);
+        else if (address >= ROM_OFFSET && address < ROM_END)
+            return rom[address - ROM_OFFSET];
         // else if (address >= VRAM_OFFSET)
         //     throw new IndexOutOfBoundsException("R: Unknown Memory: 0x" + Integer.toHexString(address));
         cout << "R: Unused Memory: "<<address<<endl;
@@ -56,6 +77,8 @@ public:
             wram[address - WRAM_OFFSET] = data;
         else if (address >= IO_REG_OFFSET && address < IO_REG_END)
             registers.write8(address - IO_REG_OFFSET, data);
+        else if (address >= ROM_OFFSET && address < ROM_END)
+            rom[address - ROM_OFFSET] = data;
         else{
             cout << "W: Unused Memory: "<<address<<", Data: "<<unsigned(data)<<endl;
             exit(FAILED_DMA);
@@ -64,9 +87,6 @@ public:
         //     throw new WriteDeniedException(address);
         // else if (address >= SLOW_WORK_RAM_OFFSET && address < SLOW_WORK_RAM_END)
         //     slowWorkRam[address - SLOW_WORK_RAM_OFFSET] = data;
-
-        // else if (address >= IO_REG_OFFSET && address < IO_REG_END)
-        //     registers.write8(address - IO_REG_OFFSET, data);
         // else if (address >= VRAM_OFFSET)
         //     throw new IndexOutOfBoundsException("W: Unknown Memory: 0x" + Integer.toHexString(address) + ", set to 0x" + Integer.toHexString(data));
         // else

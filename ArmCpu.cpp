@@ -46,8 +46,9 @@ public:
     long time=0;
     ArmCpu(){
     }
-    ArmCpu(Registers* registers){
+    ArmCpu(Registers* registers, Memory memory){
         reg = registers;
+        mem = memory;
     }
     ~ArmCpu(){
     }
@@ -57,7 +58,7 @@ public:
         int opcode = mem.read32(currentPC);
         fetchedPC = currentPC + 4;
         if (((opcode>>26) & 0b11) == 0b00)
-            decodedInstruction=ArmAluInstruction::decodeALU(opcode);
+            decodedInstruction=ALU::decodeALU(opcode);
         else if (((opcode>>26) & 0b11) == 0b01)
             decodedInstruction=SingleDataTransfer::decodeSDT(opcode);
         else if (((opcode>>25) & 0b111) == 0b100)
@@ -136,6 +137,8 @@ bool ArmCpu::canExecute(Condition cond){
     {
     case EQ:
         return (status & Z) != 0;
+    case NE:
+        return (status & Z) == 0;
     case ALWAYS:
         return true;
     default:
@@ -170,7 +173,7 @@ void ArmCpu::psrTransfer(){
         reg->setReg(decodedInstruction->getRegDest(), data);
     }
     else{
-        ArmAluInstruction* psrTfr = (ArmAluInstruction*) decodedInstruction;
+        ALU* psrTfr = (ALU*) decodedInstruction;
         int result = psrTfr->getMask() & reg->getReg(psrTfr->getRegN());
         cout<<"mask = "<<psrTfr->getMask()<<"\tresult = "<<result<<endl;
         if(decodedInstruction->getImmediate())
