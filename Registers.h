@@ -2,7 +2,7 @@
 #define REGISTERS_H
 
 #include <string>
-#include "ArmInstructions/FailureCodes.h"
+#include "FailureCodes.h"
 
 using namespace std;
 
@@ -14,6 +14,8 @@ enum Mode{
     UNDEFINED,
 };
 
+#define BYTE_SIZE 1
+#define HALFWORD_SIZE 2
 #define WORD_SIZE 4
 #define SP 13
 #define LR 14
@@ -59,53 +61,24 @@ private:
         }
     }
 
-    void setControlBits() {
-        irqEnable = (currentStatusReg & 0x80) == 0;
-        thumbMode = (currentStatusReg & 0x20) != 0;
-        int modeMeta = currentStatusReg & 0x1F;
-        switch (modeMeta) {
-            case 0:
-            case 16:
-                mode = SYSTEM_OR_USER;
-                privilegedUser = false;
-                break;
-            case 2:
-            case 18:
-                mode = INTERRUPT_REQUEST;
-                break;
-            case 3:
-            case 19:
-                mode = SUPERVISOR;
-                break;
-            case 23:
-                mode = ABORT;
-                break;
-            case 27:
-                mode = UNDEFINED;
-                break;
-            case 31:
-                mode = SYSTEM_OR_USER;
-                privilegedUser = true;
-                break;
-            default:
-                exit(PENDING_CODE);
-        }
-    }
+    void setControlBits();
 
 public:
     Registers(/* args */);
     ~Registers();
+    int getStepAmount();
     int getPC();
     void setPC(int);
     int getReg(int);
     void setReg(char, int);
     int getCPSR();
     void setCPSR(int);
+    void setFlags(int);
     int getSPSR();
     void setSPSR(int);
     void branch(int);
     bool isThumbMode();
-    void exchange(bool);
+    void exchange(int);
     void step();
     void status();
 };

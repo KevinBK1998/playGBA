@@ -2,26 +2,8 @@
 #define ARM_INSTR_H
 
 #include <string.h>
+#include "../Opcode.h"
 using namespace std;
-
-enum Opcode {
-    NOT_INITIALISED,
-    B,
-    BX,
-    AND,
-    SUB,
-    ADD,
-    TEQ,
-    MRS,
-    MSR,
-    CMP,
-    ORR,
-    MOV,
-    LDR,
-    STR,
-    LDM,
-    STM,
-};
 
 enum ConditionConstant {
     EQ,

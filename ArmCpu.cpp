@@ -1,12 +1,12 @@
 #include <iostream>
 #include <string.h>
-#include "Registers.cpp"
+#include "Registers.h"
+#include "Memory.h"
 #include "ArmInstructions/Instruction.cpp"
 #include "ArmInstructions/Branch.h"
 #include "ArmInstructions/SingleDataTransfer.h"
 #include "ArmInstructions/MultipleDataTransfer.h"
 #include "ArmInstructions/ALU.h"
-#include "Memory.cpp"
 
 using namespace std;
 
@@ -21,9 +21,8 @@ class ArmCpu
 {
 private:
     Registers* reg;
-    Memory mem;
+    Memory* mem;
     ArmInstruction* decodedInstruction = new ArmInstruction();
-    int fetchedPC;
     int setFlags(int result){
         int flags = 0;
         if (((result >> 31) & 1) != 0)
@@ -51,7 +50,7 @@ public:
     long time=0;
     ArmCpu(){
     }
-    ArmCpu(Registers* registers, Memory memory){
+    ArmCpu(Registers* registers, Memory* memory){
         reg = registers;
         mem = memory;
     }
@@ -60,8 +59,7 @@ public:
 
     void decode(){
         int currentPC = reg->getPC();
-        int opcode = mem.read32(currentPC);
-        fetchedPC = currentPC + 4;
+        int opcode = mem->read32(currentPC);
         if (((opcode>>8) & 0xFFFFF) == 0x12FFF)
             decodedInstruction=Branch::decode(opcode, true);
         else if (((opcode>>25) & 0b111) == 0b100)
@@ -73,7 +71,7 @@ public:
         else if (((opcode>>26) & 0b11) == 0b01)
             decodedInstruction=SingleDataTransfer::decodeSDT(opcode);
         else{
-            cout << "Undefined Opcode: " << hex << opcode << endl;
+            cout << "Undecoded Opcode: " << hex << opcode << endl;
             exit(FAILED_TO_DECODE);
         }
     }
@@ -138,8 +136,10 @@ public:
 
     void step(){
         execute();
-        decode();
-        reg->step();
+        if (!reg->isThumbMode()){
+            decode();
+            reg->step();
+        }
     }
 };
 
@@ -187,7 +187,6 @@ void ArmCpu::branchExchange(){
     if(b->shouldSavePC())
         reg->setReg(LR, reg->getReg(PC) + WORD_SIZE);
     int data = reg->getReg(b->getRegN());
-    reg->branch(data);
     reg->exchange(data);
 }
 
@@ -274,9 +273,9 @@ void ArmCpu::loadReg(){
     int address = regNValue + sdt->getImmediate();
     int data;
     if (sdt->isByteTransfer())
-        data = mem.read8(address);
+        data = mem->read8(address);
     else
-        data = mem.read32(address);
+        data = mem->read32(address);
     cout<<"data = "<< data << endl;
     reg->setReg(sdt->getRegDest(), data);
 }
@@ -288,10 +287,10 @@ void ArmCpu::storeReg(){
     int data = reg->getReg(sdt->getRegDest());
     if (sdt->isByteTransfer()){
         cout<<"data = "<< (data & 0xFF) << endl;
-        mem.write8(address, data);
+        mem->write8(address, data);
     }
     else{
-        mem.write32(address, data);
+        mem->write32(address, data);
         cout<<"data = "<< data << endl;
     }
 }
@@ -306,7 +305,7 @@ void ArmCpu::loadMultipleReg(){
         if (list & 1){
             if (mdt->addBeforeTransfer())
                 address+=offset;
-            data = mem.read32(address);
+            data = mem->read32(address);
             cout<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
             reg->setReg(i, data);
             if (!mdt->addBeforeTransfer())
@@ -330,7 +329,7 @@ void ArmCpu::storeMultipleReg(){
                 address+=offset;
             data = reg->getReg(i);
             cout<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
-            mem.write32(address, data);
+            mem->write32(address, data);
             if (!mdt->addBeforeTransfer())
                 address+=offset;
         }

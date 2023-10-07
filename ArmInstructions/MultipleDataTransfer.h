@@ -4,7 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include "FailureCodes.h"
+#include "../FailureCodes.h"
 #include "Instruction.h"
 using namespace std;
 

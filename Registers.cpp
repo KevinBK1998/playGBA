@@ -1,5 +1,5 @@
 #include <iostream>
-#include "ArmInstructions/FailureCodes.h"
+#include "FailureCodes.h"
 #include "Registers.h"
 
 using namespace std;
@@ -12,12 +12,49 @@ Registers::~Registers()
 {
 }
 
+void Registers::setControlBits() {
+    irqEnable = (currentStatusReg & 0x80) == 0;
+    thumbMode = (currentStatusReg & 0x20) != 0;
+    int modeMeta = currentStatusReg & 0x1F;
+    switch (modeMeta) {
+        case 0:
+        case 16:
+            mode = SYSTEM_OR_USER;
+            privilegedUser = false;
+            break;
+        case 2:
+        case 18:
+            mode = INTERRUPT_REQUEST;
+            break;
+        case 3:
+        case 19:
+            mode = SUPERVISOR;
+            break;
+        case 23:
+            mode = ABORT;
+            break;
+        case 27:
+            mode = UNDEFINED;
+            break;
+        case 31:
+            mode = SYSTEM_OR_USER;
+            privilegedUser = true;
+            break;
+        default:
+            exit(PENDING_CODE);
+    }
+}
+
+int Registers::getStepAmount() {
+    return thumbMode ? HALFWORD_SIZE : WORD_SIZE;
+}
+
 int Registers::getPC(){
-    return reg15 - WORD_SIZE;
+    return reg15 - getStepAmount();
 }
 
 void Registers::setPC(int imm){
-    reg15 = imm + WORD_SIZE;
+    reg15 = imm + getStepAmount();
 }
 
 int Registers::getReg(int index){
@@ -48,6 +85,10 @@ void Registers::setCPSR(int data){
     setControlBits();
 }
 
+void Registers::setFlags(int data){
+    currentStatusReg |= (data & 0xFF000000);
+}
+
 int Registers::getSPSR(){
     return savedStatusReg[mode];
 }
@@ -56,6 +97,7 @@ void Registers::setSPSR(int data){
     savedStatusReg[mode] = data;
 }
 
+// ARM only
 void Registers::branch(int imm){
     reg15 = reg15 + imm*4 + WORD_SIZE;
 }
@@ -64,13 +106,14 @@ bool Registers::isThumbMode(){
     return thumbMode;
 }
 
-void Registers::exchange(bool toggle){
-    cout<<"\nTOGGLE: "<<toggle<<endl;
-    thumbMode=toggle;
+void Registers::exchange(int address){
+    cout<<"\nTOGGLE: "<<(address&1)<<endl;
+    thumbMode=(address&1);
+    reg15 = address^1 + getStepAmount();
 }
 
 void Registers::step(){
-    reg15 += WORD_SIZE;
+    reg15 += getStepAmount();
 }
 
 void Registers::status(){
@@ -78,6 +121,6 @@ void Registers::status(){
     cout<<"R0: "<<unbankedReg[0]<<"\tR1: "<<unbankedReg[1]<<"\tR2: "<< unbankedReg[2]<<"\tR3: "<< unbankedReg[3]<< endl;
     cout<<"R4: "<<unbankedReg[4]<<"\tR5: "<<unbankedReg[5]<<"\tR6: "<< unbankedReg[6]<<"\tR7: "<< unbankedReg[7]<< endl;
     cout<<"R8: "<<getReg(8)<<"\tR9: "<<getReg(9)<<"\tR10: "<< getReg(10)<<"\tR11: "<< getReg(11)<< endl;
-    cout<<"R12: "<<getReg(12)<<"\tR13(SP): "<<getReg(SP)<<"\tR14(LR): "<< getReg(LR)<<"\tR15(PC+"<<WORD_SIZE<<"): "<< reg15<< endl;
+    cout<<"R12: "<<getReg(12)<<"\tR13(SP): "<<getReg(SP)<<"\tR14(LR): "<< getReg(LR)<<"\tR15(PC+"<<getStepAmount()<<"): "<< reg15<< endl;
     cout<<"CPSR: "<<currentStatusReg<< "\tSPSR:"<<getSPSR()<< endl;
 }

@@ -1,5 +1,5 @@
 #include <sstream>
-#include "FailureCodes.h"
+#include "../FailureCodes.h"
 #include "Instruction.h"
 
 ArmInstruction::~ArmInstruction()

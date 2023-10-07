@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <sstream>
-#include "FailureCodes.h"
+#include "../FailureCodes.h"
 #include "Instruction.h"
 
 class Branch: public ArmInstruction{
@@ -42,7 +42,7 @@ public:
     string toString(){
         stringstream stream;
         switch (getOpcode())
-        {        
+        {
         case B:
             stream<<hex<<showbase<<(linkFlag?"BL":"B")<<getCondition()<<" "<<getImmediate()<<dec<<" ("<<getImmediate()*4<<")";
             return stream.str();

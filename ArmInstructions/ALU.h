@@ -2,7 +2,7 @@
 #define ARM_ALU_H
 
 #include <iostream>
-#include "FailureCodes.h"
+#include "../FailureCodes.h"
 #include "Instruction.h"
 using namespace std;
 
@@ -125,7 +125,6 @@ public:
         case MOV:
             stream << showbase << "MOV"<<getCondition()<<" R" << getRegDest() << hex << ", " << getImmediate();
             return stream.str();
-
         default:
             cout << "ALU = " << hex << getOpcode() << endl;
             exit(FAILED_DECODED_TO_STRING);

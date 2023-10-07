@@ -1,5 +1,5 @@
 #include <iostream>
-#include "ArmInstructions/FailureCodes.h"
+#include "FailureCodes.h"
 using namespace std;
 const int POST_BOOT_FLAG = 0x300;
 const int IME = 0x208;
