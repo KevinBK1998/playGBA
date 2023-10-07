@@ -5,10 +5,16 @@ class ThumbInstruction
 {
 private:
     Opcode opcode;
+    char regDest;
+    int immediate;
 public:
     ThumbInstruction();
     ThumbInstruction(Opcode);
+    ThumbInstruction(Opcode, char);
+    ThumbInstruction(Opcode, char, int);
     Opcode getOpcode();
+    char getRegDest();
+    int getImmediate();
     virtual string toString();
 };
 

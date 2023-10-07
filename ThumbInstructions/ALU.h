@@ -4,16 +4,10 @@
 using namespace std;
 class ThumbALU: public ThumbInstruction
 {
-private:
-    char regDest;
-    int immediate;
 public:
-    ThumbALU(Opcode opcode, char regD, int imm):ThumbInstruction(opcode){
-        regDest = regD;
-        immediate = imm;
-    }
+    ThumbALU(Opcode opcode, char regD, int imm):ThumbInstruction(opcode, regD, imm){}
 
-    static ThumbALU* decodeALU(int opcode){
+    static ThumbALU* decode(int opcode){
         char op = (opcode>>11) & 0x3;
         char rD = (opcode>>8) & 0xF;
         uint8_t imm = opcode & 0xFF;
@@ -27,20 +21,12 @@ public:
         }
     }
 
-    char getRegDest(){
-        return regDest;
-    }
-
-    int getImmediate(){
-        return immediate;
-    }
-
     string toString(){
         stringstream stream;
         switch (getOpcode())
         {
         case MOV:
-            stream << showbase << "MOV"<<" R" << unsigned(regDest) << hex << ", " << immediate;
+            stream << showbase << "MOV"<<" R" << unsigned(getRegDest()) << hex << ", " << getImmediate();
             return stream.str();
         default:
             cout << "ALU = " << hex << getOpcode() << endl;

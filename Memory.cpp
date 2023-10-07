@@ -106,6 +106,8 @@ void Memory::write8(uint32_t address, uint8_t data) {
 
 void Memory::write32(uint32_t address, uint32_t data) {
     // cout << "Address: "<<address<<", Data: "<<data<<endl;
+    if(address == 0x3fffe00)
+        return;
     for (int i = 0; i < 4; i++) {
         write8(address + i, data);
         data = data >> 8;
