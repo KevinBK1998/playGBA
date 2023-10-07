@@ -19,6 +19,7 @@ class ThumbCpu{
     void move();
     void loadReg();
     void storeReg();
+    void add();
 public:
     ThumbCpu(Registers* registers, Memory* memory){
         reg = registers;
@@ -29,10 +30,12 @@ public:
         int opcode = mem->read16(currentPC);
         if (((opcode>>11) & 0b11111)== 0b1001)
             decodedInstruction = ThumbSDT::decode(opcode, true);
+        else if (((opcode>>11) & 0b11111)== 0b11)
+            decodedInstruction = ThumbALU::decode(opcode);
         else if (((opcode>>12) & 0b1111)== 0b101)
             decodedInstruction = ThumbSDT::decode(opcode);
         else if (((opcode>>13) & 0b111)== 1)
-            decodedInstruction = ThumbALU::decode(opcode);
+            decodedInstruction = ThumbALU::decode(opcode, true);
         else{
             cout << "Undecoded Opcode: " << opcode << endl;
             exit(FAILED_TO_DECODE);
@@ -52,6 +55,9 @@ public:
             break;
         case STR:
             storeReg();
+            break;
+        case ADD:
+            add();
             break;
         default:
             cout << "Undefined: " << decodedInstruction->toString() << endl;
@@ -93,4 +99,14 @@ void ThumbCpu::storeReg(){
     int address = regBValue + regOValue;
     cout<<"address = "<< address << endl;
     mem->write32(address, data);
+}
+
+void ThumbCpu::add(){
+    ThumbALU* alu = (ThumbALU*) decodedInstruction;
+    int regSValue = reg->getReg(alu->getRegSource());
+    int imm = alu->getImmediate();
+    int result = regSValue + imm;
+    cout<<"result = "<< result << endl;
+    reg->setReg(alu->getRegDest(), result);
+    reg->setFlags(generateFlags(result));
 }
