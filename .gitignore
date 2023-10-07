@@ -1,10 +1,6 @@
-/target/
-/src/main/resources/bios.bin
-.idea
-.gradle
-build
 .vscode
 a.out
 playGBA
 gba_bios.bin
 bios.s
+*.gba

@@ -11,6 +11,8 @@ enum Mode{
     UNDEFINED,
 };
 
+#define WORD_SIZE 4
+
 class Registers
 {
 private:
@@ -20,7 +22,7 @@ private:
     int bankedReg[10];
     int savedStatusReg[5];
     int currentStatusReg;
-    int reg15 = 4;
+    int reg15 = WORD_SIZE;
     bool irqEnable;
     bool thumbMode;
     bool privilegedUser;

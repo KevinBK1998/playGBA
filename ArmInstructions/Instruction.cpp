@@ -77,7 +77,7 @@ string ArmInstruction::toString(){
     switch (opcode)
     {
     case B:
-        stream << showbase << hex << "B" << condition.toString() <<" "<< immediate;
+        stream<<hex<<showbase<<"B"<<condition.toString()<<" "<<immediate<<dec<<" ("<<immediate*4<<")";
         return stream.str();
     case LDR:
         stream << showbase << "LDR" << condition.toString() <<" R" << regDest << ", [R"<<regN<< hex << ", " << immediate<<"]";

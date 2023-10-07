@@ -15,6 +15,8 @@ enum Opcode {
     MOV,
     LDR,
     STR,
+    LDM,
+    STM,
 };
 
 enum ConditionConstant {

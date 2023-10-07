@@ -3,6 +3,7 @@
 #include "Registers.cpp"
 #include "ArmInstructions/Instruction.cpp"
 #include "ArmInstructions/SingleDataTransfer.h"
+#include "ArmInstructions/MultipleDataTransfer.h"
 #include "ArmInstructions/ALU.h"
 #include "Memory.cpp"
 
@@ -36,8 +37,10 @@ private:
     void compare();
     void logicalOR();
     void move();
-    void loadToReg();
-    void storeFromReg();
+    void loadReg();
+    void storeReg();
+    void loadMultipleReg();
+    void storeMultipleReg();
     bool canExecute(Condition);
 public:
     long time=0;
@@ -57,11 +60,15 @@ public:
             decodedInstruction=ArmAluInstruction::decodeALU(opcode);
         else if (((opcode>>26) & 0b11) == 0b01)
             decodedInstruction=SingleDataTransfer::decodeSDT(opcode);
+        else if (((opcode>>25) & 0b111) == 0b100)
+            decodedInstruction=MultipleDataTransfer::decodeMDT(opcode);
         else if (((opcode>>25) & 0b111) == 0b101){
             Condition cond = Condition((opcode >> 28) & 0xF);
             if ((opcode>>24) & 0b1)
                 cout << "Incomplete BL{X} label = " << opcode << endl;
             int imm = opcode & 0xFFFFFF;
+            if ((imm >> 23) & 0b1) // Sign bit
+                imm |= 0xFF000000;
             decodedInstruction = new ArmInstruction(cond, B, imm);
         }
         else{
@@ -97,10 +104,16 @@ public:
                 move();
                 break;
             case LDR:
-                loadToReg();
+                loadReg();
                 break;
             case STR:
-                storeFromReg();
+                storeReg();
+                break;
+            case LDM:
+                loadMultipleReg();
+                break;
+            case STM:
+                storeMultipleReg();
                 break;
             default:
                 cout << "Undefined: " << decodedInstruction->toString() << endl;
@@ -199,25 +212,25 @@ void ArmCpu::move(){
     //     reg->setCPSR(setFlags(immediate));
 }
 
-void ArmCpu::loadToReg(){
+void ArmCpu::loadReg(){
     SingleDataTransfer* sdt = (SingleDataTransfer*) decodedInstruction;
-    int regNValue = reg->getReg(decodedInstruction->getRegN());
-    int address = regNValue + decodedInstruction->getImmediate();
+    int regNValue = reg->getReg(sdt->getRegN());
+    int address = regNValue + sdt->getImmediate();
     int data;
-    if (sdt->byteTransfer)
+    if (sdt->isByteTransfer())
         data = mem.read8(address);
     else
         data = mem.read32(address);
     cout<<"data = "<< data << endl;
-    reg->setReg(decodedInstruction->getRegDest(), data);
+    reg->setReg(sdt->getRegDest(), data);
 }
 
-void ArmCpu::storeFromReg(){
+void ArmCpu::storeReg(){
     SingleDataTransfer* sdt = (SingleDataTransfer*) decodedInstruction;
-    int regNValue = reg->getReg(decodedInstruction->getRegN());
-    int address = regNValue + decodedInstruction->getImmediate();
-    int data = reg->getReg(decodedInstruction->getRegDest());
-    if (sdt->byteTransfer){
+    int regNValue = reg->getReg(sdt->getRegN());
+    int address = regNValue + sdt->getImmediate();
+    int data = reg->getReg(sdt->getRegDest());
+    if (sdt->isByteTransfer()){
         cout<<"data = "<< (data & 0xFF) << endl;
         mem.write8(address, data);
     }
@@ -225,4 +238,48 @@ void ArmCpu::storeFromReg(){
         mem.write32(address, data);
         cout<<"data = "<< data << endl;
     }
+}
+
+void ArmCpu::loadMultipleReg(){
+    MultipleDataTransfer* mdt = (MultipleDataTransfer*) decodedInstruction;
+    int address = reg->getReg(mdt->getRegN());
+    int data;
+    int list = mdt->getRegList();
+    int offset = mdt->shouldAddOffset()? WORD_SIZE: -WORD_SIZE;
+    for (int i = 0; i < 16; i++){
+        if (list & 1){
+            if (mdt->addBeforeTransfer())
+                address+=offset;
+            data = mem.read32(address);
+            cout<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
+            reg->setReg(i, data);
+            if (!mdt->addBeforeTransfer())
+                address+=offset;
+        }
+        list>>=1;
+    }
+    if (mdt->shouldWriteBack())
+        reg->setReg(mdt->getRegN(),address);
+}
+
+void ArmCpu::storeMultipleReg(){
+    MultipleDataTransfer* mdt = (MultipleDataTransfer*) decodedInstruction;
+    int address = reg->getReg(mdt->getRegN());
+    int data;
+    int list = mdt->getRegList();
+    int offset = mdt->shouldAddOffset()? WORD_SIZE: -WORD_SIZE;
+    for (int i = 0; i < 16; i++){
+        if (list & 1){
+            if (mdt->addBeforeTransfer())
+                address+=offset;
+            data = reg->getReg(i);
+            cout<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
+            mem.write32(address, data);
+            if (!mdt->addBeforeTransfer())
+                address+=offset;
+        }
+        list>>=1;
+    }
+    if (mdt->shouldWriteBack())
+        reg->setReg(mdt->getRegN(),address);
 }

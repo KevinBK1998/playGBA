@@ -9,6 +9,7 @@ class Memory
 {
 private:
     int bios[BIOS_FILE_SIZE];
+    int wram[WRAM_FILE_SIZE];
     IORegisters registers;
     void loadBios(const char *fileName){
         char c;
@@ -38,8 +39,8 @@ public:
             return bios[address];
         // else if (address >= SLOW_WORK_RAM_OFFSET && address < SLOW_WORK_RAM_END)
         //     return slowWorkRam[address - SLOW_WORK_RAM_OFFSET];
-        // else if (address >= WORK_RAM_OFFSET && address < WORK_RAM_END)
-        //     return workRam[address - WORK_RAM_OFFSET];
+        else if (address >= WRAM_OFFSET && address < WRAM_END)
+            return wram[address - WRAM_OFFSET];
         else if (address >= IO_REG_OFFSET && address < IO_REG_END)
             return registers.read8(address - IO_REG_OFFSET);
         // else if (address >= VRAM_OFFSET)
@@ -51,7 +52,9 @@ public:
 
     void write8(int address, uint8_t data) {
         // cout << "Address: "<<address<<", Data: "<<unsigned(data)<<endl;
-        if (address >= IO_REG_OFFSET && address < IO_REG_END)
+        if (address >= WRAM_OFFSET && address < WRAM_END)
+            wram[address - WRAM_OFFSET] = data;
+        else if (address >= IO_REG_OFFSET && address < IO_REG_END)
             registers.write8(address - IO_REG_OFFSET, data);
         else{
             cout << "W: Unused Memory: "<<address<<", Data: "<<unsigned(data)<<endl;
@@ -61,8 +64,7 @@ public:
         //     throw new WriteDeniedException(address);
         // else if (address >= SLOW_WORK_RAM_OFFSET && address < SLOW_WORK_RAM_END)
         //     slowWorkRam[address - SLOW_WORK_RAM_OFFSET] = data;
-        // else if (address >= WORK_RAM_OFFSET && address < WORK_RAM_END)
-        //     workRam[address - WORK_RAM_OFFSET] = data;
+
         // else if (address >= IO_REG_OFFSET && address < IO_REG_END)
         //     registers.write8(address - IO_REG_OFFSET, data);
         // else if (address >= VRAM_OFFSET)
