@@ -2,6 +2,7 @@
 #define REGISTERS_H
 
 #include <string>
+#include "CommonDS.h"
 #include "FailureCodes.h"
 
 using namespace std;
@@ -14,9 +15,6 @@ enum Mode{
     UNDEFINED,
 };
 
-#define BYTE_SIZE 1
-#define HALFWORD_SIZE 2
-#define WORD_SIZE 4
 #define SP 13
 #define LR 14
 #define PC 15

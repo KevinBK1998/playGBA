@@ -1,5 +1,6 @@
 #include <iostream>
 #include "FailureCodes.h"
+#include "CommonDS.h"
 #include "Registers.h"
 
 using namespace std;

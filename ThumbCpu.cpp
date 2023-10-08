@@ -19,8 +19,9 @@ class ThumbCpu{
         return flags;
     }
     void move();
-    void loadReg();
+    void loadRegPCRelative();
     void storeReg();
+    void storeRegSPRelative();
     void add();
     void addSP();
     void branch();
@@ -37,16 +38,19 @@ public:
         // cout<<"DEBUG"<< endl;
         int currentPC = reg->getPC();
         int opcode = mem->read16(currentPC);
+        cout <<showbase<< "Debug Opcode: " << opcode << endl;
         if (((opcode>>8) & 0xFF) == 0xB0)
             decodedInstruction = ThumbALU::decode(opcode, true);
-        else if (((opcode>>10) & 0b111111)== 0b10001)
+        else if (((opcode>>10) & 0x3F)== 0b10001)
             decodedInstruction = ThumbBranch::decode(opcode, true);
-        else if (((opcode>>11) & 0b11111)== 0b1001)
+        else if (((opcode>>11) & 0x1F)== 0b1001)
             decodedInstruction = ThumbSDT::decode(opcode, true);
-        else if (((opcode>>11) & 0b11111)== 0b11)
+        else if (((opcode>>11) & 0x1F)== 0b11)
             decodedInstruction = ThumbALU::decode(opcode);
         else if (((opcode>>12) & 0b1111)== 0b101)
             decodedInstruction = ThumbSDT::decode(opcode);
+        else if (((opcode>>12) & 0b1111)== 0b1001)
+            decodedInstruction = ThumbSDT::decode(opcode, false);
         else if (((opcode>>12) & 0b1111)== 0b1011)
             decodedInstruction = ThumbMDT::decode(opcode);
         else if (((opcode>>12) & 0b1111)== 0b1101)
@@ -69,8 +73,11 @@ public:
         case MOV:
             move();
             break;
-        case LDR:
-            loadReg();
+        case LDRPC:
+            loadRegPCRelative();
+            break;
+        case STRSP:
+            storeRegSPRelative();
             break;
         case STR:
             storeReg();
@@ -140,14 +147,12 @@ void ThumbCpu::move(){
     reg->setFlags(generateFlags(immediate));
 }
 
-void ThumbCpu::loadReg(){
-    ThumbSDT* sdt = (ThumbSDT*) decodedInstruction;
-    int regBValue = reg->getReg(sdt->getRegBase()) - HALFWORD_SIZE; // -HALF_WORD_SIZE Required because LoadFromPC considers r15 = PC + WORD_SIZE
-    int address = regBValue + sdt->getImmediate()*4;
-    int data;
-    data = mem->read32(address);
+void ThumbCpu::loadRegPCRelative(){
+    int regBValue = reg->getPC();
+    int address = regBValue + decodedInstruction->getImmediate()*4;
+    int data = mem->read32(address);
     cout<<"data = "<< data << endl;
-    reg->setReg(sdt->getRegDest(), data);
+    reg->setReg(decodedInstruction->getRegDest(), data);
 }
 
 void ThumbCpu::storeReg(){
@@ -158,6 +163,14 @@ void ThumbCpu::storeReg(){
     cout<<"data = "<< data << endl;
     int address = regBValue + regOValue;
     cout<<"address = "<< address << endl;
+    mem->write32(address, data);
+}
+
+void ThumbCpu::storeRegSPRelative(){
+    int regBValue = reg->getReg(SP);
+    int address = regBValue + decodedInstruction->getImmediate()*4;
+    int data = reg->getReg(decodedInstruction->getRegDest());
+    cout<<"address = "<< address <<", data = "<< data << endl;
     mem->write32(address, data);
 }
 

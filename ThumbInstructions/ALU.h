@@ -30,7 +30,7 @@ public:
         }
     }
 
-    // decode for Immediate only ALU, bool should be true for ADDSP 
+    // decode for Immediate only ALU, bool should be true for ADDSP
     static ThumbALU* decode(int opcode, bool addSP){
         int imm = opcode&0x7F;
         imm = (opcode&0x80)? -imm : imm;

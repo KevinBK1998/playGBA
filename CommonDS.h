@@ -5,6 +5,10 @@ const uint32_t N = 0x80000000;
 const uint32_t Z = 0x40000000;
 const uint32_t V = 0x10000000;
 
+#define BYTE_SIZE 1
+#define HALFWORD_SIZE 2
+#define WORD_SIZE 4
+
 enum Opcode {
     NOT_INITIALISED,
     B,
@@ -24,6 +28,9 @@ enum Opcode {
     STM,
     PUSH,
     POP,
+    LDRPC,
+    LDRSP,
+    STRSP,
     ADDSP,
 };
 
@@ -55,7 +62,7 @@ public:
         value = cond;
     }
     ~Condition(){}
-    string toString();
+    std::string toString();
 };
 
 #endif
