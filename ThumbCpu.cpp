@@ -19,6 +19,7 @@ class ThumbCpu{
         return flags;
     }
     void move();
+    void moveN();
     void loadRegPCRelative();
     void storeReg();
     void storeRegSPRelative();
@@ -41,6 +42,8 @@ public:
         cout <<showbase<< "Debug Opcode: " << opcode << endl;
         if (((opcode>>8) & 0xFF) == 0xB0)
             decodedInstruction = ThumbALU::decode(opcode, true);
+        else if (((opcode>>10) & 0x3F)== 0b010000)
+            decodedInstruction = ThumbALU::decode(opcode);
         else if (((opcode>>10) & 0x3F)== 0b10001)
             decodedInstruction = ThumbBranch::decode(opcode, true);
         else if (((opcode>>11) & 0x1F)== 0b1001)
@@ -72,6 +75,9 @@ public:
         {
         case MOV:
             move();
+            break;
+        case MVN:
+            moveN();
             break;
         case LDRPC:
             loadRegPCRelative();
@@ -140,11 +146,18 @@ bool ThumbCpu::canExecute(Condition cond){
 }
 
 void ThumbCpu::move(){
-    ThumbALU* alu = (ThumbALU*) decodedInstruction;
-    int immediate = alu->getImmediate();
-    reg->setReg(alu->getRegDest(), immediate);
+    int immediate = decodedInstruction->getImmediate();
+    reg->setReg(decodedInstruction->getRegDest(), immediate);
     cout<<"result = "<< hex << immediate << endl;
     reg->setFlags(generateFlags(immediate));
+}
+
+void ThumbCpu::moveN(){
+    ThumbALU* alu = (ThumbALU*) decodedInstruction;
+    int data = ~reg->getReg(alu->getRegSource());
+    reg->setReg(alu->getRegDest(), data);
+    cout<<"result = "<< hex << data << endl;
+    reg->setFlags(generateFlags(data));
 }
 
 void ThumbCpu::loadRegPCRelative(){

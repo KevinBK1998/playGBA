@@ -11,20 +11,36 @@ private:
 public:
     ThumbALU(Opcode opcode, int imm):ThumbInstruction(opcode, imm){}
     ThumbALU(Opcode opcode, char regD, int imm):ThumbInstruction(opcode, regD, imm){}
+    ThumbALU(Opcode opcode, char regD, char regS):ThumbInstruction(opcode, regD){
+        regSource = regS;
+    }
     ThumbALU(Opcode opcode, char regD, char regS, int imm):ThumbInstruction(opcode, regD, imm){
         regSource = regS;
     }
 
     static ThumbALU* decode(int opcode){
-        char op = (opcode>>9) & 0x3;
-        uint8_t imm = (opcode>>6) & 0b111;
         char rS = (opcode>>3) & 0b111;
         char rD = opcode & 0b111;
+        if (((opcode>>10) & 0x3F)== 0b010000){
+            char op = (opcode>>6) & 0xF;
+            switch (op)
+            {
+            case 0xF:
+                return new ThumbALU(MVN, rD, rS);
+            default:
+                cout << "ALU = " << unsigned(op) << endl;
+                exit(FAILED_TO_DECODE);
+                break;
+            }
+        }
+        char op = (opcode>>9) & 0x3;
+        uint8_t imm = (opcode>>6) & 0b111;
         switch (op)
         {
         case 2:
             return new ThumbALU(ADD, rD, rS, imm);
         default:
+            cout << "ALU_add/subtract = " << unsigned(op) << endl;
             exit(FAILED_TO_DECODE);
             break;
         }
@@ -32,10 +48,11 @@ public:
 
     // decode for Immediate only ALU, bool should be true for ADDSP
     static ThumbALU* decode(int opcode, bool addSP){
-        int imm = opcode&0x7F;
-        imm = (opcode&0x80)? -imm : imm;
-        if (addSP)
-            return new ThumbALU(ADDSP, imm);
+        uint8_t imm = opcode&0xFF;
+        if (addSP){
+            int signedImm = (opcode&0x80)? -(imm&0x7F) : imm;
+            return new ThumbALU(ADDSP, signedImm);
+        }
 
         char op = (opcode>>11) & 0x3;
         char rD = (opcode>>8) & 0xF;
@@ -58,7 +75,10 @@ public:
         switch (getOpcode())
         {
         case MOV:
-            stream << showbase << "MOV R" << unsigned(getRegDest()) << hex << ", " << getImmediate();
+            stream << showbase << "MOV R" << unsigned(getRegDest()) << hex << ", " << getImmediate()<< " (" << dec << getImmediate() << ")";
+            return stream.str();
+        case MVN:
+            stream << showbase << "MVN R" << unsigned(getRegDest()) << ", R" << unsigned(regSource);
             return stream.str();
         case ADD:
             stream << showbase << "ADD R"<< unsigned(getRegDest())<<", R" << unsigned(regSource) << hex << ", " << getImmediate();

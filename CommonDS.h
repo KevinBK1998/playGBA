@@ -22,6 +22,7 @@ enum Opcode {
     CMP,
     ORR,
     MOV,
+    MVN,
     LDR,
     STR,
     LDM,
