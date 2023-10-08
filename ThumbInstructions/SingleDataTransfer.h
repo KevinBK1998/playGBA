@@ -67,7 +67,7 @@ public:
             stream << showbase << "STR"<<" R" << unsigned(getRegDest()) <<", [R"<<unsigned(regBase) << ", R" << unsigned(regOffset)<<"]";
             return stream.str();
         default:
-            cout << "ALU = " << hex << getOpcode() << endl;
+            cout << "OPCODE = " << hex << getOpcode() << endl;
             exit(FAILED_DECODED_TO_STRING);
         }
         return "Undefined";

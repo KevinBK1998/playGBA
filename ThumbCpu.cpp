@@ -3,6 +3,7 @@
 #include "ThumbInstructions/Instruction.cpp"
 #include "ThumbInstructions/ALU.h"
 #include "ThumbInstructions/SingleDataTransfer.h"
+#include "ThumbInstructions/MultipleDataTransfer.h"
 #include "ThumbInstructions/Branch.h"
 
 class ThumbCpu{
@@ -21,7 +22,9 @@ class ThumbCpu{
     void loadReg();
     void storeReg();
     void add();
+    void addSP();
     void branch();
+    void push();
     void branchExchange();
     bool canExecute(int);
     bool canExecute(Condition);
@@ -31,9 +34,12 @@ public:
         mem = memory;
     }
     void decode(){
+        // cout<<"DEBUG"<< endl;
         int currentPC = reg->getPC();
         int opcode = mem->read16(currentPC);
-        if (((opcode>>10) & 0b111111)== 0b10001)
+        if (((opcode>>8) & 0xFF) == 0xB0)
+            decodedInstruction = ThumbALU::decode(opcode, true);
+        else if (((opcode>>10) & 0b111111)== 0b10001)
             decodedInstruction = ThumbBranch::decode(opcode, true);
         else if (((opcode>>11) & 0b11111)== 0b1001)
             decodedInstruction = ThumbSDT::decode(opcode, true);
@@ -41,10 +47,12 @@ public:
             decodedInstruction = ThumbALU::decode(opcode);
         else if (((opcode>>12) & 0b1111)== 0b101)
             decodedInstruction = ThumbSDT::decode(opcode);
+        else if (((opcode>>12) & 0b1111)== 0b1011)
+            decodedInstruction = ThumbMDT::decode(opcode);
         else if (((opcode>>12) & 0b1111)== 0b1101)
             decodedInstruction = ThumbBranch::decode(opcode);
         else if (((opcode>>13) & 0b111)== 1)
-            decodedInstruction = ThumbALU::decode(opcode, true);
+            decodedInstruction = ThumbALU::decode(opcode, false);
         else{
             cout << "Undecoded Opcode: " << opcode << endl;
             exit(FAILED_TO_DECODE);
@@ -70,11 +78,17 @@ public:
         case ADD:
             add();
             break;
+        case ADDSP:
+            addSP();
+            break;
         case B:
             branch();
             break;
         case BX:
             branchExchange();
+            break;
+        case PUSH:
+            push();
             break;
         default:
             cout << "Undefined: " << decodedInstruction->toString() << endl;
@@ -155,7 +169,7 @@ void ThumbCpu::add(){
     bool signI= imm > 0;
     int result = regSValue + imm;
     bool signR= result > 0;
-    if (signS == signI){
+    if (signS == signI && signR!=signI){
         cout<<"signedFlags = "<< signS <<","<< signI<<","<<signR << endl;
         exit(PENDING_CODE);
     }
@@ -163,6 +177,21 @@ void ThumbCpu::add(){
     reg->setReg(alu->getRegDest(), result);
     cout<<"flags = "<< generateFlags(result) << endl;
     reg->setFlags(generateFlags(result));
+}
+
+void ThumbCpu::addSP(){
+    int regSValue = reg->getReg(SP);
+    bool signS= regSValue > 0;
+    int imm = decodedInstruction->getImmediate() << 2;
+    bool signI= imm > 0;
+    int result = regSValue + imm;
+    bool signR= result > 0;
+    if (signS == signI && signR!=signI){
+        cout<<"signedFlags = "<< signS <<","<< signI<<","<<signR << endl;
+        exit(PENDING_CODE);
+    }
+    cout<<"result SP = "<< result << endl;
+    reg->setReg(SP, result);
 }
 
 void ThumbCpu::branch(){
@@ -177,5 +206,27 @@ void ThumbCpu::branchExchange(){
     int jumpTo = reg->getReg(b->getRegSource());
     cout << "ADDR = "<< jumpTo <<endl;
     reg->exchange(jumpTo);
-    // exit(PENDING_CODE);
+}
+
+void ThumbCpu::push(){
+    ThumbMDT* mdt = (ThumbMDT*) decodedInstruction;
+    int address = reg->getReg(SP);
+    int data;
+    int list = mdt->getRegList();
+    for (int i = 0; i < 8; i++){
+        if (list & 1){
+            address-=WORD_SIZE;
+            data = reg->getReg(i);
+            cout<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
+            mem->write32(address, data);
+        }
+        list>>=1;
+    }
+    if (mdt->handleLinkFlag()){
+        address-=WORD_SIZE;
+        data = reg->getReg(LR);
+        cout<<"address = "<<address<<", R"<<dec<<LR<<hex<<" = "<< data << endl;
+        mem->write32(address, data);
+    }
+    reg->setReg(SP, address);
 }

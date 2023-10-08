@@ -22,6 +22,9 @@ enum Opcode {
     STR,
     LDM,
     STM,
+    PUSH,
+    POP,
+    ADDSP,
 };
 
 enum ConditionConstant {
