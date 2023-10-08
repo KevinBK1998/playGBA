@@ -2,6 +2,7 @@
 #include "Memory.h"
 #include "ThumbInstructions/Instruction.cpp"
 #include "ThumbInstructions/ALU.h"
+#include "ThumbInstructions/ShiftedALU.h"
 #include "ThumbInstructions/SingleDataTransfer.h"
 #include "ThumbInstructions/MultipleDataTransfer.h"
 #include "ThumbInstructions/Branch.h"
@@ -30,6 +31,7 @@ class ThumbCpu{
     void longBranch();
     void push();
     void branchExchange();
+    void shiftLeft();
     bool canExecute(int);
     bool canExecute(Condition);
 public:
@@ -62,6 +64,8 @@ public:
             decodedInstruction = ThumbBranch::decode(opcode);
         else if (((opcode>>12) & 0b1111)== 0b1111)
             decodedInstruction = ThumbLongBranch::decode(opcode);
+        else if (((opcode>>13) & 0b111)== 0)
+            decodedInstruction = ShiftedALU::decode(opcode);
         else if (((opcode>>13) & 0b111)== 1)
             decodedInstruction = ThumbALU::decode(opcode, false);
         else{
@@ -109,6 +113,9 @@ public:
             break;
         case PUSH:
             push();
+            break;
+        case LSL:
+            shiftLeft();
             break;
         default:
             cout << "Undefined: " << decodedInstruction->toString() << endl;
@@ -169,8 +176,7 @@ void ThumbCpu::moveN(){
 
 void ThumbCpu::loadRegPCRelative(){
     int regBValue = reg->getPC();
-    if(regBValue == 0x9ca)
-        regBValue+=2;
+    if(regBValue == 0x9ca) regBValue+=HALFWORD_SIZE; // Workaround for now, need to fix
     int address = regBValue + decodedInstruction->getImmediate()*4;
     int data = mem->read32(address);
     cout<<"address = "<<address<<", data = "<< data << endl;
@@ -208,6 +214,17 @@ void ThumbCpu::add(){
         cout<<"signedFlags = "<< signS <<","<< signI<<","<<signR << endl;
         exit(PENDING_CODE);
     }
+    cout<<"result = "<< result << endl;
+    reg->setReg(alu->getRegDest(), result);
+    cout<<"flags = "<< generateFlags(result) << endl;
+    reg->setFlags(generateFlags(result));
+}
+
+void ThumbCpu::shiftLeft(){
+    ShiftedALU* alu = (ShiftedALU*) decodedInstruction;
+    int regSValue = reg->getReg(alu->getRegSource());
+    int imm = alu->getImmediate();
+    int result = regSValue << imm;
     cout<<"result = "<< result << endl;
     reg->setReg(alu->getRegDest(), result);
     cout<<"flags = "<< generateFlags(result) << endl;
