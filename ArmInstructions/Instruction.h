@@ -2,39 +2,8 @@
 #define ARM_INSTR_H
 
 #include <string.h>
-#include "../Opcode.h"
+#include "../CommonDS.h"
 using namespace std;
-
-enum ConditionConstant {
-    EQ,
-    NE,
-    CS,
-    CC,
-    MI,
-    PL,
-    VS, //Signed Overflow
-    VC, //No signed Overflow
-    HI, //Unsigned higher
-    LS, //Unsigned lower or same
-    GE,
-    LT,
-    GT,
-    LE,
-    ALWAYS,
-};
-
-class Condition{
-public:
-    int value;
-    Condition(){
-        value = 0xF;
-    }
-    Condition(int cond){
-        value = cond;
-    }
-    ~Condition(){}
-    string toString();
-};
 
 class ArmInstruction
 {

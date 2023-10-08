@@ -86,12 +86,16 @@ void Memory::write8(uint32_t address, uint8_t data) {
     // cout << "Address: "<<address<<", Data: "<<unsigned(data)<<endl;
     if (address >= WRAM_OFFSET && address < WRAM_END)
         wram[address - WRAM_OFFSET] = data;
+    else if(address >= 0x3fffe00 && address < IO_REG_OFFSET){
+        cout << "W: Unused Memory: "<<address<<", Data: "<<unsigned(data)<<endl;
+        return;
+    }
     else if (address >= IO_REG_OFFSET && address < IO_REG_END)
         registers.write8(address - IO_REG_OFFSET, data);
     else if (address >= ROM_OFFSET && address < ROM_END)
         rom[address - ROM_OFFSET] = data;
     else{
-        cout << "W: Unused Memory: "<<address<<", Data: "<<unsigned(data)<<endl;
+        cout << "W: Undefined Memory: "<<address<<", Data: "<<unsigned(data)<<endl;
         exit(FAILED_DMA);
     }
     // if (address < BIOS_SIZE)
@@ -106,8 +110,6 @@ void Memory::write8(uint32_t address, uint8_t data) {
 
 void Memory::write32(uint32_t address, uint32_t data) {
     // cout << "Address: "<<address<<", Data: "<<data<<endl;
-    if(address == 0x3fffe00)
-        return;
     for (int i = 0; i < 4; i++) {
         write8(address + i, data);
         data = data >> 8;

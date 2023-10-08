@@ -10,9 +10,6 @@
 
 using namespace std;
 
-const int N = 0x80000000;
-const int Z = 0x40000000;
-
 int rotateleft(int data, int shift){
     return (data<<shift) | (data >> (32-shift));
 }
@@ -25,9 +22,9 @@ private:
     ArmInstruction* decodedInstruction = new ArmInstruction();
     int setFlags(int result){
         int flags = 0;
-        if (((result >> 31) & 1) != 0)
+        if (result < 0)
             flags |= N;
-        if (((int) result) == 0)
+        if (result == 0)
             flags |= Z;
         return flags;
     }
@@ -45,6 +42,7 @@ private:
     void storeReg();
     void loadMultipleReg();
     void storeMultipleReg();
+    bool canExecute(int);
     bool canExecute(ArmInstruction*);
 public:
     long time=0;
@@ -77,8 +75,10 @@ public:
     }
 
     void execute(){
-        if (decodedInstruction->getOpcode() == NOT_INITIALISED)
+        if (decodedInstruction->getOpcode() == NOT_INITIALISED){
+            cout << "No cached Instruction, skipping" << endl;
             return;
+        }
         cout << "Debug Execute: " << hex << decodedInstruction->toString() << endl;
         if (canExecute(decodedInstruction)){
             switch (decodedInstruction->getOpcode())
@@ -136,42 +136,52 @@ public:
 
     void step(){
         execute();
-        if (!reg->isThumbMode()){
-            decode();
-            reg->step();
+        if (reg->isThumbMode()){
+            decodedInstruction = new ArmInstruction();
+            return;
         }
+        decode();
+        reg->step();
     }
 };
 
-bool ArmCpu::canExecute(ArmInstruction* instruction){
-    Condition cond = instruction->getPreCheck();
+bool ArmCpu::canExecute(int cond){
     int status = reg->getCPSR();
-    switch (cond.value)
+    switch (cond)
     {
     case EQ:
         return (status & Z) != 0;
     case NE:
         return (status & Z) == 0;
+    case MI:
+        return (status & N) != 0;
+    case VS:
+        return (status & V) != 0;
+    case LT:
+        return canExecute(MI) != canExecute(VS);
     case ALWAYS:
         return true;
     default:
-        cout << "Undefined: " << cond.toString() << endl;
+        cout << "Undefined: " << Condition(cond).toString() << endl;
         exit(FAILED_TO_EXECUTE);
     }
+    // if (cond == PL) return currentStatusReg >= 0;
+    // else if (cond == CS) return (currentStatusReg & 0x20_00_00_00) != 0;
+    // else if (cond == CC) return (currentStatusReg & 0x20_00_00_00) == 0;
+    // else if (cond == VC) return (currentStatusReg & 0x10_00_00_00) == 0;
+    // else if (cond == HI) return canExecute(CS) && canExecute(NE);
+    // else if (cond == LS) return canExecute(CC) || canExecute(EQ);
+    // else if (cond == GE) return canExecute(MI) == canExecute(VS);
+    // else if (cond == LT) return canExecute(MI) != canExecute(VS);
+    // else if (cond == GT) return canExecute(NE) && canExecute(GE);
+    // else if (cond == LE) return canExecute(EQ) || canExecute(LT);
+    // else throw new IndexOutOfBoundsException(cond.name());
     return false;
-        // if (cond == MI) return reg->getCPSR() < 0;
-        // else if (cond == PL) return currentStatusReg >= 0;
-        // else if (cond == CS) return (currentStatusReg & 0x20_00_00_00) != 0;
-        // else if (cond == CC) return (currentStatusReg & 0x20_00_00_00) == 0;
-        // else if (cond == VS) return (currentStatusReg & 0x10_00_00_00) != 0;
-        // else if (cond == VC) return (currentStatusReg & 0x10_00_00_00) == 0;
-        // else if (cond == HI) return canExecute(CS) && canExecute(NE);
-        // else if (cond == LS) return canExecute(CC) || canExecute(EQ);
-        // else if (cond == GE) return canExecute(MI) == canExecute(VS);
-        // else if (cond == LT) return canExecute(MI) != canExecute(VS);
-        // else if (cond == GT) return canExecute(NE) && canExecute(GE);
-        // else if (cond == LE) return canExecute(EQ) || canExecute(LT);
-        // else throw new IndexOutOfBoundsException(cond.name());
+}
+
+bool ArmCpu::canExecute(ArmInstruction* instruction){
+    Condition cond = instruction->getPreCheck();
+    return canExecute(cond.value);
 }
 
 void ArmCpu::branch(){
@@ -276,7 +286,7 @@ void ArmCpu::loadReg(){
         data = mem->read8(address);
     else
         data = mem->read32(address);
-    cout<<"data = "<< data << endl;
+    cout<<"address = "<<address<<", data = "<< data << endl;
     reg->setReg(sdt->getRegDest(), data);
 }
 
@@ -286,12 +296,12 @@ void ArmCpu::storeReg(){
     int address = regNValue + sdt->getImmediate();
     int data = reg->getReg(sdt->getRegDest());
     if (sdt->isByteTransfer()){
-        cout<<"data = "<< (data & 0xFF) << endl;
+        cout<<"address = "<<address<<", data = "<< (data & 0xFF) << endl;
         mem->write8(address, data);
     }
     else{
+        cout<<"address = "<<address<<", data = "<< data << endl;
         mem->write32(address, data);
-        cout<<"data = "<< data << endl;
     }
 }
 

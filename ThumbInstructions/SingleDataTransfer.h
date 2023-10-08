@@ -4,7 +4,6 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include "../Opcode.h"
 #include "../FailureCodes.h"
 #include "Instruction.h"
 

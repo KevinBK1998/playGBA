@@ -86,6 +86,7 @@ void Registers::setCPSR(int data){
 }
 
 void Registers::setFlags(int data){
+    currentStatusReg &= 0xFFFFFF;
     currentStatusReg |= (data & 0xFF000000);
 }
 
@@ -97,9 +98,13 @@ void Registers::setSPSR(int data){
     savedStatusReg[mode] = data;
 }
 
-// ARM only
 void Registers::branch(int imm){
-    reg15 = reg15 + imm*4 + WORD_SIZE;
+    int jump = imm+1;
+    if (thumbMode)
+        jump *= HALFWORD_SIZE;
+    else
+        jump *= WORD_SIZE;
+    reg15 += jump;
 }
 
 bool Registers::isThumbMode(){
@@ -107,9 +112,15 @@ bool Registers::isThumbMode(){
 }
 
 void Registers::exchange(int address){
-    cout<<"\nTOGGLE: "<<(address&1)<<endl;
     thumbMode=(address&1);
-    reg15 = address^1 + getStepAmount();
+    if(thumbMode){
+        reg15 = address^1 + getStepAmount();
+        cout << "\nPC.t = "<< reg15 <<endl;
+    }
+    else{
+        reg15 = (address&(~0b11)) - getStepAmount();
+        cout << "\nPC.a = "<< reg15 <<endl;
+    }
 }
 
 void Registers::step(){
@@ -121,6 +132,6 @@ void Registers::status(){
     cout<<"R0: "<<unbankedReg[0]<<"\tR1: "<<unbankedReg[1]<<"\tR2: "<< unbankedReg[2]<<"\tR3: "<< unbankedReg[3]<< endl;
     cout<<"R4: "<<unbankedReg[4]<<"\tR5: "<<unbankedReg[5]<<"\tR6: "<< unbankedReg[6]<<"\tR7: "<< unbankedReg[7]<< endl;
     cout<<"R8: "<<getReg(8)<<"\tR9: "<<getReg(9)<<"\tR10: "<< getReg(10)<<"\tR11: "<< getReg(11)<< endl;
-    cout<<"R12: "<<getReg(12)<<"\tR13(SP): "<<getReg(SP)<<"\tR14(LR): "<< getReg(LR)<<"\tR15(PC+"<<getStepAmount()<<"): "<< reg15<< endl;
+    cout<<"R12: "<<getReg(12)<<"\tR13(SP): "<<getReg(SP)<<"\tR14(LR): "<< getReg(LR)<<"\tR15(PC+"<<noshowbase<<getStepAmount()<<showbase<<"): "<< reg15<< endl;
     cout<<"CPSR: "<<currentStatusReg<< "\tSPSR:"<<getSPSR()<< endl;
 }

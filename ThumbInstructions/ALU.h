@@ -1,5 +1,7 @@
+#ifndef THUMB_ALU_H
+#define THUMB_ALU_H
+
 #include <stdint.h>
-#include "../Opcode.h"
 #include "Instruction.h"
 using namespace std;
 class ThumbALU: public ThumbInstruction
@@ -27,6 +29,7 @@ public:
         }
     }
 
+    // decode for Immediate only ALU, bool value does not matter
     static ThumbALU* decode(int opcode, bool ImmediateOnly){
         char op = (opcode>>11) & 0x3;
         char rD = (opcode>>8) & 0xF;
@@ -62,3 +65,5 @@ public:
         return "Undefined";
     }
 };
+
+#endif
