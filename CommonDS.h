@@ -12,6 +12,7 @@ const uint32_t V = 0x10000000;
 enum Opcode {
     NOT_INITIALISED,
     B,
+    B_WORD,
     BX,
     AND,
     SUB,

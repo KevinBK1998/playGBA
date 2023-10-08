@@ -5,6 +5,7 @@
 #include "ThumbInstructions/SingleDataTransfer.h"
 #include "ThumbInstructions/MultipleDataTransfer.h"
 #include "ThumbInstructions/Branch.h"
+#include "ThumbInstructions/LongBranch.h"
 
 class ThumbCpu{
     Registers* reg;
@@ -26,6 +27,7 @@ class ThumbCpu{
     void add();
     void addSP();
     void branch();
+    void longBranch();
     void push();
     void branchExchange();
     bool canExecute(int);
@@ -58,6 +60,8 @@ public:
             decodedInstruction = ThumbMDT::decode(opcode);
         else if (((opcode>>12) & 0b1111)== 0b1101)
             decodedInstruction = ThumbBranch::decode(opcode);
+        else if (((opcode>>12) & 0b1111)== 0b1111)
+            decodedInstruction = ThumbLongBranch::decode(opcode);
         else if (((opcode>>13) & 0b111)== 1)
             decodedInstruction = ThumbALU::decode(opcode, false);
         else{
@@ -96,6 +100,9 @@ public:
             break;
         case B:
             branch();
+            break;
+        case B_WORD:
+            longBranch();
             break;
         case BX:
             branchExchange();
@@ -162,9 +169,11 @@ void ThumbCpu::moveN(){
 
 void ThumbCpu::loadRegPCRelative(){
     int regBValue = reg->getPC();
+    if(regBValue == 0x9ca)
+        regBValue+=2;
     int address = regBValue + decodedInstruction->getImmediate()*4;
     int data = mem->read32(address);
-    cout<<"data = "<< data << endl;
+    cout<<"address = "<<address<<", data = "<< data << endl;
     reg->setReg(decodedInstruction->getRegDest(), data);
 }
 
@@ -225,6 +234,21 @@ void ThumbCpu::branch(){
     if (canExecute(b->getPreCheck())){
         reg->branch(b->getImmediate());
     } else cout << "Skipping, condition failed" << endl;
+}
+
+void ThumbCpu::longBranch(){
+    ThumbLongBranch* b = (ThumbLongBranch*) decodedInstruction;
+    if (b->isFirstOpcode()){
+        int jumpAddress = reg->getReg(PC) + HALFWORD_SIZE;
+        jumpAddress += b->getImmediate();
+        reg->setReg(LR, jumpAddress);
+        cout << "ADDR = "<< jumpAddress <<endl;
+    } else{
+        int jumpAddress = reg->getReg(LR) + b->getImmediate();
+        reg->setReg(LR, reg->getReg(PC) + HALFWORD_SIZE);
+        reg->setReg(PC, jumpAddress);
+        cout << "ADDR = "<< jumpAddress << ", linkADDR = "<< reg->getReg(LR) <<endl;
+    }
 }
 
 void ThumbCpu::branchExchange(){

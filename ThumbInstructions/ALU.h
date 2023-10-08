@@ -50,7 +50,7 @@ public:
     static ThumbALU* decode(int opcode, bool addSP){
         uint8_t imm = opcode&0xFF;
         if (addSP){
-            int signedImm = (opcode&0x80)? -(imm&0x7F) : imm;
+            int signedImm = (opcode&0x80)? -(imm&0x7f) : imm;
             return new ThumbALU(ADDSP, signedImm);
         }
 

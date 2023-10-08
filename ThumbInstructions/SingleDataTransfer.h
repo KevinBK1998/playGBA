@@ -39,10 +39,10 @@ public:
         }
     }
 
-    // decode for LoadFromPC, bool value does not matter
+    // decode for LoadFromPC, bool value should be true
     static ThumbSDT* decode(int opcode, bool relativePC){
         Opcode operation;
-        if((opcode>>8) & 0b1)
+        if((opcode>>11) & 0b1)
             operation=LDRSP;
         else
             operation=STRSP;
@@ -66,7 +66,7 @@ public:
         switch (getOpcode())
         {
         case LDRPC:
-            stream << showbase << "LDR R" << unsigned(getRegDest()) <<", [R"<<unsigned(regBase)<< hex << ", " << getImmediate()<<"]";
+            stream << showbase << "LDR R" << unsigned(getRegDest()) <<", [PC"<< hex << ", " << getImmediate()<<"]";
             return stream.str();
         case STR:
             stream << showbase << "STR R" << unsigned(getRegDest()) <<", [R"<<unsigned(regBase) << ", R" << unsigned(regOffset)<<"]";
@@ -75,7 +75,7 @@ public:
             stream << showbase << "STR R" << unsigned(getRegDest()) <<", [SP" << ", " <<hex<<showbase<< getImmediate()<<"]";
             return stream.str();
         default:
-            cout << "OPCODE = " << hex << getOpcode() << endl;
+            cout << "sdt OPCODE = " << hex << getOpcode() << endl;
             exit(FAILED_DECODED_TO_STRING);
         }
         return "Undefined";
