@@ -9,8 +9,6 @@ class ThumbALU: public ThumbInstruction
 private:
     char regSource;
 public:
-    ThumbALU(Opcode opcode, int imm):ThumbInstruction(opcode, imm){}
-    ThumbALU(Opcode opcode, char regD, int imm):ThumbInstruction(opcode, regD, imm){}
     ThumbALU(Opcode opcode, char regD, char regS):ThumbInstruction(opcode, regD){
         regSource = regS;
     }
@@ -46,21 +44,6 @@ public:
         }
     }
 
-    // decode for Immediate only ALU, bool does not matter
-    static ThumbALU* decode(int opcode, bool addSP){
-        uint8_t imm = opcode&0xFF;
-        char op = (opcode>>11) & 0x3;
-        char rD = (opcode>>8) & 0xF;
-        switch (op)
-        {
-        case 0:
-            return new ThumbALU(MOV, rD, imm);
-        default:
-            exit(FAILED_TO_DECODE);
-            break;
-        }
-    }
-
     char getRegSource(){
         return regSource;
     }
@@ -69,20 +52,17 @@ public:
         stringstream stream;
         switch (getOpcode())
         {
-        case MOV:
-            stream << showbase << "MOV R" << unsigned(getRegDest()) << hex << ", " << getImmediate()<< " (" << dec << getImmediate() << ")";
-            return stream.str();
         case MVN:
             stream << showbase << "MVN R" << unsigned(getRegDest()) << ", R" << unsigned(regSource);
-            return stream.str();
+            break;
         case ADD:
             stream << showbase << "ADD R"<< unsigned(getRegDest())<<", R" << unsigned(regSource) << hex << ", " << getImmediate();
-            return stream.str();
+            break;
         default:
-            cout << "ALU = " << hex << getOpcode() << endl;
+            cout << "ThumbALU = " << hex << getOpcode() << endl;
             exit(FAILED_DECODED_TO_STRING);
         }
-        return "Undefined";
+        return stream.str();
     }
 };
 

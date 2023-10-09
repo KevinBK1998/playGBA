@@ -3,6 +3,7 @@
 #include "ThumbInstructions/Instruction.cpp"
 #include "ThumbInstructions/ALU.h"
 #include "ThumbInstructions/AddSP.h"
+#include "ThumbInstructions/ALUImmediate.h"
 #include "ThumbInstructions/ShiftedALU.h"
 #include "ThumbInstructions/SingleDataTransfer.h"
 #include "ThumbInstructions/LoadPCRelative.h"
@@ -74,7 +75,7 @@ public:
         else if (((opcode>>13) & 0b111)== 0)
             decodedInstruction = ShiftedALU::decode(opcode);
         else if (((opcode>>13) & 0b111)== 1)
-            decodedInstruction = ThumbALU::decode(opcode, false);
+            decodedInstruction = ALUThumbIMM::decode(opcode);
         else{
             cout << "Undecoded Opcode: " << opcode << endl;
             exit(FAILED_TO_DECODE);
