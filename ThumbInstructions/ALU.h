@@ -46,14 +46,9 @@ public:
         }
     }
 
-    // decode for Immediate only ALU, bool should be true for ADDSP
+    // decode for Immediate only ALU, bool does not matter
     static ThumbALU* decode(int opcode, bool addSP){
         uint8_t imm = opcode&0xFF;
-        if (addSP){
-            int signedImm = (opcode&0x80)? -(imm&0x7f) : imm;
-            return new ThumbALU(ADDSP, signedImm);
-        }
-
         char op = (opcode>>11) & 0x3;
         char rD = (opcode>>8) & 0xF;
         switch (op)
@@ -82,9 +77,6 @@ public:
             return stream.str();
         case ADD:
             stream << showbase << "ADD R"<< unsigned(getRegDest())<<", R" << unsigned(regSource) << hex << ", " << getImmediate();
-            return stream.str();
-        case ADDSP:
-            stream << showbase << "ADD SP, " << hex << getImmediate() << " (" << dec << getImmediate() << ")";
             return stream.str();
         default:
             cout << "ALU = " << hex << getOpcode() << endl;

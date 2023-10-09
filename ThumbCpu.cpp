@@ -2,6 +2,7 @@
 #include "Memory.h"
 #include "ThumbInstructions/Instruction.cpp"
 #include "ThumbInstructions/ALU.h"
+#include "ThumbInstructions/AddSP.h"
 #include "ThumbInstructions/ShiftedALU.h"
 #include "ThumbInstructions/SingleDataTransfer.h"
 #include "ThumbInstructions/LoadPCRelative.h"
@@ -49,7 +50,7 @@ public:
         int opcode = mem->read16(currentPC);
         cout <<showbase<< "Debug Opcode: " << opcode << endl;
         if (((opcode>>8) & 0xFF) == 0xB0)
-            decodedInstruction = ThumbALU::decode(opcode, true);
+            decodedInstruction = AddSP::decode(opcode);
         else if (((opcode>>10) & 0x3F)== 0b010000)
             decodedInstruction = ThumbALU::decode(opcode);
         else if (((opcode>>10) & 0x3F)== 0b10001)
