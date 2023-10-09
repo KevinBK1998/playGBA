@@ -18,6 +18,7 @@ enum Opcode {
     SUB,
     ADD,
     TEQ,
+    TST,
     MRS,
     MSR,
     CMP,
