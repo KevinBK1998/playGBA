@@ -39,8 +39,8 @@ public:
         }
     }
 
-    // decode for LoadFromPC, bool value should be true
-    static ThumbSDT* decode(int opcode, bool relativePC){
+    // decode for Load/StoreFromSP, bool value does not matter
+    static ThumbSDT* decode(int opcode, bool relativeSP){
         Opcode operation;
         if((opcode>>11) & 0b1)
             operation=LDRSP;
@@ -48,8 +48,6 @@ public:
             operation=STRSP;
         char rD = (opcode>>8) & 0b111;
         int imm = opcode & 0xFF;
-        if (relativePC)
-            return new ThumbSDT(LDRPC, rD, imm);
         return new ThumbSDT(operation, rD, imm);
     }
 
@@ -65,9 +63,6 @@ public:
         stringstream stream;
         switch (getOpcode())
         {
-        case LDRPC:
-            stream << showbase << "LDR R" << unsigned(getRegDest()) <<", [PC"<< hex << ", " << getImmediate()<<"]";
-            return stream.str();
         case STR:
             stream << showbase << "STR R" << unsigned(getRegDest()) <<", [R"<<unsigned(regBase) << ", R" << unsigned(regOffset)<<"]";
             return stream.str();

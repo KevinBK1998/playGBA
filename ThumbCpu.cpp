@@ -4,6 +4,7 @@
 #include "ThumbInstructions/ALU.h"
 #include "ThumbInstructions/ShiftedALU.h"
 #include "ThumbInstructions/SingleDataTransfer.h"
+#include "ThumbInstructions/LoadPCRelative.h"
 #include "ThumbInstructions/MultipleDataTransfer.h"
 #include "ThumbInstructions/Branch.h"
 #include "ThumbInstructions/LongBranch.h"
@@ -51,7 +52,7 @@ public:
         else if (((opcode>>10) & 0x3F)== 0b10001)
             decodedInstruction = ThumbBranch::decode(opcode, true);
         else if (((opcode>>11) & 0x1F)== 0b1001)
-            decodedInstruction = ThumbSDT::decode(opcode, true);
+            decodedInstruction = LoadPCRelative::decode(opcode);
         else if (((opcode>>11) & 0x1F)== 0b11)
             decodedInstruction = ThumbALU::decode(opcode);
         else if (((opcode>>12) & 0b1111)== 0b101)
