@@ -26,6 +26,7 @@ class ThumbCpu{
     void shiftLeft();
     void shiftRight();
     void test();
+    void logicalOR();
     bool canExecute(int);
     bool canExecute(Condition);
 public:

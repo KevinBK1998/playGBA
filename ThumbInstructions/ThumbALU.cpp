@@ -1,6 +1,7 @@
 #ifndef THUMB_ALU_H
 #define THUMB_ALU_H
 
+#include <sstream>
 #include "../ThumbCpu.h"
 
 using namespace std;
@@ -22,6 +23,8 @@ public:
         {
         case 8:
             return new ThumbALU(TST, rD, rS);
+        case 0xC:
+            return new ThumbALU(ORR, rD, rS);
         case 0xF:
             return new ThumbALU(MVN, rD, rS);
         default:
@@ -39,11 +42,14 @@ public:
         stringstream stream;
         switch (getOpcode())
         {
-        case MVN:
-            stream << showbase << "MVN";
-            break;
         case TST:
-            stream << showbase << "TST";
+            stream<<"TST";
+            break;
+        case ORR:
+            stream<<"ORR";
+            break;
+        case MVN:
+            stream<<"MVN";
             break;
         default:
             cout << "ThumbALU = " << hex << getOpcode() << endl;
@@ -61,6 +67,17 @@ void ThumbCpu::test(){
     int result = op1 & op2;
     int flags = generateFlags(result);
     cout<<"result = "<<result<<", flags = "<<flags<<endl;
+    reg->setFlags(flags);
+}
+
+void ThumbCpu::logicalOR(){
+    ThumbALU* alu = (ThumbALU*) decodedInstruction;
+    int op1 = reg->getReg(alu->getRegSource());
+    int op2 = reg->getReg(alu->getRegDest());
+    int result = op1 | op2;
+    int flags = generateFlags(result);
+    cout<<"result = "<<result<<", flags = "<<flags<<endl;
+    reg->setReg(alu->getRegDest(), result);
     reg->setFlags(flags);
 }
 

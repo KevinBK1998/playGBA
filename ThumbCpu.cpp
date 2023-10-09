@@ -2,7 +2,7 @@
 #include "Registers.h"
 #include "Memory.h"
 #include "ThumbInstructions/Instruction.cpp"
-#include "ThumbInstructions/ALU.h"
+#include "ThumbInstructions/ThumbALU.cpp"
 #include "ThumbInstructions/AddSP.h"
 #include "ThumbInstructions/ALUImmediate.h"
 #include "ThumbInstructions/ShiftedALU.h"
@@ -121,6 +121,9 @@ void ThumbCpu::execute(){
         break;
     case TST:
         test();
+        break;
+    case ORR:
+        logicalOR();
         break;
     default:
         cout << "Undefined: " << decodedInstruction->toString() << endl;
