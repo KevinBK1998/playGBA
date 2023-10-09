@@ -3,6 +3,7 @@
 #include "ThumbInstructions/Instruction.cpp"
 #include "ThumbInstructions/ALU.h"
 #include "ThumbInstructions/AddSP.h"
+#include "ThumbInstructions/AddImmediate.h"
 #include "ThumbInstructions/ALUImmediate.h"
 #include "ThumbInstructions/ShiftedALU.h"
 #include "ThumbInstructions/SingleDataTransfer.h"
@@ -59,7 +60,7 @@ public:
         else if (((opcode>>11) & 0x1F)== 0b1001)
             decodedInstruction = LoadPCRelative::decode(opcode);
         else if (((opcode>>11) & 0x1F)== 0b11)
-            decodedInstruction = ThumbALU::decode(opcode);
+            decodedInstruction = AddIMM::decode(opcode);
         else if (((opcode>>12) & 0b1111)== 0b101)
             decodedInstruction = ThumbSDT::decode(opcode);
         else if (((opcode>>12) & 0b1111)== 0b1000)
