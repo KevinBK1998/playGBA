@@ -20,6 +20,7 @@ class ThumbCpu{
     void add();
     void addSP();
     void branch();
+    void condBranch();
     void longBranch();
     void push();
     void branchExchange();

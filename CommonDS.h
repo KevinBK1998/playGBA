@@ -13,6 +13,7 @@ enum Opcode {
     NOT_INITIALISED,
     B,
     B_WORD,
+    B_COND,
     BX,
     AND,
     SUB,

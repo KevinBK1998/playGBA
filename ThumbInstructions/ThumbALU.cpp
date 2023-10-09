@@ -1,6 +1,3 @@
-#ifndef THUMB_ALU_H
-#define THUMB_ALU_H
-
 #include <sstream>
 #include "../ThumbCpu.h"
 
@@ -90,5 +87,3 @@ void ThumbCpu::moveN(){
     reg->setReg(alu->getRegDest(), data);
     reg->setFlags(flags);
 }
-
-#endif

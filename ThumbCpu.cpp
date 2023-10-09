@@ -10,6 +10,7 @@
 #include "ThumbInstructions/LoadPCRelative.h"
 #include "ThumbInstructions/SDTRelativeSP.h"
 #include "ThumbInstructions/MultipleDataTransfer.h"
+#include "ThumbInstructions/CondBranch.h"
 #include "ThumbInstructions/Branch.h"
 #include "ThumbInstructions/LongBranch.h"
 #include "ThumbInstructions/SDTImmediate.h"
@@ -41,10 +42,12 @@ void ThumbCpu::decode(){
         decodedInstruction = ThumbALU::decode(opcode);
     else if (((opcode>>10) & 0x3F)== 0b10001)
         decodedInstruction = HiRegOperation::decode(opcode);
-    else if (((opcode>>11) & 0x1F)== 0b1001)
-        decodedInstruction = LoadPCRelative::decode(opcode);
     else if (((opcode>>11) & 0x1F)== 0b11)
         decodedInstruction = Add::decode(opcode);
+    else if (((opcode>>11) & 0x1F)== 0b1001)
+        decodedInstruction = LoadPCRelative::decode(opcode);
+    else if (((opcode>>11) & 0x1F)== 0b11100)
+        decodedInstruction = ThumbBranch::decode(opcode);
     else if (((opcode>>12) & 0b1111)== 0b101)
         decodedInstruction = ThumbSDT::decode(opcode);
     else if (((opcode>>12) & 0b1111)== 0b1000)
@@ -54,7 +57,7 @@ void ThumbCpu::decode(){
     else if (((opcode>>12) & 0b1111)== 0b1011)
         decodedInstruction = ThumbMDT::decode(opcode);
     else if (((opcode>>12) & 0b1111)== 0b1101)
-        decodedInstruction = ThumbBranch::decode(opcode);
+        decodedInstruction = CondBranch::decode(opcode);
     else if (((opcode>>12) & 0b1111)== 0b1111)
         decodedInstruction = ThumbLongBranch::decode(opcode);
     else if (((opcode>>13) & 0b111)== 0)
@@ -103,6 +106,9 @@ void ThumbCpu::execute(){
         break;
     case B:
         branch();
+        break;
+    case B_COND:
+        condBranch();
         break;
     case B_WORD:
         longBranch();
@@ -224,13 +230,6 @@ void ThumbCpu::addSP(){
     }
     cout<<"result SP = "<< result << endl;
     reg->setReg(SP, result);
-}
-
-void ThumbCpu::branch(){
-    ThumbBranch* b = (ThumbBranch*) decodedInstruction;
-    if (canExecute(b->getPreCheck())){
-        reg->branch(b->getImmediate());
-    } else cout << "Skipping, condition failed" << endl;
 }
 
 void ThumbCpu::longBranch(){
