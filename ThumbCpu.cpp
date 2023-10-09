@@ -5,6 +5,7 @@
 #include "ThumbInstructions/ShiftedALU.h"
 #include "ThumbInstructions/SingleDataTransfer.h"
 #include "ThumbInstructions/LoadPCRelative.h"
+#include "ThumbInstructions/SDTRelativeSP.h"
 #include "ThumbInstructions/MultipleDataTransfer.h"
 #include "ThumbInstructions/Branch.h"
 #include "ThumbInstructions/LongBranch.h"
@@ -58,7 +59,7 @@ public:
         else if (((opcode>>12) & 0b1111)== 0b101)
             decodedInstruction = ThumbSDT::decode(opcode);
         else if (((opcode>>12) & 0b1111)== 0b1001)
-            decodedInstruction = ThumbSDT::decode(opcode, false);
+            decodedInstruction = SDTRelativeSP::decode(opcode);
         else if (((opcode>>12) & 0b1111)== 0b1011)
             decodedInstruction = ThumbMDT::decode(opcode);
         else if (((opcode>>12) & 0b1111)== 0b1101)

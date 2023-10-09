@@ -7,7 +7,6 @@
 #include "../FailureCodes.h"
 #include "Instruction.h"
 
-#define PC 15
 using namespace std;
 
 class ThumbSDT : public ThumbInstruction
@@ -16,7 +15,6 @@ private:
     char regBase;
     char regOffset;
 public:
-    ThumbSDT(Opcode opcode, char rD, int imm): ThumbInstruction(opcode, rD, imm){}
     ThumbSDT(Opcode opcode, char rO, char rB, char rD): ThumbInstruction(opcode, rD){
         regBase = rB;
         regOffset = rO;
@@ -39,18 +37,6 @@ public:
         }
     }
 
-    // decode for Load/StoreFromSP, bool value does not matter
-    static ThumbSDT* decode(int opcode, bool relativeSP){
-        Opcode operation;
-        if((opcode>>11) & 0b1)
-            operation=LDRSP;
-        else
-            operation=STRSP;
-        char rD = (opcode>>8) & 0b111;
-        int imm = opcode & 0xFF;
-        return new ThumbSDT(operation, rD, imm);
-    }
-
     char getRegBase(){
         return regBase;
     }
@@ -66,11 +52,8 @@ public:
         case STR:
             stream << showbase << "STR R" << unsigned(getRegDest()) <<", [R"<<unsigned(regBase) << ", R" << unsigned(regOffset)<<"]";
             return stream.str();
-        case STRSP:
-            stream << showbase << "STR R" << unsigned(getRegDest()) <<", [SP" << ", " <<hex<<showbase<< getImmediate()<<"]";
-            return stream.str();
         default:
-            cout << "sdt OPCODE = " << hex << getOpcode() << endl;
+            cout << "ThumbSDT = " << hex << getOpcode() << endl;
             exit(FAILED_DECODED_TO_STRING);
         }
         return "Undefined";
