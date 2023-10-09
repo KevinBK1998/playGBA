@@ -57,7 +57,7 @@ void ThumbCpu::decode(){
     else if (((opcode>>12) & 0b1111)== 0b1111)
         decodedInstruction = ThumbLongBranch::decode(opcode);
     else if (((opcode>>13) & 0b111)== 0)
-        decodedInstruction = ShiftedALU::decode(opcode);
+        decodedInstruction = ShiftMove::decode(opcode);
     else if (((opcode>>13) & 0b111)== 1)
         decodedInstruction = ALUThumbIMM::decode(opcode);
     else{
@@ -111,6 +111,9 @@ void ThumbCpu::execute(){
         break;
     case LSL:
         shiftLeft();
+        break;
+    case LSR:
+        shiftRight();
         break;
     case TST:
         test();
@@ -213,17 +216,6 @@ void ThumbCpu::add(){
         cout<<"signedFlags = "<< signS <<","<< signI<<","<<signR << endl;
         exit(PENDING_CODE);
     }
-    cout<<"result = "<< result << endl;
-    reg->setReg(alu->getRegDest(), result);
-    cout<<"flags = "<< generateFlags(result) << endl;
-    reg->setFlags(generateFlags(result));
-}
-
-void ThumbCpu::shiftLeft(){
-    ShiftedALU* alu = (ShiftedALU*) decodedInstruction;
-    int regSValue = reg->getReg(alu->getRegSource());
-    int imm = alu->getImmediate();
-    int result = regSValue << imm;
     cout<<"result = "<< result << endl;
     reg->setReg(alu->getRegDest(), result);
     cout<<"flags = "<< generateFlags(result) << endl;

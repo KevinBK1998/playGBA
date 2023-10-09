@@ -1,23 +1,20 @@
-#ifndef THUMB_SHIFT_ALU_H
-#define THUMB_SHIFT_ALU_H
+#ifndef THUMB_SHIFT_MOVE_H
+#define THUMB_SHIFT_MOVE_H
 
-#include <iostream>
-#include <sstream>
-#include "Instruction.h"
-#include "../FailureCodes.h"
+#include "../ThumbCpu.h"
 
 using namespace std;
 
-class ShiftedALU: public ThumbInstruction
+class ShiftMove: public ThumbInstruction
 {
 private:
     char regSource;
 public:
-    ShiftedALU(Opcode operation, char regD, char regS, int offset): ThumbInstruction(operation, regD, offset){
+    ShiftMove(Opcode operation, char regD, char regS, int offset): ThumbInstruction(operation, regD, offset){
         regSource = regS;
     }
 
-    static ShiftedALU* decode(int opcode){
+    static ShiftMove* decode(int opcode){
         int op = (opcode>>11)&0b11;
         int offset = (opcode>>6)&0x1F;
         char regS = (opcode>>3)&0b111;
@@ -25,9 +22,11 @@ public:
         switch (op)
         {
         case 0:
-            return new ShiftedALU(LSL, regD, regS, offset);
+            return new ShiftMove(LSL, regD, regS, offset);
+        case 1:
+            return new ShiftMove(LSR, regD, regS, offset);
         default:
-            cout << "ALU = " << unsigned(op) << endl;
+            cout << "ShiftMove = " << unsigned(op) << endl;
             exit(FAILED_TO_DECODE);
             break;
         }
@@ -42,14 +41,40 @@ public:
         switch (getOpcode())
         {
         case LSL:
-            stream << showbase << "LSL R" << unsigned(getRegDest()) << ", R" << unsigned(regSource) << hex << ", " << getImmediate();
-            return stream.str();
+            stream<<"LSL";
+            break;
+        case LSR:
+            stream<<"LSR";
+            break;
         default:
-            cout << "ALU = " << hex << getOpcode() << endl;
+            cout << "ShiftMove = " << hex << getOpcode() << endl;
             exit(FAILED_DECODED_TO_STRING);
         }
-        return "Undefined";
+        stream<<" R"<<unsigned(getRegDest())<<", R"<<unsigned(regSource)<<showbase<<hex<<", "<<getImmediate();
+        return stream.str();
     }
 };
+
+void ThumbCpu::shiftLeft(){
+    ShiftMove* alu = (ShiftMove*) decodedInstruction;
+    int regSValue = reg->getReg(alu->getRegSource());
+    int imm = alu->getImmediate();
+    int result = regSValue << imm;
+    int flags = generateFlags(result);
+    cout<<"result = "<<result<<", flags = "<<flags<<endl;
+    reg->setReg(alu->getRegDest(), result);
+    reg->setFlags(flags);
+}
+
+void ThumbCpu::shiftRight(){
+    ShiftMove* alu = (ShiftMove*) decodedInstruction;
+    int regSValue = reg->getReg(alu->getRegSource());
+    int imm = alu->getImmediate();
+    int result = regSValue >> imm;
+    int flags = generateFlags(result);
+    cout<<"result = "<<result<<", flags = "<<flags<<endl;
+    reg->setReg(alu->getRegDest(), result);
+    reg->setFlags(flags);
+}
 
 #endif

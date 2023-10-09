@@ -23,6 +23,7 @@ class ThumbCpu{
     void push();
     void branchExchange();
     void shiftLeft();
+    void shiftRight();
     void test();
     bool canExecute(int);
     bool canExecute(Condition);

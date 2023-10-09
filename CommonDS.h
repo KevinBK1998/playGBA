@@ -38,6 +38,7 @@ enum Opcode {
     STRSP,
     ADDSP,
     LSL,
+    LSR,
 };
 
 enum ConditionConstant {
