@@ -11,6 +11,7 @@ class ThumbCpu{
     ThumbInstruction* decodedInstruction = new ThumbInstruction();
     int generateFlags(int result);
     void move();
+    void moveHigh();
     void moveN();
     void loadRegPCRelative();
     void storeReg();

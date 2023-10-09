@@ -14,6 +14,7 @@
 #include "ThumbInstructions/LongBranch.h"
 #include "ThumbInstructions/SDTImmediate.h"
 #include "ThumbInstructions/Add.cpp"
+#include "ThumbInstructions/HiRegOperation.cpp"
 
 int ThumbCpu::generateFlags(int result){
     int flags = 0;
@@ -39,7 +40,7 @@ void ThumbCpu::decode(){
     else if (((opcode>>10) & 0x3F)== 0b010000)
         decodedInstruction = ThumbALU::decode(opcode);
     else if (((opcode>>10) & 0x3F)== 0b10001)
-        decodedInstruction = ThumbBranch::decode(opcode, true);
+        decodedInstruction = HiRegOperation::decode(opcode);
     else if (((opcode>>11) & 0x1F)== 0b1001)
         decodedInstruction = LoadPCRelative::decode(opcode);
     else if (((opcode>>11) & 0x1F)== 0b11)
@@ -75,6 +76,9 @@ void ThumbCpu::execute(){
     {
     case MOV:
         move();
+        break;
+    case MOV_HI:
+        moveHigh();
         break;
     case MVN:
         moveN();
@@ -239,13 +243,6 @@ void ThumbCpu::longBranch(){
         reg->setReg(PC, jumpAddress);
         cout << "ADDR = "<< jumpAddress << ", linkADDR = "<< reg->getReg(LR) <<endl;
     }
-}
-
-void ThumbCpu::branchExchange(){
-    ThumbBranch* b = (ThumbBranch*) decodedInstruction;
-    int jumpTo = reg->getReg(b->getRegSource());
-    cout << "ADDR = "<< jumpTo <<endl;
-    reg->exchange(jumpTo);
 }
 
 void ThumbCpu::push(){

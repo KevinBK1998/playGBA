@@ -39,6 +39,7 @@ enum Opcode {
     ADDSP,
     LSL,
     LSR,
+    MOV_HI,
 };
 
 enum ConditionConstant {
