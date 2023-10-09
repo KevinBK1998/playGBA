@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string.h>
-#include "Registers.h"
-#include "Memory.h"
+#include "ArmCpu.h"
 #include "ArmInstructions/Instruction.cpp"
 #include "ArmInstructions/Branch.h"
 #include "ArmInstructions/SingleDataTransfer.h"
@@ -14,136 +13,109 @@ int rotateleft(int data, int shift){
     return (data<<shift) | (data >> (32-shift));
 }
 
-class ArmCpu
-{
-private:
-    Registers* reg;
-    Memory* mem;
-    ArmInstruction* decodedInstruction = new ArmInstruction();
-    int setFlags(int result){
-        int flags = 0;
-        if (result < 0)
-            flags |= N;
-        if (result == 0)
-            flags |= Z;
-        return flags;
-    }
-    void branch();
-    void branchExchange();
-    void psrTransfer();
-    void logicalAND();
-    void subtract();
-    void add();
-    void testXOR();
-    void compare();
-    void logicalOR();
-    void move();
-    void loadReg();
-    void storeReg();
-    void loadMultipleReg();
-    void storeMultipleReg();
-    bool canExecute(int);
-    bool canExecute(ArmInstruction*);
-public:
-    long time=0;
-    ArmCpu(){
-    }
-    ArmCpu(Registers* registers, Memory* memory){
-        reg = registers;
-        mem = memory;
-    }
-    ~ArmCpu(){
-    }
+int ArmCpu::setFlags(int result){
+    int flags = 0;
+    if (result < 0)
+        flags |= N;
+    if (result == 0)
+        flags |= Z;
+    return flags;
+}
 
-    void decode(){
-        int currentPC = reg->getPC();
-        int opcode = mem->read32(currentPC);
-        if (((opcode>>8) & 0xFFFFF) == 0x12FFF)
-            decodedInstruction=Branch::decode(opcode, true);
-        else if (((opcode>>25) & 0b111) == 0b100)
-            decodedInstruction=MultipleDataTransfer::decodeMDT(opcode);
-        else if (((opcode>>25) & 0b111) == 0b101)
-            decodedInstruction=Branch::decode(opcode);
-        else if (((opcode>>26) & 0b11) == 0b00)
-            decodedInstruction=ALU::decodeALU(opcode);
-        else if (((opcode>>26) & 0b11) == 0b01)
-            decodedInstruction=SingleDataTransfer::decodeSDT(opcode);
-        else{
-            cout << "Undecoded Opcode: " << hex << opcode << endl;
-            exit(FAILED_TO_DECODE);
-        }
-    }
+ArmCpu::ArmCpu(Registers* registers, Memory* memory){
+    reg = registers;
+    mem = memory;
+}
 
-    void execute(){
-        if (decodedInstruction->getOpcode() == NOT_INITIALISED){
-            cout << "No cached Instruction, skipping" << endl;
-            return;
-        }
-        cout << "Debug Execute: " << hex << decodedInstruction->toString() << endl;
-        if (canExecute(decodedInstruction)){
-            switch (decodedInstruction->getOpcode())
-            {
-            case B:
-                branch();
-                break;
-            case BX:
-                branchExchange();
-                break;
-            case AND:
-                logicalAND();
-                break;
-            case SUB:
-                subtract();
-                break;
-            case ADD:
-                add();
-                break;
-            case MRS:
-            case MSR:
-                psrTransfer();
-                break;
-            case TEQ:
-                testXOR();
-                break;
-            case CMP:
-                compare();
-                break;
-            case ORR:
-                logicalOR();
-                break;
-            case MOV:
-                move();
-                break;
-            case LDR:
-                loadReg();
-                break;
-            case STR:
-                storeReg();
-                break;
-            case LDM:
-                loadMultipleReg();
-                break;
-            case STM:
-                storeMultipleReg();
-                break;
-            default:
-                cout << "Undefined: " << decodedInstruction->toString() << endl;
-                exit(FAILED_TO_EXECUTE);
-            }
-        } else cout << "Skipping, condition failed" << endl;
-        time++;
+void ArmCpu::decode(){
+    int currentPC = reg->getPC();
+    int opcode = mem->read32(currentPC);
+    cout <<showbase<< "Debug Opcode: " << opcode << endl;
+    if (((opcode>>8) & 0xFFFFF) == 0x12FFF)
+        decodedInstruction=Branch::decode(opcode, true);
+    else if (((opcode>>25) & 0b111) == 0b100)
+        decodedInstruction=MultipleDataTransfer::decodeMDT(opcode);
+    else if (((opcode>>25) & 0b111) == 0b101)
+        decodedInstruction=Branch::decode(opcode);
+    else if (((opcode>>26) & 0b11) == 0b00)
+        decodedInstruction=ALU::decodeALU(opcode);
+    else if (((opcode>>26) & 0b11) == 0b01)
+        decodedInstruction=SingleDataTransfer::decodeSDT(opcode);
+    else{
+        cout << "Undecoded Opcode: " << hex << opcode << endl;
+        exit(FAILED_TO_DECODE);
     }
+}
 
-    void step(){
-        execute();
-        if (reg->isThumbMode()){
-            decodedInstruction = new ArmInstruction();
-            return;
-        }
-        decode();
-        reg->step();
+void ArmCpu::execute(){
+    if (decodedInstruction->getOpcode() == NOT_INITIALISED){
+        cout << "No cached Instruction, skipping" << endl;
+        return;
     }
-};
+    cout << "Debug Execute: " << hex << decodedInstruction->toString() << endl;
+    if (canExecute(decodedInstruction)){
+        switch (decodedInstruction->getOpcode())
+        {
+        case B:
+            branch();
+            break;
+        case BX:
+            branchExchange();
+            break;
+        case AND:
+            logicalAND();
+            break;
+        case SUB:
+            subtract();
+            break;
+        case ADD:
+            add();
+            break;
+        case MRS:
+        case MSR:
+            psrTransfer();
+            break;
+        case TEQ:
+            testXOR();
+            break;
+        case CMP:
+            compare();
+            break;
+        case ORR:
+            logicalOR();
+            break;
+        case MOV:
+            move();
+            break;
+        case LDR:
+            loadReg();
+            break;
+        case STR:
+            storeReg();
+            break;
+        case LDM:
+            loadMultipleReg();
+            break;
+        case STM:
+            storeMultipleReg();
+            break;
+        default:
+            cout << "Undefined: " << decodedInstruction->toString() << endl;
+            exit(FAILED_TO_EXECUTE);
+        }
+    } else cout << "Skipping, condition failed" << endl;
+    time++;
+}
+
+void ArmCpu::step(){
+    execute();
+    if (reg->isThumbMode()){
+        decodedInstruction = new ArmInstruction();
+        return;
+    }
+    decode();
+    reg->step();
+}
 
 bool ArmCpu::canExecute(int cond){
     int status = reg->getCPSR();

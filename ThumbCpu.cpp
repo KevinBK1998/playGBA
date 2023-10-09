@@ -1,6 +1,4 @@
 #include "ThumbCpu.h"
-#include "Registers.h"
-#include "Memory.h"
 #include "ThumbInstructions/Instruction.cpp"
 #include "ThumbInstructions/ThumbALU.cpp"
 #include "ThumbInstructions/AddSP.h"

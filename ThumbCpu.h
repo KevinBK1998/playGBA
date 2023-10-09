@@ -9,7 +9,7 @@ class ThumbCpu{
     Registers* reg;
     Memory* mem;
     ThumbInstruction* decodedInstruction = new ThumbInstruction();
-    int generateFlags(int result);
+    int generateFlags(int);
     void move();
     void moveHigh();
     void moveN();
@@ -31,7 +31,7 @@ class ThumbCpu{
     bool canExecute(int);
     bool canExecute(Condition);
 public:
-    ThumbCpu(Registers* registers, Memory* memory);
+    ThumbCpu(Registers*, Memory*);
     void decode();
     void execute();
     void step();

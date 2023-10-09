@@ -891,8 +891,8 @@ _00000BC0:
     .ARM
 _00000BC4:
     push {r4, r5, r6, r7, r8, sb, sl, lr}
-    lsl sl, r2, #0xb
-    lsrs ip, sl, #9
+    lsl sl, r2, #0xb --- fix; parses as mov for lsl
+    lsrs ip, sl, #9 ---- fix; parses as mov for lsr
     bl sub_00000BA4
     beq _00000C24
     add sl, r1, sl, lsr #9
