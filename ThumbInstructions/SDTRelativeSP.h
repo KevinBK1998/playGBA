@@ -30,7 +30,10 @@ public:
         switch (getOpcode())
         {
         case STRSP:
-            stream << showbase << "STR R" << unsigned(getRegDest()) <<", [SP" << ", " <<hex<<showbase<< getImmediate()<<"]";
+            stream << showbase << "STR R" << unsigned(getRegDest()) <<", [SP";
+            if(getImmediate())
+                stream<<", "<<hex<<showbase<< getImmediate();
+            stream<<"]";
             return stream.str();
         default:
             cout << "SDTRelativeSP = " << hex << getOpcode() << endl;

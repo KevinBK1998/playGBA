@@ -9,6 +9,7 @@
 #include "ThumbInstructions/MultipleDataTransfer.h"
 #include "ThumbInstructions/Branch.h"
 #include "ThumbInstructions/LongBranch.h"
+#include "ThumbInstructions/SDTImmediate.h"
 
 class ThumbCpu{
     Registers* reg;
@@ -26,6 +27,7 @@ class ThumbCpu{
     void moveN();
     void loadRegPCRelative();
     void storeReg();
+    void storeHalfReg();
     void storeRegSPRelative();
     void add();
     void addSP();
@@ -58,6 +60,8 @@ public:
             decodedInstruction = ThumbALU::decode(opcode);
         else if (((opcode>>12) & 0b1111)== 0b101)
             decodedInstruction = ThumbSDT::decode(opcode);
+        else if (((opcode>>12) & 0b1111)== 0b1000)
+            decodedInstruction = SDTThumbIMM::decode(opcode);
         else if (((opcode>>12) & 0b1111)== 0b1001)
             decodedInstruction = SDTRelativeSP::decode(opcode);
         else if (((opcode>>12) & 0b1111)== 0b1011)
@@ -97,6 +101,9 @@ public:
             break;
         case STR:
             storeReg();
+            break;
+        case STRH:
+            storeHalfReg();
             break;
         case ADD:
             add();
@@ -194,6 +201,16 @@ void ThumbCpu::storeReg(){
     int address = regBValue + regOValue;
     cout<<"address = "<< address << endl;
     mem->write32(address, data);
+}
+
+void ThumbCpu::storeHalfReg(){
+    SDTThumbIMM* sdt = (SDTThumbIMM*) decodedInstruction;
+    int base = reg->getReg(sdt->getRegBase());
+    int offset = sdt->getImmediate()<<1;
+    int data = reg->getReg(sdt->getRegDest());
+    int address = base + offset;
+    cout<<"address = "<< address <<", data = "<< data << endl;
+    mem->write16(address, data);
 }
 
 void ThumbCpu::storeRegSPRelative(){

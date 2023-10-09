@@ -26,6 +26,8 @@ enum Opcode {
     MVN,
     LDR,
     STR,
+    LDRH,
+    STRH,
     LDM,
     STM,
     PUSH,
