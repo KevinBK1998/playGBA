@@ -4,7 +4,6 @@
 #include "ThumbInstructions/Instruction.cpp"
 #include "ThumbInstructions/ALU.h"
 #include "ThumbInstructions/AddSP.h"
-#include "ThumbInstructions/AddImmediate.h"
 #include "ThumbInstructions/ALUImmediate.h"
 #include "ThumbInstructions/ShiftedALU.h"
 #include "ThumbInstructions/SingleDataTransfer.h"
@@ -14,6 +13,7 @@
 #include "ThumbInstructions/Branch.h"
 #include "ThumbInstructions/LongBranch.h"
 #include "ThumbInstructions/SDTImmediate.h"
+#include "ThumbInstructions/Add.cpp"
 
 int ThumbCpu::generateFlags(int result){
     int flags = 0;
@@ -43,7 +43,7 @@ void ThumbCpu::decode(){
     else if (((opcode>>11) & 0x1F)== 0b1001)
         decodedInstruction = LoadPCRelative::decode(opcode);
     else if (((opcode>>11) & 0x1F)== 0b11)
-        decodedInstruction = AddIMM::decode(opcode);
+        decodedInstruction = Add::decode(opcode);
     else if (((opcode>>12) & 0b1111)== 0b101)
         decodedInstruction = ThumbSDT::decode(opcode);
     else if (((opcode>>12) & 0b1111)== 0b1000)
@@ -202,24 +202,6 @@ void ThumbCpu::storeRegSPRelative(){
     int data = reg->getReg(decodedInstruction->getRegDest());
     cout<<"address = "<< address <<", data = "<< data << endl;
     mem->write32(address, data);
-}
-
-void ThumbCpu::add(){
-    ThumbALU* alu = (ThumbALU*) decodedInstruction;
-    int regSValue = reg->getReg(alu->getRegSource());
-    bool signS= regSValue > 0;
-    int imm = alu->getImmediate();
-    bool signI= imm > 0;
-    int result = regSValue + imm;
-    bool signR= result > 0;
-    if (signS == signI && signR!=signI){
-        cout<<"signedFlags = "<< signS <<","<< signI<<","<<signR << endl;
-        exit(PENDING_CODE);
-    }
-    cout<<"result = "<< result << endl;
-    reg->setReg(alu->getRegDest(), result);
-    cout<<"flags = "<< generateFlags(result) << endl;
-    reg->setFlags(generateFlags(result));
 }
 
 void ThumbCpu::addSP(){

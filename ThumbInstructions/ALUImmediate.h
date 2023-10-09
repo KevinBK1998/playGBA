@@ -32,7 +32,7 @@ public:
         switch (getOpcode())
         {
         case MOV:
-            stream << showbase << "MOV R" << unsigned(getRegDest()) << hex << ", " << getImmediate()<< " (" << dec << getImmediate() << ")";
+            stream << showbase << "MOV R" << unsigned(getRegDest()) << hex << ", " << getImmediate();
             break;
         default:
             cout << "ALUThumbIMM = " << hex << getOpcode() << endl;
