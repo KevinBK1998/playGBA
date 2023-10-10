@@ -3,6 +3,7 @@
 
 const uint32_t N = 0x80000000;
 const uint32_t Z = 0x40000000;
+const uint32_t C = 0x20000000;
 const uint32_t V = 0x10000000;
 
 #define BYTE_SIZE 1

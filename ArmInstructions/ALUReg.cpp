@@ -116,7 +116,7 @@ void ArmCpu::addShifted(){
     cout<<"result = "<< hex << result << endl;
     reg->setReg(decodedInstruction->getRegDest(), result);
     if (alu->shouldUpdatePSR())
-        reg->setFlags(setFlags(result));
+        reg->setFlags(generateFlags(result));
 }
 
 void ArmCpu::moveShifted(){
@@ -126,5 +126,5 @@ void ArmCpu::moveShifted(){
     cout<<"data = " << data << endl;
     reg->setReg(alu->getRegDest(), data);
     if (alu->shouldUpdatePSR())
-        reg->setFlags(setFlags(data));
+        reg->setFlags(generateFlags(data));
 }

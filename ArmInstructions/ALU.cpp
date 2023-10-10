@@ -111,7 +111,7 @@ void ArmCpu::logicalAND(){
     reg->setReg(alu->getRegDest(), result);
     cout<<"result = "<< hex << result << endl;
     if (alu->shouldUpdatePSR())
-        reg->setFlags(setFlags(result));
+        reg->setFlags(generateFlags(result));
 }
 
 void ArmCpu::subtract(){
@@ -122,7 +122,7 @@ void ArmCpu::subtract(){
     cout<<"result = "<< hex << result << endl;
     reg->setReg(alu->getRegDest(), result);
     if (alu->shouldUpdatePSR())
-        reg->setFlags(setFlags(result));
+        reg->setFlags(generateFlags(result));
 }
 
 void ArmCpu::addImmediate(){
@@ -133,7 +133,7 @@ void ArmCpu::addImmediate(){
     cout<<"result = "<< hex << result << endl;
     reg->setReg(alu->getRegDest(), result);
     if (alu->shouldUpdatePSR())
-        reg->setFlags(setFlags(result));
+        reg->setFlags(generateFlags(result));
 }
 
 void ArmCpu::test(){
@@ -141,7 +141,7 @@ void ArmCpu::test(){
     int immediate = decodedInstruction->getImmediate();
     int result = before & immediate;
     cout<<"result = "<< hex << result << endl;
-    reg->setFlags(setFlags(result));
+    reg->setFlags(generateFlags(result));
 }
 
 void ArmCpu::testXOR(){
@@ -149,7 +149,7 @@ void ArmCpu::testXOR(){
     int immediate = decodedInstruction->getImmediate();
     int result = before ^ immediate;
     cout<<"result = "<< hex << result << endl;
-    reg->setFlags(setFlags(result));
+    reg->setFlags(generateFlags(result));
 }
 
 void ArmCpu::compare(){
@@ -157,7 +157,7 @@ void ArmCpu::compare(){
     int immediate = decodedInstruction->getImmediate();
     int result = before - immediate;
     cout<<"result = "<< hex << result << endl;
-    reg->setFlags(setFlags(result));
+    reg->setFlags(generateFlags(result));
 }
 
 void ArmCpu::logicalOR(){
@@ -166,7 +166,7 @@ void ArmCpu::logicalOR(){
     reg->setReg(alu->getRegDest(), result);
     cout<<"result = "<< hex << result << endl;
     if (alu->shouldUpdatePSR())
-        reg->setFlags(setFlags(result));
+        reg->setFlags(generateFlags(result));
 }
 
 void ArmCpu::moveImmediate(){
@@ -175,7 +175,7 @@ void ArmCpu::moveImmediate(){
     reg->setReg(alu->getRegDest(), immediate);
     cout<<"result = "<< hex << immediate << endl;
     if (alu->shouldUpdatePSR())
-        reg->setFlags(setFlags(immediate));
+        reg->setFlags(generateFlags(immediate));
 }
 
 void ArmCpu::bitClear(){
@@ -184,5 +184,5 @@ void ArmCpu::bitClear(){
     reg->setReg(alu->getRegDest(), result);
     cout<<"result = "<< hex << result << endl;
     if (alu->shouldUpdatePSR())
-        reg->setFlags(setFlags(result));
+        reg->setFlags(generateFlags(result));
 }

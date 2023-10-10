@@ -117,6 +117,8 @@ string Condition::toString(){
         return "{eq}";
     case NE:
         return "{ne}";
+    case CC:
+        return "{cc}";
     case LT:
         return "{lt}";
     case ALWAYS:

@@ -15,7 +15,7 @@ int rotateleft(int data, int shift){
     return (data<<shift) | (data >> (32-shift));
 }
 
-int ArmCpu::setFlags(int result){
+int ArmCpu::generateFlags(int result){
     int flags = 0;
     if (result < 0)
         flags |= N;
@@ -138,6 +138,8 @@ bool ArmCpu::canExecute(int cond){
         return (status & Z) != 0;
     case NE:
         return (status & Z) == 0;
+    case CC:
+        return (status & C) == 0;
     case MI:
         return (status & N) != 0;
     case VS:
