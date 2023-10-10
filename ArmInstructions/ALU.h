@@ -51,7 +51,6 @@ public:
         case 0xD:
             return new ALU(cond, MOV, rDest, imm);
         case 0xE:;
-        //FIX LSL AND LSR FIRST
         }
         cout << "Incomplete ALU Rd, Rn, Op2 = " << opcode << ", Funcode = " << ((opcode >> 21) & 0xF) << endl;
         exit(FAILED_TO_DECODE);

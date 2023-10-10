@@ -44,7 +44,8 @@ enum Opcode {
 };
 
 enum ShiftType{
-    LeftShift,
+    ShiftLeft,
+    ShiftRight,
 };
 
 enum ConditionConstant {

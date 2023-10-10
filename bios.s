@@ -891,8 +891,8 @@ _00000BC0:
     .ARM
 _00000BC4:
     push {r4, r5, r6, r7, r8, sb, sl, lr}
-    lsl sl, r2, #0xb --- fix; parses as mov for lsl
-    lsrs ip, sl, #9 ---- fix; parses as mov for lsr
+    lsl sl, r2, #0xb
+    lsrs ip, sl, #9
     bl sub_00000BA4
     beq _00000C24
     add sl, r1, sl, lsr #9
@@ -917,7 +917,7 @@ _00000C14:
     stmlt r1!, {r2, r3, r4, r5, r6, r7, r8, sb}
     blt _00000C14
 _00000C24:
-    pop {r4, r5, r6, r7, r8, sb, sl, lr}
+    pop {r4, r5, r6, r7, r8, sb, sl, lr}  ---- fix; pop gives output in reverse
     bx lr
 _00000C2C:
     push {r4, r5, r6, r7, r8, sb, sl, fp}

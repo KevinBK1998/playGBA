@@ -7,11 +7,11 @@ class ALUReg: public ArmInstruction
 {
 private:
     char regM;
-    char shiftType;
+    ShiftType shiftType;
 public:
     ALUReg(Opcode opcode, Condition cond, char rDest, char rM, char type, int imm): ArmInstruction(cond, opcode, imm, rDest){
         regM = rM;
-        shiftType = type;
+        shiftType = static_cast<ShiftType>(type);
     }
 
     static ALUReg* decode(int opcode){
@@ -42,7 +42,7 @@ public:
         return regM;
     }
 
-    char getShiftType(){
+    ShiftType getShiftType(){
         return shiftType;
     }
 
@@ -59,8 +59,11 @@ public:
         }
         stream<<", R"<<unsigned(regM);
         switch(shiftType){
-        case LeftShift:
+        case ShiftLeft:
             stream<<",LSL#"<<hex<<showbase<<getImmediate();
+            break;
+        case ShiftRight:
+            stream<<",LSR#"<<hex<<showbase<<getImmediate();
             break;
         default:
             cout << "ALUReg shifttype = " << unsigned(shiftType) << endl;
@@ -74,13 +77,24 @@ void ArmCpu::moveShifted(){
     ALUReg* alu = (ALUReg*) decodedInstruction;
     int data = reg->getReg(alu->getRegM()) & 0xFF;
     int shift = alu->getImmediate();
-    if (alu->getShiftType()||!alu->getImmediate()) {
+    ShiftType type = alu->getShiftType();
+    if (!alu->getImmediate()) {
         cout<<"shifttype = " << unsigned(alu->getShiftType())<<", shift = " << alu->getImmediate() << endl;
         exit(FAILED_TO_EXECUTE);
     }
-    data = data<<shift;
-    reg->setReg(decodedInstruction->getRegDest(), data);
-    cout<<"data = " << data<<", shift = " << alu->getImmediate() << endl;
+    switch(type){
+    case ShiftLeft:
+        data = data<<shift;
+        break;
+    case ShiftRight:
+        data = data>>shift;
+        break;
+    default:
+        cout<<"ALUReg shifttype = " << type <<", shift = " << shift << endl;
+        exit(FAILED_TO_EXECUTE);
+    }
+    cout<<"data = " << data<<", shift = " << shift << endl;
+    reg->setReg(alu->getRegDest(), data);
     // if (alu.canChangePsr())
     //     reg->setCPSR(setFlags(immediate));
 }
