@@ -21,7 +21,8 @@ private:
     void testXOR();
     void compare();
     void logicalOR();
-    void move();
+    void moveImmediate();
+    void moveShifted();
     void loadReg();
     void storeReg();
     void loadMultipleReg();

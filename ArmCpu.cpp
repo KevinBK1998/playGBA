@@ -91,7 +91,10 @@ void ArmCpu::execute(){
             logicalOR();
             break;
         case MOV:
-            move();
+            if(decodedInstruction->shouldUseImmediate())
+                moveImmediate();
+            else
+                moveShifted();
             break;
         case LDR:
             loadReg();
@@ -230,7 +233,7 @@ void ArmCpu::logicalOR(){
     //     reg->setCPSR(setFlags(result));
 }
 
-void ArmCpu::move(){
+void ArmCpu::moveImmediate(){
     int immediate = decodedInstruction->getImmediate();
     reg->setReg(decodedInstruction->getRegDest(), immediate);
     cout<<"result = "<< hex << immediate << endl;

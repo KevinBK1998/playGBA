@@ -40,6 +40,7 @@ public:
     int getRegDest();
     int getRegN();
 
+    virtual bool shouldUseImmediate();
     virtual string toString();
 };
 

@@ -72,6 +72,10 @@ ArmInstruction::ArmInstruction(Opcode operation, char op1, int flags, int data, 
     regDest = destReg;
 }
 
+bool ArmInstruction::shouldUseImmediate(){
+    return false;
+}
+
 string ArmInstruction::toString(){
     stringstream stream;
     switch (opcode)

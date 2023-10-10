@@ -57,6 +57,10 @@ public:
         exit(FAILED_TO_DECODE);
     }
 
+    bool shouldUseImmediate(){
+        return true;
+    }
+
     string toString(){
         stringstream stream;
         switch (getOpcode())

@@ -43,6 +43,10 @@ enum Opcode {
     MOV_HI,
 };
 
+enum ShiftType{
+    LeftShift,
+};
+
 enum ConditionConstant {
     EQ,
     NE,
