@@ -28,6 +28,8 @@ public:
             return new ALU(SUB, cond, rDest, rN, imm);
         case 4:
             return new ALU(ADD, cond, rDest, rN, imm);
+        case 8:
+            return new ALU(TST, cond, imm, rN);
         case 9:
             return new ALU(TEQ, cond, imm, rN);
         case 0xA:
@@ -60,6 +62,9 @@ public:
         case ADD:
             stream<< "ADD"<<getCondition()<<" R" << getRegDest() << ", R" << getRegN();
             break;
+        case TST:
+            stream<< "TST"<<getCondition()<<" R" << getRegN();
+            break;
         case TEQ:
             stream<< "TEQ"<<getCondition()<<" R" << getRegN();
             break;
@@ -89,7 +94,7 @@ void ArmCpu::logicalAND(){
     reg->setReg(decodedInstruction->getRegDest(), result);
     cout<<"result = "<< hex << result << endl;
     // if (alu.canChangePsr())
-    //     reg->setCPSR(setFlags(result));
+    //     reg->setFlags(setFlags(result));
 }
 
 void ArmCpu::subtract(){
@@ -99,7 +104,7 @@ void ArmCpu::subtract(){
     cout<<"result = "<< hex << result << endl;
     reg->setReg(decodedInstruction->getRegDest(), result);
     // if (alu.canChangePsr())
-    //     reg->setCPSR(setFlags(result));
+    //     reg->setFlags(setFlags(result));
 }
 
 void ArmCpu::addImmediate(){
@@ -109,7 +114,15 @@ void ArmCpu::addImmediate(){
     cout<<"result = "<< hex << result << endl;
     reg->setReg(decodedInstruction->getRegDest(), result);
     // if (alu.canChangePsr())
-    //     reg->setCPSR(setFlags(result));
+    //     reg->setFlags(setFlags(result));
+}
+
+void ArmCpu::test(){
+    int before = reg->getReg(decodedInstruction->getRegN());
+    int immediate = decodedInstruction->getImmediate();
+    int result = before & immediate;
+    cout<<"result = "<< hex << result << endl;
+    reg->setFlags(setFlags(result));
 }
 
 void ArmCpu::testXOR(){
@@ -117,7 +130,7 @@ void ArmCpu::testXOR(){
     int immediate = decodedInstruction->getImmediate();
     int result = before ^ immediate;
     cout<<"result = "<< hex << result << endl;
-    reg->setCPSR(setFlags(result));
+    reg->setFlags(setFlags(result));
 }
 
 void ArmCpu::compare(){
@@ -125,7 +138,7 @@ void ArmCpu::compare(){
     int immediate = decodedInstruction->getImmediate();
     int result = before - immediate;
     cout<<"result = "<< hex << result << endl;
-    reg->setCPSR(setFlags(result));
+    reg->setFlags(setFlags(result));
 }
 
 void ArmCpu::logicalOR(){
@@ -133,7 +146,7 @@ void ArmCpu::logicalOR(){
     reg->setReg(decodedInstruction->getRegDest(), result);
     cout<<"result = "<< hex << result << endl;
     // if (alu.canChangePsr())
-    //     reg->setCPSR(setFlags(result));
+    //     reg->setFlags(setFlags(result));
 }
 
 void ArmCpu::moveImmediate(){
@@ -141,7 +154,7 @@ void ArmCpu::moveImmediate(){
     reg->setReg(decodedInstruction->getRegDest(), immediate);
     cout<<"result = "<< hex << immediate << endl;
     // if (alu.canChangePsr())
-    //     reg->setCPSR(setFlags(immediate));
+    //     reg->setFlags(setFlags(immediate));
 }
 
 void ArmCpu::bitClear(){
@@ -149,5 +162,5 @@ void ArmCpu::bitClear(){
     reg->setReg(decodedInstruction->getRegDest(), result);
     cout<<"result = "<< hex << result << endl;
     // if (alu.canChangePsr())
-    //     reg->setCPSR(setFlags(result));
+    //     reg->setFlags(setFlags(result));
 }

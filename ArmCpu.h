@@ -20,6 +20,7 @@ private:
     void add();
     void addImmediate();
     void addShifted();
+    void test();
     void testXOR();
     void compare();
     void logicalOR();

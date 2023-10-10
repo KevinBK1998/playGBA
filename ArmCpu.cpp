@@ -81,6 +81,9 @@ void ArmCpu::execute(){
         case MSR:
             psrTransfer();
             break;
+        case TST:
+            test();
+            break;
         case TEQ:
             testXOR();
             break;
