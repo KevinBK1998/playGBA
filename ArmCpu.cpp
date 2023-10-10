@@ -5,7 +5,7 @@
 #include "ArmInstructions/Branch.h"
 #include "ArmInstructions/SingleDataTransfer.h"
 #include "ArmInstructions/MultipleDataTransfer.cpp"
-#include "ArmInstructions/ALU.h"
+#include "ArmInstructions/ALU.cpp"
 #include "ArmInstructions/ALUReg.cpp"
 #include "ArmInstructions/PSRTransfer.cpp"
 
@@ -40,7 +40,7 @@ void ArmCpu::decode(){
     else if (((opcode>>25) & 0b111) == 0b000)
         decodedInstruction=ALUReg::decode(opcode);
     else if (((opcode>>25) & 0b111) == 0b001)
-        decodedInstruction=ALU::decodeALU(opcode);
+        decodedInstruction=ALU::decode(opcode);
     else if (((opcode>>25) & 0b111) == 0b100)
         decodedInstruction=MultipleDataTransfer::decode(opcode);
     else if (((opcode>>25) & 0b111) == 0b101)
@@ -179,66 +179,6 @@ void ArmCpu::branchExchange(){
         reg->setReg(LR, reg->getReg(PC) + WORD_SIZE);
     int data = reg->getReg(b->getRegN());
     reg->exchange(data);
-}
-
-void ArmCpu::subtract(){
-    int before = reg->getReg(decodedInstruction->getRegN());
-    int immediate = decodedInstruction->getImmediate();
-    int result = before - immediate;
-    cout<<"result = "<< hex << result << endl;
-    reg->setReg(decodedInstruction->getRegDest(), result);
-    // if (alu.canChangePsr())
-    //     reg->setCPSR(setFlags(result));
-}
-
-void ArmCpu::add(){
-    int before = reg->getReg(decodedInstruction->getRegN());
-    int immediate = decodedInstruction->getImmediate();
-    int result = before + immediate;
-    cout<<"result = "<< hex << result << endl;
-    reg->setReg(decodedInstruction->getRegDest(), result);
-    // if (alu.canChangePsr())
-    //     reg->setCPSR(setFlags(result));
-}
-
-void ArmCpu::testXOR(){
-    int before = reg->getReg(decodedInstruction->getRegN());
-    int immediate = decodedInstruction->getImmediate();
-    int result = before ^ immediate;
-    cout<<"result = "<< hex << result << endl;
-    reg->setCPSR(setFlags(result));
-}
-
-void ArmCpu::compare(){
-    int before = reg->getReg(decodedInstruction->getRegN());
-    int immediate = decodedInstruction->getImmediate();
-    int result = before - immediate;
-    cout<<"result = "<< hex << result << endl;
-    reg->setCPSR(setFlags(result));
-}
-
-void ArmCpu::logicalAND(){
-    int result = reg->getReg(decodedInstruction->getRegN()) & decodedInstruction->getImmediate();
-    reg->setReg(decodedInstruction->getRegDest(), result);
-    cout<<"result = "<< hex << result << endl;
-    // if (alu.canChangePsr())
-    //     reg->setCPSR(setFlags(result));
-}
-
-void ArmCpu::logicalOR(){
-    int result = reg->getReg(decodedInstruction->getRegN()) | decodedInstruction->getImmediate();
-    reg->setReg(decodedInstruction->getRegDest(), result);
-    cout<<"result = "<< hex << result << endl;
-    // if (alu.canChangePsr())
-    //     reg->setCPSR(setFlags(result));
-}
-
-void ArmCpu::moveImmediate(){
-    int immediate = decodedInstruction->getImmediate();
-    reg->setReg(decodedInstruction->getRegDest(), immediate);
-    cout<<"result = "<< hex << immediate << endl;
-    // if (alu.canChangePsr())
-    //     reg->setCPSR(setFlags(immediate));
 }
 
 void ArmCpu::loadReg(){

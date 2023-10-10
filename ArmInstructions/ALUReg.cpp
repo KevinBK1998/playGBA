@@ -1,8 +1,6 @@
 #include <sstream>
 #include "../ArmCpu.h"
 
-using namespace std;
-
 class ALUReg: public ArmInstruction
 {
 private:
