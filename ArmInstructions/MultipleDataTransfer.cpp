@@ -1,12 +1,5 @@
-#ifndef ARM_MDT_H
-#define ARM_MDT_H
-
-#include <iostream>
 #include <sstream>
-#include <string>
-#include "../FailureCodes.h"
-#include "Instruction.h"
-using namespace std;
+#include "../ArmCpu.h"
 
 class MultipleDataTransfer : public ArmInstruction
 {
@@ -16,9 +9,6 @@ private:
     bool writeBackFlag;
     int regList;
 public:
-    MultipleDataTransfer():ArmInstruction(){}
-    ~MultipleDataTransfer(){}
-
     MultipleDataTransfer(Condition cond, Opcode operation, char op1, int flags, int list):ArmInstruction(cond, operation, op1){
         preFlag = ((flags >> 3) & 1) != 0;
         addFlag = ((flags >> 2) & 1) != 0;
@@ -26,7 +16,7 @@ public:
         regList = list;
     }
 
-    static MultipleDataTransfer* decodeMDT(int opcode){
+    static MultipleDataTransfer* decode(int opcode){
         Condition cond = Condition((opcode >> 28) & 0xF);
         cout << "Incomplete LDM/STM {cond}{amod} Rn{!},<Rlist>{^} = " << opcode << endl;
         int flags = (opcode >> 21) & 0xF;
@@ -82,4 +72,46 @@ public:
     }
 };
 
-#endif
+void ArmCpu::loadMultipleReg(){
+    MultipleDataTransfer* mdt = (MultipleDataTransfer*) decodedInstruction;
+    int address = reg->getReg(mdt->getRegN());
+    int data;
+    int list = mdt->getRegList();
+    int offset = mdt->shouldAddOffset()? WORD_SIZE: -WORD_SIZE;
+    for (int i = 0; i < 16; i++){
+        if (list & 1){
+            if (mdt->addBeforeTransfer())
+                address+=offset;
+            data = mem->read32(address);
+            cout<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
+            reg->setReg(i, data);
+            if (!mdt->addBeforeTransfer())
+                address+=offset;
+        }
+        list>>=1;
+    }
+    if (mdt->shouldWriteBack())
+        reg->setReg(mdt->getRegN(),address);
+}
+
+void ArmCpu::storeMultipleReg(){
+    MultipleDataTransfer* mdt = (MultipleDataTransfer*) decodedInstruction;
+    int address = reg->getReg(mdt->getRegN());
+    int data;
+    int list = mdt->getRegList();
+    int offset = mdt->shouldAddOffset()? WORD_SIZE: -WORD_SIZE;
+    for (int i = 15; i >= 0; i--){
+        if (list & 0x8000){
+            if (mdt->addBeforeTransfer())
+                address+=offset;
+            data = reg->getReg(i);
+            cout<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
+            mem->write32(address, data);
+            if (!mdt->addBeforeTransfer())
+                address+=offset;
+        }
+        list<<=1;
+    }
+    if (mdt->shouldWriteBack())
+        reg->setReg(mdt->getRegN(),address);
+}

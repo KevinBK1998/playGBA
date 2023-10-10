@@ -4,7 +4,7 @@
 #include "ArmInstructions/Instruction.cpp"
 #include "ArmInstructions/Branch.h"
 #include "ArmInstructions/SingleDataTransfer.h"
-#include "ArmInstructions/MultipleDataTransfer.h"
+#include "ArmInstructions/MultipleDataTransfer.cpp"
 #include "ArmInstructions/ALU.h"
 #include "ArmInstructions/ALUReg.cpp"
 #include "ArmInstructions/PSRTransfer.cpp"
@@ -42,7 +42,7 @@ void ArmCpu::decode(){
     else if (((opcode>>25) & 0b111) == 0b001)
         decodedInstruction=ALU::decodeALU(opcode);
     else if (((opcode>>25) & 0b111) == 0b100)
-        decodedInstruction=MultipleDataTransfer::decodeMDT(opcode);
+        decodedInstruction=MultipleDataTransfer::decode(opcode);
     else if (((opcode>>25) & 0b111) == 0b101)
         decodedInstruction=Branch::decode(opcode);
     else if (((opcode>>26) & 0b11) == 0b01)
@@ -267,48 +267,4 @@ void ArmCpu::storeReg(){
         cout<<"address = "<<address<<", data = "<< data << endl;
         mem->write32(address, data);
     }
-}
-
-void ArmCpu::loadMultipleReg(){
-    MultipleDataTransfer* mdt = (MultipleDataTransfer*) decodedInstruction;
-    int address = reg->getReg(mdt->getRegN());
-    int data;
-    int list = mdt->getRegList();
-    int offset = mdt->shouldAddOffset()? WORD_SIZE: -WORD_SIZE;
-    for (int i = 0; i < 16; i++){
-        if (list & 1){
-            if (mdt->addBeforeTransfer())
-                address+=offset;
-            data = mem->read32(address);
-            cout<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
-            reg->setReg(i, data);
-            if (!mdt->addBeforeTransfer())
-                address+=offset;
-        }
-        list>>=1;
-    }
-    if (mdt->shouldWriteBack())
-        reg->setReg(mdt->getRegN(),address);
-}
-
-void ArmCpu::storeMultipleReg(){
-    MultipleDataTransfer* mdt = (MultipleDataTransfer*) decodedInstruction;
-    int address = reg->getReg(mdt->getRegN());
-    int data;
-    int list = mdt->getRegList();
-    int offset = mdt->shouldAddOffset()? WORD_SIZE: -WORD_SIZE;
-    for (int i = 0; i < 16; i++){
-        if (list & 1){
-            if (mdt->addBeforeTransfer())
-                address+=offset;
-            data = reg->getReg(i);
-            cout<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
-            mem->write32(address, data);
-            if (!mdt->addBeforeTransfer())
-                address+=offset;
-        }
-        list>>=1;
-    }
-    if (mdt->shouldWriteBack())
-        reg->setReg(mdt->getRegN(),address);
 }
