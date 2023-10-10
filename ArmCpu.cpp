@@ -21,6 +21,7 @@ int ArmCpu::setFlags(int result){
         flags |= N;
     if (result == 0)
         flags |= Z;
+    cout<<"flags = "<< flags<< endl;
     return flags;
 }
 
