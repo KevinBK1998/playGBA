@@ -917,7 +917,7 @@ _00000C14:
     stmlt r1!, {r2, r3, r4, r5, r6, r7, r8, sb}
     blt _00000C14
 _00000C24:
-    pop {r4, r5, r6, r7, r8, sb, sl, lr}  ---- fix; pop gives output in reverse
+    pop {r4, r5, r6, r7, r8, sb, sl, lr}
     bx lr
 _00000C2C:
     push {r4, r5, r6, r7, r8, sb, sl, fp}

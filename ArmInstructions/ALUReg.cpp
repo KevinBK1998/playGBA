@@ -34,7 +34,6 @@ public:
             cout << "ALUReg = " << unsigned(op) << endl;
             exit(FAILED_TO_DECODE);
             break;
-        //FIX LSL AND LSR FIRST
         }
     }
 
@@ -75,7 +74,7 @@ public:
 
 void ArmCpu::moveShifted(){
     ALUReg* alu = (ALUReg*) decodedInstruction;
-    int data = reg->getReg(alu->getRegM()) & 0xFF;
+    int data = reg->getReg(alu->getRegM());
     int shift = alu->getImmediate();
     ShiftType type = alu->getShiftType();
     if (!alu->getImmediate()) {

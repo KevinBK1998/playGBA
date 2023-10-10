@@ -239,7 +239,7 @@ void ThumbCpu::longBranch(){
         cout << "ADDR = "<< jumpAddress <<endl;
     } else{
         int jumpAddress = reg->getReg(LR) + b->getImmediate();
-        reg->setReg(LR, reg->getReg(PC) + HALFWORD_SIZE);
+        reg->setReg(LR, (reg->getReg(PC) + HALFWORD_SIZE)|1); // To return in THUMB mode
         reg->setReg(PC, jumpAddress);
         cout << "ADDR = "<< jumpAddress << ", linkADDR = "<< reg->getReg(LR) <<endl;
     }
@@ -250,20 +250,29 @@ void ThumbCpu::push(){
     int address = reg->getReg(SP);
     int data;
     int list = mdt->getRegList();
+
+    // Calculate lowest address first
+    for (int i = 0; i < 8; i++){
+        if (list & 1) address-=WORD_SIZE;
+        list>>=1;
+    }
+    if (mdt->handleLinkFlag()) address-=WORD_SIZE;
+
+    reg->setReg(SP, address);
+    list = mdt->getRegList();
+
     for (int i = 0; i < 8; i++){
         if (list & 1){
-            address-=WORD_SIZE;
             data = reg->getReg(i);
             cout<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
             mem->write32(address, data);
+            address+=WORD_SIZE;
         }
         list>>=1;
     }
     if (mdt->handleLinkFlag()){
-        address-=WORD_SIZE;
         data = reg->getReg(LR);
         cout<<"address = "<<address<<", R"<<dec<<LR<<hex<<" = "<< data << endl;
         mem->write32(address, data);
     }
-    reg->setReg(SP, address);
 }
