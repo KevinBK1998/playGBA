@@ -91,10 +91,7 @@ void ArmCpu::execute(){
             logicalOR();
             break;
         case MOV:
-            if(decodedInstruction->shouldUseImmediate())
-                moveImmediate();
-            else
-                moveShifted();
+            move();
             break;
         case BIC:
             bitClear();
@@ -210,4 +207,18 @@ void ArmCpu::storeReg(){
         cout<<"address = "<<address<<", data = "<< data << endl;
         mem->write32(address, data);
     }
+}
+
+void ArmCpu::add(){
+    if(decodedInstruction->shouldUseImmediate())
+        addImmediate();
+    else
+        addShifted();
+}
+
+void ArmCpu::move(){
+    if(decodedInstruction->shouldUseImmediate())
+        moveImmediate();
+    else
+        moveShifted();
 }

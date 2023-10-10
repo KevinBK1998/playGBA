@@ -7,6 +7,10 @@ private:
     char regM;
     ShiftType shiftType;
 public:
+    ALUReg(Opcode opcode, Condition cond, char rDest, char rN, char rM, char type, int imm): ArmInstruction(cond, opcode, rN, rDest, imm){
+        regM = rM;
+        shiftType = static_cast<ShiftType>(type);
+    }
     ALUReg(Opcode opcode, Condition cond, char rDest, char rM, char type, int imm): ArmInstruction(cond, opcode, imm, rDest){
         regM = rM;
         shiftType = static_cast<ShiftType>(type);
@@ -15,6 +19,7 @@ public:
     static ALUReg* decode(int opcode){
         Condition cond = Condition((opcode >> 28) & 0xF);
         char op = (opcode >> 21) & 0xF;
+        char rN = (opcode >> 16) & 0xF;
         char rDest = (opcode >> 12) & 0xF;
         int imm = (opcode>>7) & 0x1F;
         bool useShiftByReg = (opcode>>4) & 1;
@@ -26,6 +31,8 @@ public:
         }
         switch (op)
         {
+        case 0x4:
+            return new ALUReg(ADD, cond, rDest, rN, rM, shiftType, imm);
         case 0xD:
             return new ALUReg(MOV, cond, rDest, rM, shiftType, imm);
         default:
@@ -43,10 +50,29 @@ public:
         return shiftType;
     }
 
+    int getShiftedData(int data){
+        if (shiftType && !getImmediate()) {
+            cout<<"shifttype = " << shiftType<<", shift = 0" << endl;
+            exit(FAILED_TO_EXECUTE);
+        }
+        switch(shiftType){
+        case ShiftLeft:
+            return data<<getImmediate();
+        case ShiftRight:
+            return data>>getImmediate();
+        default:
+            cout<<"ALUReg shifttype = " << shiftType <<", shift = " << getImmediate() << endl;
+            exit(FAILED_TO_EXECUTE);
+        }
+    }
+
     string toString(){
         stringstream stream;
         switch (getOpcode())
         {
+        case ADD:
+            stream<<"ADD"<<getCondition()<<" R"<<getRegDest()<<", R"<< getRegN();
+            break;
         case MOV:
             stream<<"MOV"<<getCondition()<<" R"<<getRegDest();
             break;
@@ -70,27 +96,23 @@ public:
     }
 };
 
+void ArmCpu::addShifted(){
+    ALUReg* alu = (ALUReg*) decodedInstruction;
+    int op1 = reg->getReg(alu->getRegN());
+    int op2 = reg->getReg(alu->getRegM());
+    op2 = alu->getShiftedData(op2);
+    int result = op1 + op2;
+    cout<<"result = "<< hex << result << endl;
+    reg->setReg(decodedInstruction->getRegDest(), result);
+    // if (alu.canChangePsr())
+    //     reg->setCPSR(setFlags(result));
+}
+
 void ArmCpu::moveShifted(){
     ALUReg* alu = (ALUReg*) decodedInstruction;
     int data = reg->getReg(alu->getRegM());
-    int shift = alu->getImmediate();
-    ShiftType type = alu->getShiftType();
-    if (!alu->getImmediate()) {
-        cout<<"shifttype = " << unsigned(alu->getShiftType())<<", shift = " << alu->getImmediate() << endl;
-        exit(FAILED_TO_EXECUTE);
-    }
-    switch(type){
-    case ShiftLeft:
-        data = data<<shift;
-        break;
-    case ShiftRight:
-        data = data>>shift;
-        break;
-    default:
-        cout<<"ALUReg shifttype = " << type <<", shift = " << shift << endl;
-        exit(FAILED_TO_EXECUTE);
-    }
-    cout<<"data = " << data<<", shift = " << shift << endl;
+    data = alu->getShiftedData(data);
+    cout<<"data = " << data << endl;
     reg->setReg(alu->getRegDest(), data);
     // if (alu.canChangePsr())
     //     reg->setCPSR(setFlags(immediate));

@@ -18,10 +18,13 @@ private:
     void logicalAND();
     void subtract();
     void add();
+    void addImmediate();
+    void addShifted();
     void testXOR();
     void compare();
     void logicalOR();
     void bitClear();
+    void move();
     void moveImmediate();
     void moveShifted();
     void loadReg();

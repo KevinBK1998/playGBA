@@ -102,7 +102,7 @@ void ArmCpu::subtract(){
     //     reg->setCPSR(setFlags(result));
 }
 
-void ArmCpu::add(){
+void ArmCpu::addImmediate(){
     int before = reg->getReg(decodedInstruction->getRegN());
     int immediate = decodedInstruction->getImmediate();
     int result = before + immediate;
