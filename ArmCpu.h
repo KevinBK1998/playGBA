@@ -21,6 +21,7 @@ private:
     void testXOR();
     void compare();
     void logicalOR();
+    void bitClear();
     void moveImmediate();
     void moveShifted();
     void loadReg();

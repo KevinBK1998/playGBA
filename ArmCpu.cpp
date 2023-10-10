@@ -96,6 +96,9 @@ void ArmCpu::execute(){
             else
                 moveShifted();
             break;
+        case BIC:
+            bitClear();
+            break;
         case LDR:
             loadReg();
             break;

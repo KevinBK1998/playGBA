@@ -25,6 +25,7 @@ enum Opcode {
     CMP,
     ORR,
     MOV,
+    BIC,
     MVN,
     LDR,
     STR,

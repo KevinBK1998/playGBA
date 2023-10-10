@@ -36,9 +36,10 @@ public:
             return new ALU(ORR, cond, rDest, rN, imm);
         case 0xD:
             return new ALU(MOV, cond, rDest, imm);
-        case 0xE:;
+        case 0xE:
+            return new ALU(BIC, cond, rDest, rN, imm);
         }
-        cout << "Incomplete ALU Rd, Rn, Op2 = " << opcode << ", Funcode = " << ((opcode >> 21) & 0xF) << endl;
+        cout << "ALU = " << opcode << ", Funcode = " << ((opcode >> 21) & 0xF) << endl;
         exit(FAILED_TO_DECODE);
     }
 
@@ -51,33 +52,36 @@ public:
         switch (getOpcode())
         {
         case AND:
-            stream << showbase << "AND"<<getCondition()<<" R" << getRegDest() << ", R" << getRegN() << hex << ", " << getImmediate();
-            return stream.str();
+            stream<< "AND"<<getCondition()<<" R" << getRegDest() << ", R" << getRegN();
+            break;
         case SUB:
-            stream << showbase << "SUB"<<getCondition()<<" R" << getRegDest() << ", R" << getRegN() << hex << ", " << getImmediate();
-            return stream.str();
+            stream<< "SUB"<<getCondition()<<" R" << getRegDest() << ", R" << getRegN();
+            break;
         case ADD:
-            stream << showbase << "ADD"<<getCondition()<<" R" << getRegDest() << ", R" << getRegN() << hex << ", " << getImmediate();
-            return stream.str();
+            stream<< "ADD"<<getCondition()<<" R" << getRegDest() << ", R" << getRegN();
+            break;
         case TEQ:
-            stream << showbase << "TEQ"<<getCondition()<<" R" << getRegN() << hex << ", " << getImmediate();
-            return stream.str();
+            stream<< "TEQ"<<getCondition()<<" R" << getRegN();
+            break;
         case CMP:
-            stream << showbase << "CMP"<<getCondition()<<" R" << getRegN() << hex << ", " << getImmediate();
-            return stream.str();
+            stream<< "CMP"<<getCondition()<<" R" << getRegN();
+            break;
         case ORR:
-            stream << showbase << "ORR"<<getCondition()<<" R" << getRegDest() << ", R" << getRegN() << hex << ", " << getImmediate();
-            return stream.str();
+            stream<< "ORR"<<getCondition()<<" R" << getRegDest() << ", R" << getRegN();
+            break;
         case MOV:
-            stream << showbase << "MOV"<<getCondition()<<" R" << getRegDest() << hex << ", " << getImmediate();
-            return stream.str();
+            stream<< "MOV"<<getCondition()<<" R" << getRegDest();
+            break;
+        case BIC:
+            stream<< "BIC"<<getCondition()<<" R" << getRegDest() << ", R" << getRegN();
+            break;
         default:
             cout << "ALU = " << hex << getOpcode() << endl;
             exit(FAILED_DECODED_TO_STRING);
         }
-        return "Undefined";
+        stream<<showbase<<hex<<", "<<getImmediate();
+        return stream.str();
     }
-    ~ALU(){}
 };
 
 void ArmCpu::logicalAND(){
@@ -138,4 +142,12 @@ void ArmCpu::moveImmediate(){
     cout<<"result = "<< hex << immediate << endl;
     // if (alu.canChangePsr())
     //     reg->setCPSR(setFlags(immediate));
+}
+
+void ArmCpu::bitClear(){
+    int result = reg->getReg(decodedInstruction->getRegN()) & ~decodedInstruction->getImmediate();
+    reg->setReg(decodedInstruction->getRegDest(), result);
+    cout<<"result = "<< hex << result << endl;
+    // if (alu.canChangePsr())
+    //     reg->setCPSR(setFlags(result));
 }
