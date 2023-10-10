@@ -6,6 +6,8 @@
 #include "ArmInstructions/SingleDataTransfer.h"
 #include "ArmInstructions/MultipleDataTransfer.h"
 #include "ArmInstructions/ALU.h"
+#include "ArmInstructions/ALUReg.cpp"
+#include "ArmInstructions/PSRTransfer.cpp"
 
 using namespace std;
 
@@ -33,12 +35,16 @@ void ArmCpu::decode(){
     cout <<showbase<< "Debug Opcode: " << opcode << endl;
     if (((opcode>>8) & 0xFFFFF) == 0x12FFF)
         decodedInstruction=Branch::decode(opcode, true);
+    else if (((opcode>>20) & 0b11011001) == 0b10000)
+        decodedInstruction=PSRTransfer::decode(opcode);
+    else if (((opcode>>25) & 0b111) == 0b000)
+        decodedInstruction=ALUReg::decode(opcode);
+    else if (((opcode>>25) & 0b111) == 0b001)
+        decodedInstruction=ALU::decodeALU(opcode);
     else if (((opcode>>25) & 0b111) == 0b100)
         decodedInstruction=MultipleDataTransfer::decodeMDT(opcode);
     else if (((opcode>>25) & 0b111) == 0b101)
         decodedInstruction=Branch::decode(opcode);
-    else if (((opcode>>26) & 0b11) == 0b00)
-        decodedInstruction=ALU::decodeALU(opcode);
     else if (((opcode>>26) & 0b11) == 0b01)
         decodedInstruction=SingleDataTransfer::decodeSDT(opcode);
     else{
@@ -170,23 +176,6 @@ void ArmCpu::branchExchange(){
         reg->setReg(LR, reg->getReg(PC) + WORD_SIZE);
     int data = reg->getReg(b->getRegN());
     reg->exchange(data);
-}
-
-void ArmCpu::psrTransfer(){
-    if (decodedInstruction->getOpcode() == MRS){
-        int data = decodedInstruction->getImmediate() ? reg->getSPSR(): reg->getCPSR();
-        cout<<"result = "<< hex << data << endl;
-        reg->setReg(decodedInstruction->getRegDest(), data);
-    }
-    else{
-        ALU* psrTfr = (ALU*) decodedInstruction;
-        int result = psrTfr->getMask() & reg->getReg(psrTfr->getRegN());
-        cout<<"mask = "<<psrTfr->getMask()<<"\tresult = "<<result<<endl;
-        if(decodedInstruction->getImmediate())
-            reg->setSPSR(result);
-        else
-            reg->setCPSR(result);
-    }
 }
 
 void ArmCpu::subtract(){
