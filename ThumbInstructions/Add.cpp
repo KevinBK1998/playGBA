@@ -53,7 +53,7 @@ public:
         return useImm;
     }
 
-    bool useImmediate(){
+    bool useImmediateOffset(){
         return true;
     }
 

@@ -2,7 +2,7 @@
 #include "ThumbInstructions/Instruction.cpp"
 #include "ThumbInstructions/ThumbALU.cpp"
 #include "ThumbInstructions/AddSP.h"
-#include "ThumbInstructions/ALUImmediate.h"
+#include "ThumbInstructions/ALUImmediate.cpp"
 #include "ThumbInstructions/ShiftedALU.h"
 #include "ThumbInstructions/SingleDataTransfer.h"
 #include "ThumbInstructions/LoadPCRelative.h"
@@ -31,7 +31,6 @@ ThumbCpu::ThumbCpu(Registers* registers, Memory* memory){
 }
 
 void ThumbCpu::decode(){
-    // cout<<"DEBUG"<< endl;
     int currentPC = reg->getPC();
     int opcode = mem->read16(currentPC);
     cout <<showbase<< "Debug Opcode: " << opcode << endl;
@@ -82,7 +81,7 @@ void ThumbCpu::execute(){
         move();
         break;
     case SUB:
-        if(decodedInstruction->useImmediate())
+        if(decodedInstruction->useImmediateOffset())
             subRegWithImmediate();
         else
             sub();
@@ -100,7 +99,7 @@ void ThumbCpu::execute(){
         storeRegSPRelative();
         break;
     case STR:
-        if(decodedInstruction->useImmediate())
+        if(decodedInstruction->useImmediateOffset())
             storeImmediateOffset();
         else
             storeReg();
@@ -109,7 +108,10 @@ void ThumbCpu::execute(){
         storeHalfReg();
         break;
     case ADD:
-        addRegWithImmediate();
+        if (decodedInstruction->useImmediateOffset())
+            addRegWithImmediate();
+        else
+            addImmediate();
         break;
     case ADDSP:
         addSP();

@@ -19,6 +19,7 @@ class ThumbCpu{
     void storeHalfReg();
     void storeRegSPRelative();
     void addRegWithImmediate();
+    void addImmediate();
     void sub();
     void subRegWithImmediate();
     void addSP();
