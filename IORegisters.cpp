@@ -3,6 +3,17 @@
 #include "CommonDS.h"
 using namespace std;
 
+const int SOUND1CNT_L = 0x60;
+const int SOUND_END = 0xA8;
+const int DMA0SAD = 0xB0;
+const int DMA_END = 0xE0;
+const int TM0CNT_L = 0x100;
+const int TIMER_END = 0x110;
+const int SIODATA32 = 0x120;
+const int SERIAL1_END = 0x12C;
+const int KEYINPUT = 0x130;
+const int RCNT = 0x134;
+const int SERIAL2_END = 0x15A;
 const int IE = 0x200;
 const int IF = 0x202;
 const int WAITCNT = 0x204;
@@ -16,6 +27,11 @@ private:
     uint16_t i_f;
     uint16_t waitCnt;
     uint16_t ime;
+    uint8_t sound[0x48];
+    uint8_t dma[48];
+    uint8_t timer[16];
+    uint8_t serial[12];
+    uint8_t serial2[0x26];
     bool postBootFlag;
     bool checkForAddress(int address, int IOreg, int size){
         return address>=IOreg && address<IOreg+size;
@@ -24,6 +40,7 @@ private:
         if (address){
             *(var) &= 0xFF;
             *(var) |= (data<<8);
+            if(DEBUG_LOGS) status();
         }
         else {
             *(var) &= 0xFF00;
@@ -41,7 +58,23 @@ public:
     }
 
     void write8(int address, uint8_t data) {
-        if (checkForAddress(address, IE, HALFWORD_SIZE))
+        if (address >= SOUND1CNT_L && address < SOUND_END)
+            sound[address-SOUND1CNT_L]=data;
+        else if (address >= DMA0SAD && address < DMA_END)
+            dma[address-DMA0SAD]=data;
+        else if (address >= DMA_END && address < TM0CNT_L)
+            cout << "W: IORegisters Unused Memory: "<<address<<endl;
+        else if (address >= TM0CNT_L && address < TIMER_END)
+            timer[address-TM0CNT_L]=data;
+        else if (address >= TIMER_END && address < SIODATA32)
+            cout << "W: IORegisters Unused Memory: "<<address<<endl;
+        else if (address >= SIODATA32 && address < SERIAL1_END)
+            serial[address-SIODATA32]=data;
+        else if (address >= SERIAL1_END && address < KEYINPUT)
+            cout << "W: IORegisters Unused Memory: "<<address<<endl;
+        else if (address >= RCNT && address < SERIAL2_END)
+            serial[address-RCNT]=data;
+        else if (checkForAddress(address, IE, HALFWORD_SIZE))
             storeHalfWord(address&1, &ie, data);
         else if (checkForAddress(address, IF, HALFWORD_SIZE))
             storeHalfWord(address&1, &i_f, data);
@@ -59,9 +92,10 @@ public:
             cout << "W: IORegisters Undefined Memory: "<<address<<endl;
             exit(FAILED_DMA);
         }
-        if (address&1){
-            cout<<"IOREG:"<<endl;
-            cout<<"IE: "<<ie<<"\tIF: "<<i_f<<"\tWAITCNT: "<<waitCnt<<"\tIME: "<<ime<<"\tPBOOT: "<<postBootFlag<<endl<<endl;
-        }
+    }
+
+    void status(){
+        cout<<"IOREG:"<<endl;
+        cout<<"IE: "<<ie<<"\tIF: "<<i_f<<"\tWAITCNT: "<<waitCnt<<"\tIME: "<<ime<<"\tPBOOT: "<<postBootFlag<<endl<<endl;
     }
 };

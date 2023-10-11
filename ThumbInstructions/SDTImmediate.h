@@ -22,7 +22,7 @@ public:
         Opcode op = STRH;
         if((opcode>>11) & 1) 
             op = LDRH;
-        int offset = (opcode>>6) & 0b11111;
+        int offset = (opcode>>5) & 0b111110;
         char rB = (opcode>>3) & 0b111;
         char rD = opcode & 0b111;
         return new SDTHalfImmediate(op, offset, rB, rD);
