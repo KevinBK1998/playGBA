@@ -2,6 +2,7 @@
 #include <fstream>
 #include "Registers.cpp"
 #include "Memory.cpp"
+#include "GPU.cpp"
 #include "ArmCpu.cpp"
 #include "ThumbCpu.cpp"
 

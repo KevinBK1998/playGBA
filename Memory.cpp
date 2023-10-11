@@ -90,8 +90,12 @@ void Memory::write8(uint32_t address, uint8_t data) {
         cout << "W: Unused Memory: "<<address<<", Data: "<<unsigned(data)<<endl;
         return;
     }
-    else if (address >= IO_REG_OFFSET && address < IO_REG_END)
-        registers.write8(address - IO_REG_OFFSET, data);
+    else if (address >= IO_REG_OFFSET && address < IO_REG_END){
+        if (address < GPU_REG_END)
+            gpu.write8(address, data);
+        else
+            registers.write8(address - IO_REG_OFFSET, data);
+    }
     else if (address == UNKNOWN_BIOS_FLAG)
             cout << "W: UNKNOWN_BIOS_FLAG: "<<unsigned(data)<<endl;
     else if (address >= ROM_OFFSET && address < ROM_END)
