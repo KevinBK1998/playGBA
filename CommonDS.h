@@ -3,6 +3,7 @@
 
 const uint32_t N = 0x80000000;
 const uint32_t Z = 0x40000000;
+const uint32_t C = 0x20000000;
 const uint32_t V = 0x10000000;
 
 #define BYTE_SIZE 1
@@ -12,18 +13,25 @@ const uint32_t V = 0x10000000;
 enum Opcode {
     NOT_INITIALISED,
     B,
+    B_WORD,
+    B_COND,
     BX,
     AND,
     SUB,
     ADD,
     TEQ,
+    TST,
     MRS,
     MSR,
     CMP,
     ORR,
     MOV,
+    BIC,
+    MVN,
     LDR,
     STR,
+    LDRH,
+    STRH,
     LDM,
     STM,
     PUSH,
@@ -32,6 +40,15 @@ enum Opcode {
     LDRSP,
     STRSP,
     ADDSP,
+    LSL,
+    LSR,
+    MOV_HI,
+};
+
+enum ShiftType{
+    ShiftLeft,
+    ShiftRight,
+    ArithmeticShiftRight,
 };
 
 enum ConditionConstant {

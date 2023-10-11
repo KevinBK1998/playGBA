@@ -72,6 +72,10 @@ ArmInstruction::ArmInstruction(Opcode operation, char op1, int flags, int data, 
     regDest = destReg;
 }
 
+bool ArmInstruction::shouldUseImmediate(){
+    return false;
+}
+
 string ArmInstruction::toString(){
     stringstream stream;
     switch (opcode)
@@ -113,6 +117,8 @@ string Condition::toString(){
         return "{eq}";
     case NE:
         return "{ne}";
+    case CC:
+        return "{cc}";
     case LT:
         return "{lt}";
     case ALWAYS:

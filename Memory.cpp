@@ -108,9 +108,17 @@ void Memory::write8(uint32_t address, uint8_t data) {
     //     System.out.println("Unused Memory: 0x" + Integer.toHexString(address) + ", set to 0x" + Integer.toHexString(data));
 }
 
+void Memory::write16(uint32_t address, uint16_t data) {
+    // cout << "Address: "<<address<<", Data: "<<data<<endl;
+    for (int i = 0; i < HALFWORD_SIZE; i++) {
+        write8(address + i, data);
+        data = data >> 8;
+    }
+}
+
 void Memory::write32(uint32_t address, uint32_t data) {
     // cout << "Address: "<<address<<", Data: "<<data<<endl;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < WORD_SIZE; i++) {
         write8(address + i, data);
         data = data >> 8;
     }

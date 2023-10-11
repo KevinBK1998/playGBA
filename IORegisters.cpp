@@ -7,8 +7,9 @@ const int IME = 0x208;
 class IORegisters
 {
 private:
-    uint8_t postBootFlag;
-    bool ime;
+    uint16_t lcdControl;
+    uint16_t ime;
+    bool postBootFlag;
 public:
     IORegisters(/* args */){}
     ~IORegisters(){}
@@ -23,13 +24,28 @@ public:
     }
 
     void write8(int address, uint8_t data) {
-        if (address == POST_BOOT_FLAG)
-            postBootFlag = data;
-        else if (address == IME)
-            ime = (data & 1) != 0;
+        if (!address){
+            lcdControl &= 0xFF00;
+            lcdControl |= data;
+        }
+        else if (address == 1){
+            lcdControl &= 0xFF;
+            lcdControl |= (data<<8);
+        }
+        else if (address == POST_BOOT_FLAG)
+            postBootFlag = data? true: false;
+        else if (address == IME){
+            ime &= 0xFF00;
+            ime |= data;
+        }
+        else if (address == IME+1){
+            ime &= 0xFF;
+            ime |= (data<<8);
+        }
         else{
-            cout << "W:Unknown Memory: 0x"<<address<<endl;
+            cout << "W:Unknown Memory: "<<address<<endl;
             exit(FAILED_DMA);
         }
+        cout<<"LCDCTRL: "<<lcdControl<<",IME: "<<ime<<",PBOOT: "<<postBootFlag<<endl;
     }
 };

@@ -1,0 +1,80 @@
+#ifndef THUMB_SHIFT_MOVE_H
+#define THUMB_SHIFT_MOVE_H
+
+#include "../ThumbCpu.h"
+
+using namespace std;
+
+class ShiftMove: public ThumbInstruction
+{
+private:
+    char regSource;
+public:
+    ShiftMove(Opcode operation, char regD, char regS, int offset): ThumbInstruction(operation, regD, offset){
+        regSource = regS;
+    }
+
+    static ShiftMove* decode(int opcode){
+        int op = (opcode>>11)&0b11;
+        int offset = (opcode>>6)&0x1F;
+        char regS = (opcode>>3)&0b111;
+        char regD = opcode&0b111;
+        switch (op)
+        {
+        case 0:
+            return new ShiftMove(LSL, regD, regS, offset);
+        case 1:
+            return new ShiftMove(LSR, regD, regS, offset);
+        default:
+            cout << "ShiftMove = " << unsigned(op) << endl;
+            exit(FAILED_TO_DECODE);
+            break;
+        }
+    }
+
+    char getRegSource(){
+        return regSource;
+    }
+    
+    string toString(){
+        stringstream stream;
+        switch (getOpcode())
+        {
+        case LSL:
+            stream<<"LSL";
+            break;
+        case LSR:
+            stream<<"LSR";
+            break;
+        default:
+            cout << "ShiftMove = " << hex << getOpcode() << endl;
+            exit(FAILED_DECODED_TO_STRING);
+        }
+        stream<<" R"<<unsigned(getRegDest())<<", R"<<unsigned(regSource)<<showbase<<hex<<", "<<getImmediate();
+        return stream.str();
+    }
+};
+
+void ThumbCpu::shiftLeft(){
+    ShiftMove* alu = (ShiftMove*) decodedInstruction;
+    int regSValue = reg->getReg(alu->getRegSource());
+    int imm = alu->getImmediate();
+    int result = regSValue << imm;
+    int flags = generateFlags(result);
+    cout<<"result = "<<result<<", flags = "<<flags<<endl;
+    reg->setReg(alu->getRegDest(), result);
+    reg->setFlags(flags);
+}
+
+void ThumbCpu::shiftRight(){
+    ShiftMove* alu = (ShiftMove*) decodedInstruction;
+    int regSValue = reg->getReg(alu->getRegSource());
+    int imm = alu->getImmediate();
+    int result = regSValue >> imm;
+    int flags = generateFlags(result);
+    cout<<"result = "<<result<<", flags = "<<flags<<endl;
+    reg->setReg(alu->getRegDest(), result);
+    reg->setFlags(flags);
+}
+
+#endif

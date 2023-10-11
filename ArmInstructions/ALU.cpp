@@ -1,0 +1,188 @@
+#include <sstream>
+#include "../ArmCpu.h"
+
+int rotateRight(int data, int shift){
+    return (data>>shift) | (data << (32-shift));
+}
+
+class ALU : public ArmInstruction
+{
+private:
+    bool updatePSR;
+    string getPSRToString(){
+        return updatePSR?"S":"";
+    }
+public:
+    ALU(Opcode opcode, Condition cond, bool psr, char destReg, char op1, int imm): ArmInstruction(cond, opcode, op1, destReg, imm){
+        updatePSR = psr;
+    }
+    ALU(Opcode opcode, Condition cond, int imm, char op1): ArmInstruction(cond, opcode, op1, imm){
+        updatePSR = true;
+    }
+    ALU(Opcode opcode, Condition cond, bool psr, char destReg, int imm): ArmInstruction(cond, opcode, imm, destReg){
+        updatePSR = psr;
+    }
+
+    static ALU* decode(int opcode){
+        Condition cond = Condition((opcode >> 28) & 0xF);
+        char op = (opcode >> 21) & 0xF;
+        bool psr = (opcode>>20) & 1;
+        char rN = (opcode >> 16) & 0xF;
+        char rDest = (opcode >> 12) & 0xF;
+        int shift = (opcode >> 8) & 0xF;
+        int imm = opcode & 0xFF;
+        imm = rotateRight(imm, shift*2);
+        switch (op)
+        {
+        case 0:
+            return new ALU(AND, cond, psr, rDest, rN, imm);
+        case 2:
+            return new ALU(SUB, cond, psr, rDest, rN, imm);
+        case 4:
+            return new ALU(ADD, cond, psr, rDest, rN, imm);
+        case 8:
+            return new ALU(TST, cond, imm, rN);
+        case 9:
+            return new ALU(TEQ, cond, imm, rN);
+        case 0xA:
+            return new ALU(CMP, cond, imm, rN);
+        case 0xC:
+            return new ALU(ORR, cond, psr, rDest, rN, imm);
+        case 0xD:
+            return new ALU(MOV, cond, psr, rDest, imm);
+        case 0xE:
+            return new ALU(BIC, cond, psr, rDest, rN, imm);
+        }
+        cout << "ALU = " << opcode << ", Funcode = " << ((opcode >> 21) & 0xF) << endl;
+        exit(FAILED_TO_DECODE);
+    }
+
+    bool shouldUseImmediate(){
+        return true;
+    }
+
+    bool shouldUpdatePSR(){
+        return updatePSR;
+    }
+
+    string toString(){
+        stringstream stream;
+        switch (getOpcode())
+        {
+        case AND:
+            stream<< "AND"<<getPSRToString()<<getCondition()<<" R" << getRegDest() << ", R" << getRegN();
+            break;
+        case SUB:
+            stream<< "SUB"<<getPSRToString()<<getCondition()<<" R" << getRegDest() << ", R" << getRegN();
+            break;
+        case ADD:
+            stream<< "ADD"<<getPSRToString()<<getCondition()<<" R" << getRegDest() << ", R" << getRegN();
+            break;
+        case TST:
+            stream<< "TST"<<getCondition()<<" R" << getRegN();
+            break;
+        case TEQ:
+            stream<< "TEQ"<<getCondition()<<" R" << getRegN();
+            break;
+        case CMP:
+            stream<< "CMP"<<getCondition()<<" R" << getRegN();
+            break;
+        case ORR:
+            stream<< "ORR"<<getPSRToString()<<getCondition()<<" R" << getRegDest() << ", R" << getRegN();
+            break;
+        case MOV:
+            stream<< "MOV"<<getPSRToString()<<getCondition()<<" R" << getRegDest();
+            break;
+        case BIC:
+            stream<< "BIC"<<getPSRToString()<<getCondition()<<" R" << getRegDest() << ", R" << getRegN();
+            break;
+        default:
+            cout << "ALU = " << hex << getOpcode() << endl;
+            exit(FAILED_DECODED_TO_STRING);
+        }
+        stream<<showbase<<hex<<", "<<getImmediate();
+        return stream.str();
+    }
+};
+
+void ArmCpu::logicalAND(){
+    ALU* alu = (ALU*) decodedInstruction;
+    int result = reg->getReg(alu->getRegN()) & alu->getImmediate();
+    reg->setReg(alu->getRegDest(), result);
+    cout<<"result = "<< hex << result << endl;
+    if (alu->shouldUpdatePSR())
+        reg->setFlags(generateFlags(result));
+}
+
+void ArmCpu::subtract(){
+    ALU* alu = (ALU*) decodedInstruction;
+    int before = reg->getReg(alu->getRegN());
+    int immediate = alu->getImmediate();
+    int result = before - immediate;
+    cout<<"result = "<< hex << result << endl;
+    reg->setReg(alu->getRegDest(), result);
+    if (alu->shouldUpdatePSR())
+        reg->setFlags(generateFlags(result));
+}
+
+void ArmCpu::addImmediate(){
+    ALU* alu = (ALU*) decodedInstruction;
+    int before = reg->getReg(alu->getRegN());
+    int immediate = alu->getImmediate();
+    int result = before + immediate;
+    cout<<"result = "<< hex << result << endl;
+    reg->setReg(alu->getRegDest(), result);
+    if (alu->shouldUpdatePSR())
+        reg->setFlags(generateFlags(result));
+}
+
+void ArmCpu::test(){
+    int before = reg->getReg(decodedInstruction->getRegN());
+    int immediate = decodedInstruction->getImmediate();
+    int result = before & immediate;
+    cout<<"result = "<< hex << result << endl;
+    reg->setFlags(generateFlags(result));
+}
+
+void ArmCpu::testXOR(){
+    int before = reg->getReg(decodedInstruction->getRegN());
+    int immediate = decodedInstruction->getImmediate();
+    int result = before ^ immediate;
+    cout<<"result = "<< hex << result << endl;
+    reg->setFlags(generateFlags(result));
+}
+
+void ArmCpu::cmpImmediate(){
+    int before = reg->getReg(decodedInstruction->getRegN());
+    int immediate = decodedInstruction->getImmediate();
+    int result = before - immediate;
+    cout<<"result = "<< hex << result << endl;
+    reg->setFlags(generateFlags(result));
+}
+
+void ArmCpu::logicalOR(){
+    ALU* alu = (ALU*) decodedInstruction;
+    int result = reg->getReg(alu->getRegN()) | alu->getImmediate();
+    reg->setReg(alu->getRegDest(), result);
+    cout<<"result = "<< hex << result << endl;
+    if (alu->shouldUpdatePSR())
+        reg->setFlags(generateFlags(result));
+}
+
+void ArmCpu::moveImmediate(){
+    ALU* alu = (ALU*) decodedInstruction;
+    int immediate = alu->getImmediate();
+    reg->setReg(alu->getRegDest(), immediate);
+    cout<<"result = "<< hex << immediate << endl;
+    if (alu->shouldUpdatePSR())
+        reg->setFlags(generateFlags(immediate));
+}
+
+void ArmCpu::bitClear(){
+    ALU* alu = (ALU*) decodedInstruction;
+    int result = reg->getReg(alu->getRegN()) & ~alu->getImmediate();
+    reg->setReg(alu->getRegDest(), result);
+    cout<<"result = "<< hex << result << endl;
+    if (alu->shouldUpdatePSR())
+        reg->setFlags(generateFlags(result));
+}
