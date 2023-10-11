@@ -5,9 +5,16 @@
 using namespace std;
 
 const int DISPCNT = 0;
+const int DISPSTAT = 4;
+const int VCOUNT = 6;
+const int BGCNT_OFFSET = 8;
+const int BGCNT_END = 0xE;
 
 class GPU{
     uint16_t dispCnt;
+    uint16_t dispStat;
+    uint16_t vCount;
+    uint16_t bgCnt[4];
     void storeHalfWord(int, uint16_t*, uint8_t);
 public:
     void write8(uint8_t, uint8_t);
