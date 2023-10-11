@@ -129,4 +129,3 @@ void Memory::write32(uint32_t address, uint32_t data) {
         data = data >> 8;
     }
 }
-

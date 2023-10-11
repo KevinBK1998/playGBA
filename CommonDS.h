@@ -5,6 +5,7 @@ const uint32_t N = 0x80000000;
 const uint32_t Z = 0x40000000;
 const uint32_t C = 0x20000000;
 const uint32_t V = 0x10000000;
+const bool DEBUG_LOGS = true;
 
 #define BYTE_SIZE 1
 #define HALFWORD_SIZE 2

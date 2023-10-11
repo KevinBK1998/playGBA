@@ -4,5 +4,5 @@ run-default: playGBA
 	./playGBA
 clean: playGBA
 	rm -f playGBA
-playGBA: playGBA.cpp ArmCpu.cpp ThumbCpu.cpp GPU.cpp Memory.cpp Registers.cpp IORegisters.cpp ArmInstructions/* ThumbInstructions/*
+playGBA: CommonDS.h playGBA.cpp ArmCpu.cpp ThumbCpu.cpp GPU.cpp Memory.cpp Registers.cpp IORegisters.cpp ArmInstructions/* ThumbInstructions/*
 	g++ playGBA.cpp -o playGBA
