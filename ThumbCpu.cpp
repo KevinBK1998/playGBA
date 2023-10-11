@@ -42,7 +42,7 @@ void ThumbCpu::decode(){
     else if (((opcode>>10) & 0x3F)== 0b10001)
         decodedInstruction = HiRegOperation::decode(opcode);
     else if (((opcode>>11) & 0x1F)== 0b11)
-        decodedInstruction = Add::decode(opcode);
+        decodedInstruction = AddRegImmediate::decode(opcode);
     else if (((opcode>>11) & 0x1F)== 0b1001)
         decodedInstruction = LoadPCRelative::decode(opcode);
     else if (((opcode>>11) & 0x1F)== 0b11100)
@@ -82,7 +82,10 @@ void ThumbCpu::execute(){
         move();
         break;
     case SUB:
-        sub();
+        if(decodedInstruction->useImmediate())
+            subRegWithImmediate();
+        else
+            sub();
         break;
     case MOV_HI:
         moveHigh();
@@ -106,7 +109,7 @@ void ThumbCpu::execute(){
         storeHalfReg();
         break;
     case ADD:
-        add();
+        addRegWithImmediate();
         break;
     case ADDSP:
         addSP();
