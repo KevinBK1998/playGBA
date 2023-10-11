@@ -15,9 +15,11 @@ class ThumbCpu{
     void moveN();
     void loadRegPCRelative();
     void storeReg();
+    void storeImmediateOffset();
     void storeHalfReg();
     void storeRegSPRelative();
     void add();
+    void sub();
     void addSP();
     void branch();
     void condBranch();

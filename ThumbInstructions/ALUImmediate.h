@@ -1,12 +1,5 @@
-#ifndef THUMB_ALU_IMM_H
-#define THUMB_ALU_IMM_H
-
-#include <iostream>
 #include <sstream>
-#include "Instruction.h"
-#include "../FailureCodes.h"
-
-using namespace std;
+#include "../ThumbCpu.h"
 
 class ALUThumbIMM: public ThumbInstruction
 {
@@ -16,12 +9,15 @@ public:
     static ALUThumbIMM* decode(int opcode){
         uint8_t imm = opcode&0xFF;
         char op = (opcode>>11) & 0x3;
-        char rD = (opcode>>8) & 0xF;
+        char rD = (opcode>>8) & 0x7;
         switch (op)
         {
         case 0:
             return new ALUThumbIMM(MOV, rD, imm);
+        case 3:
+            return new ALUThumbIMM(SUB, rD, imm);
         default:
+            cout << "ALUThumbIMM = " << opcode << endl;
             exit(FAILED_TO_DECODE);
             break;
         }
@@ -32,14 +28,33 @@ public:
         switch (getOpcode())
         {
         case MOV:
-            stream << showbase << "MOV R" << unsigned(getRegDest()) << hex << ", " << getImmediate();
+            stream<<"MOV";
+            break;
+        case SUB:
+            stream<<"SUB";
             break;
         default:
             cout << "ALUThumbIMM = " << hex << getOpcode() << endl;
             exit(FAILED_DECODED_TO_STRING);
         }
+        stream<<" R"<< unsigned(getRegDest()) << showbase <<  hex << ", " << getImmediate();
         return stream.str();
     }
 };
 
-#endif
+void ThumbCpu::move(){
+    int immediate = decodedInstruction->getImmediate();
+    int flags = generateFlags(immediate);
+    cout<<"result = "<< immediate <<", flags = "<< flags << endl;
+    reg->setReg(decodedInstruction->getRegDest(), immediate);
+    reg->setFlags(generateFlags(immediate));
+}
+
+void ThumbCpu::sub(){
+    int immediate = decodedInstruction->getImmediate();
+    int result = reg->getReg(decodedInstruction->getRegDest()) - immediate;
+    int flags = generateFlags(result);
+    cout<<"result = "<< result<<", flags = "<< flags << endl;
+    reg->setReg(decodedInstruction->getRegDest(), result);
+    reg->setFlags(generateFlags(immediate));
+}

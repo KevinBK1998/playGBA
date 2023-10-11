@@ -69,13 +69,13 @@ public:
         switch (getOpcode())
         {
         case LDM:
-            if (getRegN() == 13 && getSuffix()=="IA")
+            if (getRegN() == 13 && getSuffix()=="IA!")
                 stream<<"POP";
             else
                 stream<<"LDM"<<getSuffix()<<"[R"<< getRegN() <<"]";
             break;
         case STM:
-            if (getRegN() == 13 && getSuffix()=="DB")
+            if (getRegN() == 13 && getSuffix()=="DB!")
                 stream<<"PUSH"; 
             else
                 stream<<"STM"<<getSuffix()<<"[R"<< getRegN() <<"]";

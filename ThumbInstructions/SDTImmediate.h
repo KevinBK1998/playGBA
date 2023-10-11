@@ -9,23 +9,23 @@
 
 using namespace std;
 
-class SDTThumbIMM : public ThumbInstruction
+class SDTHalfImmediate : public ThumbInstruction
 {
 private:
     char regBase;
 public:
-    SDTThumbIMM(Opcode opcode, int offset, char rB, char rD): ThumbInstruction(opcode, rD, offset){
+    SDTHalfImmediate(Opcode opcode, int offset, char rB, char rD): ThumbInstruction(opcode, rD, offset){
         regBase = rB;
     }
 
-    static SDTThumbIMM* decode(int opcode){
+    static SDTHalfImmediate* decode(int opcode){
         Opcode op = STRH;
         if((opcode>>11) & 1) 
             op = LDRH;
-        int offset = (opcode>>6) & 0b1111;
+        int offset = (opcode>>6) & 0b11111;
         char rB = (opcode>>3) & 0b111;
         char rD = opcode & 0b111;
-        return new SDTThumbIMM(op, offset, rB, rD);
+        return new SDTHalfImmediate(op, offset, rB, rD);
     }
 
     char getRegBase(){
@@ -43,7 +43,7 @@ public:
             stream<<"]";
             break;
         default:
-            cout << "SDTThumbIMM = " << hex << getOpcode() << endl;
+            cout << "SDTHalfImmediate = " << hex << getOpcode() << endl;
             exit(FAILED_DECODED_TO_STRING);
         }
         return stream.str();

@@ -66,7 +66,7 @@ reset_vector:  @ This isn't required if not booting from bios
     mov r12, #0x4000000
     ldrb r12, [r12, #0x300]
     teq r12, #1
-    mrseq r12, apsr
+    mrseq r12, cpsr
     orreq r12, r12, #0xc0
     msreq cpsr_fc, r12
     beq reserved_vector

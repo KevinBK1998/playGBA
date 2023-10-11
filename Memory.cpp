@@ -57,7 +57,7 @@ uint8_t Memory::read8(uint32_t address) {
         return rom[address - ROM_OFFSET];
     // else if (address >= VRAM_OFFSET)
     //     throw new IndexOutOfBoundsException("R: Unknown Memory: 0x" + Integer.toHexString(address));
-    cout << "R: Unused Memory: "<<address<<endl;
+    cout << "R: Undefined Memory: "<<address<<endl;
     exit(FAILED_DMA);
     return 0;
 }
@@ -92,6 +92,8 @@ void Memory::write8(uint32_t address, uint8_t data) {
     }
     else if (address >= IO_REG_OFFSET && address < IO_REG_END)
         registers.write8(address - IO_REG_OFFSET, data);
+    else if (address == UNKNOWN_BIOS_FLAG)
+            cout << "W: UNKNOWN_BIOS_FLAG: "<<unsigned(data)<<endl;
     else if (address >= ROM_OFFSET && address < ROM_END)
         rom[address - ROM_OFFSET] = data;
     else{

@@ -14,6 +14,7 @@
 #include "ThumbInstructions/SDTImmediate.h"
 #include "ThumbInstructions/Add.cpp"
 #include "ThumbInstructions/HiRegOperation.cpp"
+#include "ThumbInstructions/SDTRegOffset.cpp"
 
 int ThumbCpu::generateFlags(int result){
     int flags = 0;
@@ -49,7 +50,7 @@ void ThumbCpu::decode(){
     else if (((opcode>>12) & 0b1111)== 0b101)
         decodedInstruction = ThumbSDT::decode(opcode);
     else if (((opcode>>12) & 0b1111)== 0b1000)
-        decodedInstruction = SDTThumbIMM::decode(opcode);
+        decodedInstruction = SDTHalfImmediate::decode(opcode);
     else if (((opcode>>12) & 0b1111)== 0b1001)
         decodedInstruction = SDTRelativeSP::decode(opcode);
     else if (((opcode>>12) & 0b1111)== 0b1011)
@@ -62,6 +63,8 @@ void ThumbCpu::decode(){
         decodedInstruction = ShiftMove::decode(opcode);
     else if (((opcode>>13) & 0b111)== 1)
         decodedInstruction = ALUThumbIMM::decode(opcode);
+    else if (((opcode>>13) & 0b111)== 0b11)
+        decodedInstruction = SDTRegOffset::decode(opcode);
     else{
         cout << "Undecoded Opcode: " << opcode << endl;
         exit(FAILED_TO_DECODE);
@@ -78,6 +81,9 @@ void ThumbCpu::execute(){
     case MOV:
         move();
         break;
+    case SUB:
+        sub();
+        break;
     case MOV_HI:
         moveHigh();
         break;
@@ -91,7 +97,10 @@ void ThumbCpu::execute(){
         storeRegSPRelative();
         break;
     case STR:
-        storeReg();
+        if(decodedInstruction->useImmediate())
+            storeImmediateOffset();
+        else
+            storeReg();
         break;
     case STRH:
         storeHalfReg();
@@ -170,13 +179,6 @@ bool ThumbCpu::canExecute(Condition cond){
     return canExecute(cond.value);
 }
 
-void ThumbCpu::move(){
-    int immediate = decodedInstruction->getImmediate();
-    reg->setReg(decodedInstruction->getRegDest(), immediate);
-    cout<<"result = "<< hex << immediate << endl;
-    reg->setFlags(generateFlags(immediate));
-}
-
 void ThumbCpu::loadRegPCRelative(){
     int regBValue = reg->getPC();
     if(regBValue == 0x9ca) regBValue+=HALFWORD_SIZE; // Workaround for now, need to fix
@@ -198,7 +200,7 @@ void ThumbCpu::storeReg(){
 }
 
 void ThumbCpu::storeHalfReg(){
-    SDTThumbIMM* sdt = (SDTThumbIMM*) decodedInstruction;
+    SDTHalfImmediate* sdt = (SDTHalfImmediate*) decodedInstruction;
     int base = reg->getReg(sdt->getRegBase());
     int offset = sdt->getImmediate()<<1;
     int data = reg->getReg(sdt->getRegDest());

@@ -18,6 +18,7 @@ public:
     Opcode getOpcode();
     char getRegDest();
     int getImmediate();
+    virtual bool useImmediate();
     virtual string toString();
 };
 
