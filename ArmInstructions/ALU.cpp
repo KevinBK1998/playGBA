@@ -152,7 +152,7 @@ void ArmCpu::testXOR(){
     reg->setFlags(generateFlags(result));
 }
 
-void ArmCpu::compare(){
+void ArmCpu::cmpImmediate(){
     int before = reg->getReg(decodedInstruction->getRegN());
     int immediate = decodedInstruction->getImmediate();
     int result = before - immediate;

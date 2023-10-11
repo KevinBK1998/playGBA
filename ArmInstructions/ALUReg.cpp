@@ -7,12 +7,23 @@ private:
     bool updatePSR;
     char regM;
     ShiftType shiftType;
+
+    string getPSRToString(){
+        return updatePSR?"S":"";
+    }
 public:
+    ALUReg(Opcode opcode, Condition cond, char rN, char rM, char type, int imm): ArmInstruction(cond, opcode, rN, imm){
+        updatePSR = true;
+        regM = rM;
+        shiftType = static_cast<ShiftType>(type);
+    }
+
     ALUReg(Opcode opcode, Condition cond, bool psr, char rDest, char rN, char rM, char type, int imm): ArmInstruction(cond, opcode, rN, rDest, imm){
         updatePSR = psr;
         regM = rM;
         shiftType = static_cast<ShiftType>(type);
     }
+
     ALUReg(Opcode opcode, Condition cond, bool psr, char rDest, char rM, char type, int imm): ArmInstruction(cond, opcode, imm, rDest){
         updatePSR = psr;
         regM = rM;
@@ -35,8 +46,10 @@ public:
         }
         switch (op)
         {
-        case 0x4:
+        case 4:
             return new ALUReg(ADD, cond, psr, rDest, rN, rM, shiftType, imm);
+        case 0xA:
+            return new ALUReg(CMP, cond, rN, rM, shiftType, imm);
         case 0xD:
             return new ALUReg(MOV, cond, psr, rDest, rM, shiftType, imm);
         default:
@@ -82,10 +95,13 @@ public:
         switch (getOpcode())
         {
         case ADD:
-            stream<<"ADD"<<(updatePSR?"S":"")<<getCondition()<<" R"<<getRegDest()<<", R"<< getRegN();
+            stream<<"ADD"<<getPSRToString()<<getCondition()<<" R"<<getRegDest()<<", R"<< getRegN();
+            break;
+        case CMP:
+            stream<<"CMP"<<getCondition()<<" R"<< getRegN();
             break;
         case MOV:
-            stream<<"MOV"<<(updatePSR?"S":"")<<getCondition()<<" R"<<getRegDest();
+            stream<<"MOV"<<getPSRToString()<<getCondition()<<" R"<<getRegDest();
             break;
         default:
             cout << "ALUReg = " << getOpcode() << endl;
@@ -117,6 +133,16 @@ void ArmCpu::addShifted(){
     reg->setReg(decodedInstruction->getRegDest(), result);
     if (alu->shouldUpdatePSR())
         reg->setFlags(generateFlags(result));
+}
+
+void ArmCpu::cmpShifted(){
+    ALUReg* alu = (ALUReg*) decodedInstruction;
+    int op1 = reg->getReg(alu->getRegN());
+    int op2 = reg->getReg(alu->getRegM());
+    op2 = alu->getShiftedData(op2);
+    int result = op1 - op2;
+    cout<<"result = "<< hex << result << endl;
+    reg->setFlags(generateFlags(result));
 }
 
 void ArmCpu::moveShifted(){

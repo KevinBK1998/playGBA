@@ -8,17 +8,38 @@ private:
     bool addFlag;
     bool writeBackFlag;
     int regList;
+    string getSuffix(){
+        stringstream stream;
+        if (addFlag)
+            stream<<"I";
+        else
+            stream<<"D";
+
+        if (preFlag)
+            stream<<"B";
+        else
+            stream<<"A";
+
+        if (writeBackFlag)
+            stream<<"!";
+        else
+            stream<<"";
+
+        return stream.str();
+    }
 public:
     MultipleDataTransfer(Condition cond, Opcode operation, char op1, int flags, int list):ArmInstruction(cond, operation, op1){
         preFlag = ((flags >> 3) & 1) != 0;
         addFlag = ((flags >> 2) & 1) != 0;
+        bool specialFlag = ((flags >> 1) & 1) != 0;
+        if (specialFlag) exit(FAILED_TO_DECODE);
         writeBackFlag = (flags & 1) != 0;
         regList = list;
     }
 
     static MultipleDataTransfer* decode(int opcode){
         Condition cond = Condition((opcode >> 28) & 0xF);
-        cout << "Incomplete LDM/STM {cond}{amod} Rn{!},<Rlist>{^} = " << opcode << endl;
+        cout << "MultipleDataTransfer = " << opcode << endl;
         int flags = (opcode >> 21) & 0xF;
         int imm = opcode & 0xFFF;
         char rN = (opcode >> 16) & 0xF;
@@ -48,16 +69,16 @@ public:
         switch (getOpcode())
         {
         case LDM:
-            if (getRegN() == 13)
+            if (getRegN() == 13 && getSuffix()=="IA")
                 stream<<"POP";
             else
-                stream<<"LDM[R"<< getRegN() <<"]";
+                stream<<"LDM"<<getSuffix()<<"[R"<< getRegN() <<"]";
             break;
         case STM:
-            if (getRegN() == 13)
+            if (getRegN() == 13 && getSuffix()=="DB")
                 stream<<"PUSH"; 
             else
-                stream<<"STM[R"<< getRegN() <<"]";
+                stream<<"STM"<<getSuffix()<<"[R"<< getRegN() <<"]";
             break;
         }
         stream << getCondition() << " {";
@@ -77,20 +98,33 @@ void ArmCpu::loadMultipleReg(){
     int address = reg->getReg(mdt->getRegN());
     int data;
     int list = mdt->getRegList();
-    int offset = mdt->shouldAddOffset()? WORD_SIZE: -WORD_SIZE;
+
+    //Calculate lowest address before loading
+    if(!mdt->shouldAddOffset()){
+        for (int i = 0; i < 16; i++){
+            if (list & 1){
+                address-=WORD_SIZE;
+            }
+            list>>=1;
+        }
+        if (mdt->shouldWriteBack())
+            reg->setReg(mdt->getRegN(),address);
+        list = mdt->getRegList();
+    }
+
     for (int i = 0; i < 16; i++){
         if (list & 1){
-            if (mdt->addBeforeTransfer())
-                address+=offset;
+            if (!(mdt->addBeforeTransfer() ^ mdt->shouldAddOffset()))
+                address+=WORD_SIZE;
             data = mem->read32(address);
             cout<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
             reg->setReg(i, data);
-            if (!mdt->addBeforeTransfer())
-                address+=offset;
+            if (mdt->addBeforeTransfer() ^ mdt->shouldAddOffset())
+                address+=WORD_SIZE;
         }
         list>>=1;
     }
-    if (mdt->shouldWriteBack())
+    if (mdt->shouldAddOffset() && mdt->shouldWriteBack())
         reg->setReg(mdt->getRegN(),address);
 }
 
@@ -99,19 +133,32 @@ void ArmCpu::storeMultipleReg(){
     int address = reg->getReg(mdt->getRegN());
     int data;
     int list = mdt->getRegList();
-    int offset = mdt->shouldAddOffset()? WORD_SIZE: -WORD_SIZE;
-    for (int i = 15; i >= 0; i--){
-        if (list & 0x8000){
-            if (mdt->addBeforeTransfer())
-                address+=offset;
+
+    //Calculate lowest address before storing
+    if(!mdt->shouldAddOffset()){
+        for (int i = 0; i < 16; i++){
+            if (list & 1){
+                address-=WORD_SIZE;
+            }
+            list>>=1;
+        }
+        if (mdt->shouldWriteBack())
+            reg->setReg(mdt->getRegN(),address);
+        list = mdt->getRegList();
+    }
+
+    for (int i = 0; i < 16; i++){
+        if (list & 1){
+            if (!(mdt->addBeforeTransfer() ^ mdt->shouldAddOffset()))
+                address+=WORD_SIZE;
             data = reg->getReg(i);
             cout<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
             mem->write32(address, data);
-            if (!mdt->addBeforeTransfer())
-                address+=offset;
+            if (mdt->addBeforeTransfer() ^ mdt->shouldAddOffset())
+                address+=WORD_SIZE;
         }
-        list<<=1;
+        list>>=1;
     }
-    if (mdt->shouldWriteBack())
+    if(mdt->shouldAddOffset() && mdt->shouldWriteBack())
         reg->setReg(mdt->getRegN(),address);
 }

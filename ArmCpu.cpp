@@ -228,3 +228,10 @@ void ArmCpu::move(){
     else
         moveShifted();
 }
+
+void ArmCpu::compare(){
+    if(decodedInstruction->shouldUseImmediate())
+        cmpImmediate();
+    else
+        cmpShifted();
+}

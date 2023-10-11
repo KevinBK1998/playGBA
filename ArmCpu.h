@@ -23,6 +23,8 @@ private:
     void test();
     void testXOR();
     void compare();
+    void cmpImmediate();
+    void cmpShifted();
     void logicalOR();
     void bitClear();
     void move();
