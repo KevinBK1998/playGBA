@@ -5,6 +5,7 @@
 using namespace std;
 
 const int DISPCNT = 0;
+const int GREENSWAP = 2;
 const int DISPSTAT = 4;
 const int VCOUNT = 6;
 const int BGCNT_OFFSET = 8;
@@ -32,6 +33,7 @@ const int BLDY = 0x54;
 
 class GPU{
     uint16_t dispCnt;
+    uint16_t greenSwap;
     uint16_t dispStat;
     uint16_t vCount;
     uint16_t bgCnt[4];

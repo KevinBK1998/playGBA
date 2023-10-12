@@ -217,9 +217,8 @@ void ThumbCpu::storeReg(){
     int regBValue = reg->getReg(sdt->getRegBase());
     int regOValue = reg->getReg(sdt->getRegOffset());
     int data = reg->getReg(sdt->getRegDest());
-    DEBUG_OUT<<"data = "<< data << endl;
     int address = regBValue + regOValue;
-    DEBUG_OUT<<"address = "<< address << endl;
+    DEBUG_OUT<<"address = "<< address <<", data = "<< data << endl;
     mem->write32(address, data);
 }
 
@@ -243,15 +242,8 @@ void ThumbCpu::storeRegSPRelative(){
 
 void ThumbCpu::addSP(){
     int regSValue = reg->getReg(SP);
-    bool signS= regSValue > 0;
     int imm = decodedInstruction->getImmediate() << 2;
-    bool signI= imm > 0;
     int result = regSValue + imm;
-    bool signR= result > 0;
-    if (signS == signI && signR!=signI){
-        cout<<"signedFlags = "<< signS <<","<< signI<<","<<signR << endl;
-        exit(PENDING_CODE);
-    }
     DEBUG_OUT<<"result SP = "<< result << endl;
     reg->setReg(SP, result);
 }

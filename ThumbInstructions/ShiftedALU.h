@@ -57,24 +57,26 @@ public:
 
 void ThumbCpu::shiftLeft(){
     ShiftMove* alu = (ShiftMove*) decodedInstruction;
-    int regSValue = reg->getReg(alu->getRegSource());
+    uint64_t regSValue = reg->getReg(alu->getRegSource());
     int imm = alu->getImmediate();
-    int result = regSValue << imm;
-    int flags = generateFlags(result);
-    DEBUG_OUT<<"result = "<<result<<", flags = "<<flags<<endl;
+    uint64_t result = regSValue << imm;
+    DEBUG_OUT<<"result = "<<result<<endl;
     reg->setReg(alu->getRegDest(), result);
-    reg->setFlags(flags);
+    reg->setFlags(generateFlags(result));
 }
 
 void ThumbCpu::shiftRight(){
     ShiftMove* alu = (ShiftMove*) decodedInstruction;
-    int regSValue = reg->getReg(alu->getRegSource());
+    uint64_t regSValue = reg->getReg(alu->getRegSource());
     int imm = alu->getImmediate();
-    int result = regSValue >> imm;
-    int flags = generateFlags(result);
-    DEBUG_OUT<<"result = "<<result<<", flags = "<<flags<<endl;
+    if (!imm) {
+        cout << "LSR Shift is zero"<<endl;
+        exit(PENDING_CODE);
+    }
+    uint64_t result = regSValue >> imm;
+    DEBUG_OUT<<"result = "<<result<<endl;
     reg->setReg(alu->getRegDest(), result);
-    reg->setFlags(flags);
+    reg->setFlags(generateFlags(result));
 }
 
 #endif

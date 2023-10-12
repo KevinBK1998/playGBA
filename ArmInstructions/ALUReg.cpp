@@ -71,7 +71,7 @@ public:
         return updatePSR;
     }
 
-    int getShiftedData(int data){
+    uint64_t getShiftedData(int data){
         if (shiftType && !getImmediate()) {
             cout<<"shifttype = " << shiftType<<", shift = 0" << endl;
             exit(FAILED_TO_EXECUTE);
@@ -147,7 +147,7 @@ void ArmCpu::cmpShifted(){
 
 void ArmCpu::moveShifted(){
     ALUReg* alu = (ALUReg*) decodedInstruction;
-    int data = reg->getReg(alu->getRegM());
+    uint64_t data = reg->getReg(alu->getRegM());
     data = alu->getShiftedData(data);
     DEBUG_OUT<<"data = " << data << endl;
     reg->setReg(alu->getRegDest(), data);

@@ -82,20 +82,12 @@ public:
 
 void ThumbCpu::addRegWithImmediate(){
     AddRegImmediate* alu = (AddRegImmediate*) decodedInstruction;
-    uint32_t op1 = reg->getReg(alu->getRegSource());
-    bool signS= op1 > 0;
+    uint64_t op1 = reg->getReg(alu->getRegSource());
     uint32_t op2 = alu->shouldUseImmediate()? alu->getImmediate(): reg->getReg(alu->getRegNum());
-    bool signI= op2 > 0;
     uint64_t result = op1 + op2;
-    bool signR= result > 0;
-    int flags = generateFlags(result);
-    if (signS == signI && signR!=signS){
-        cout<<"signedFlags = "<< signS <<","<< signI<<","<<signR << endl;
-        exit(PENDING_CODE);
-    }
-    DEBUG_OUT<<"result = "<<result<<", flags = "<<flags<<endl;
+    DEBUG_OUT<<"result = "<<result<<endl;
     reg->setReg(alu->getRegDest(), result);
-    reg->setFlags(flags);
+    reg->setFlags(generateFlags(op1, result));
 }
 
 void ThumbCpu::subRegWithImmediate(){

@@ -57,7 +57,7 @@ void Registers::setPC(int imm){
     reg15 = imm + getStepAmount();
 }
 
-int Registers::getReg(int index){
+uint32_t Registers::getReg(int index){
     if (index < 13)
         return unbankedReg[index];
     if (index < 15){

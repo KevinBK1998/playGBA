@@ -67,7 +67,7 @@ public:
     int getStepAmount();
     int getPC();
     void setPC(int);
-    int getReg(int);
+    uint32_t getReg(int);
     void setReg(char, int);
     int getCPSR();
     void setCPSR(int);
