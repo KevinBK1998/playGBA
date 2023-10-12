@@ -90,6 +90,32 @@ public:
         }
     }
 
+    bool getShiftedCarry(long data){
+        if (shiftType && !getImmediate()) {
+            cout<<"shifttype = " << shiftType<<", shift = 0" << endl;
+            exit(FAILED_TO_EXECUTE);
+        }
+        long result;
+        bool carry;
+        uint32_t copy = data;
+        switch(shiftType){
+        case ShiftLeft:
+            result = data<<getImmediate();
+            return (result>>32)&1;
+        case ShiftRight:
+            result = copy>>(getImmediate()-1);
+            return result&1;
+        case ArithmeticShiftRight:
+            result = data>>(getImmediate()-1);
+            cout<< "result = "<<result<< ", data = "<< data<<", immediate = "<< getImmediate()<<", flag = "<< (result&1)<<endl;
+            exit(FAILED_TO_EXECUTE);
+            return result&1;
+        default:
+            cout<<"ALUReg shifttype = " << shiftType <<", shift = " << getImmediate() << endl;
+            exit(FAILED_TO_EXECUTE);
+        }
+    }
+
     string toString(){
         stringstream stream;
         switch (getOpcode())
@@ -132,7 +158,7 @@ void ArmCpu::addShifted(){
     DEBUG_OUT<<"result = "<< hex << result << endl;
     reg->setReg(decodedInstruction->getRegDest(), result);
     if (alu->shouldUpdatePSR())
-        reg->setFlags(NZCV, generateFlags(op1, result));
+        reg->setFlags(NZCV, generateFlags(op1, op2, result));
 }
 
 void ArmCpu::cmpShifted(){
@@ -142,15 +168,18 @@ void ArmCpu::cmpShifted(){
     op2 = alu->getShiftedData(op2);
     uint64_t result = op1 - op2;
     DEBUG_OUT<<"result = "<< hex << result << endl;
-    reg->setFlags(NZCV, generateFlags(op1, result));
+    reg->setFlags(NZCV, generateFlags(op1, -op2, result));
 }
 
 void ArmCpu::moveShifted(){
     ALUReg* alu = (ALUReg*) decodedInstruction;
     uint64_t data = reg->getReg(alu->getRegM());
+    bool carry = alu->getShiftedCarry(data);
     data = alu->getShiftedData(data);
     DEBUG_OUT<<"data = " << data << endl;
     reg->setReg(alu->getRegDest(), data);
+    char mask=NZC;
+    if (!alu->getShiftType() && alu->getImmediate()) mask = NZ; //LSL#0 does not change carry flag
     if (alu->shouldUpdatePSR())
-        reg->setFlags(NZ, generateFlags(data));
+        reg->setFlags(mask, generateShiftFlags(carry, data));
 }

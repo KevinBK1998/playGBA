@@ -57,10 +57,11 @@ void ThumbCpu::shiftLeft(){
     uint64_t regSValue = reg->getReg(alu->getRegSource());
     int imm = alu->getImmediate();
     uint64_t result = regSValue << imm;
+    bool carry = ((result>>32)&1)!=0;
     DEBUG_OUT<<"result = "<<result<<endl;
     char mask = imm? NZ:NZC;
     reg->setReg(alu->getRegDest(), result);
-    reg->setFlags(mask, generateFlags(regSValue, result));
+    reg->setFlags(mask, generateShiftFlags(carry, result));
 }
 
 void ThumbCpu::shiftRight(){
@@ -71,9 +72,10 @@ void ThumbCpu::shiftRight(){
         cout << "LSR Shift is zero"<<endl;
         exit(PENDING_CODE);
     }
-    uint64_t result = regSValue >> imm;
+    uint64_t result = regSValue >> (imm-1);
+    bool carry = (result&1)!=0;
+    result >>= 1;
     DEBUG_OUT<<"result = "<<result<<endl;
     reg->setReg(alu->getRegDest(), result);
-    // TODO: fix flag generation for LSR/ASR
-    reg->setFlags(NZC, generateFlags(regSValue, result));
+    reg->setFlags(NZC, generateShiftFlags(carry, result));
 }

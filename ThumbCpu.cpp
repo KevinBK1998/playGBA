@@ -16,6 +16,24 @@
 #include "ThumbInstructions/HiRegOperation.cpp"
 #include "ThumbInstructions/SDTRegOffset.cpp"
 
+int ThumbCpu::generateShiftFlags(bool carry, int result){
+    int flags = 0;
+    if ((result>>31) & 1){
+        flags |= N;
+        DEBUG_OUT<<"N ";
+    }
+    if ((int) result == 0){
+        flags |= Z;
+        DEBUG_OUT<<"Z ";
+    }
+    if (carry){
+        flags |= C;
+        DEBUG_OUT<<"C ";
+    }
+    DEBUG_OUT<<"flags = "<< flags<< endl;
+    return flags;
+}
+
 int ThumbCpu::generateFlags(uint64_t result){
     int flags = 0;
     if ((result>>31) & 1){
@@ -126,6 +144,9 @@ void ThumbCpu::execute(){
     case STRH:
         storeHalfReg();
         break;
+    case LDRH:
+        loadHalfReg();
+        break;
     case ADD:
         if (decodedInstruction->useImmediateOffset())
             addRegWithImmediate();
@@ -220,16 +241,6 @@ void ThumbCpu::storeReg(){
     int address = regBValue + regOValue;
     DEBUG_OUT<<"address = "<< address <<", data = "<< data << endl;
     mem->write32(address, data);
-}
-
-void ThumbCpu::storeHalfReg(){
-    SDTHalfImmediate* sdt = (SDTHalfImmediate*) decodedInstruction;
-    int base = reg->getReg(sdt->getRegBase());
-    int offset = sdt->getImmediate()<<1;
-    int data = reg->getReg(sdt->getRegDest());
-    int address = base + offset;
-    DEBUG_OUT<<"address = "<< address <<", data = "<< data << endl;
-    mem->write16(address, data);
 }
 
 void ThumbCpu::storeRegSPRelative(){

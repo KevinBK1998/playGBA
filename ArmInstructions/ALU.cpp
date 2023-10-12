@@ -143,7 +143,7 @@ void ArmCpu::addImmediate(){
     DEBUG_OUT<<"result = "<< hex << result << endl;
     reg->setReg(alu->getRegDest(), result);
     if (alu->shouldUpdatePSR())
-        reg->setFlags(NZCV, generateFlags(before, result));
+        reg->setFlags(NZCV, generateFlags(before, immediate, result));
 }
 
 void ArmCpu::test(){
@@ -167,7 +167,7 @@ void ArmCpu::cmpImmediate(){
     uint32_t immediate = decodedInstruction->getImmediate();
     uint64_t result = before - immediate;
     DEBUG_OUT<<"result = "<< hex << result << endl;
-    reg->setFlags(NZCV, generateFlags(before, result));
+    reg->setFlags(NZCV, generateFlags(before, -immediate, result));
 }
 
 void ArmCpu::logicalOR(){

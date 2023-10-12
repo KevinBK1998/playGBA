@@ -8,7 +8,8 @@
 
 using namespace std;
 int timePassed=0;
-int DEBUG_AFTER=467;
+// int DEBUG_AFTER=491;
+int DEBUG_AFTER=750;
 Memory mem;
 Registers reg;
 

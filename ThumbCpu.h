@@ -11,6 +11,7 @@ class ThumbCpu{
     ThumbInstruction* decodedInstruction = new ThumbInstruction();
     int generateFlags(uint64_t);
     int generateFlags(int, uint64_t);
+    int generateShiftFlags(bool, int);
     void move();
     void moveHigh();
     void moveN();
@@ -18,6 +19,7 @@ class ThumbCpu{
     void storeReg();
     void storeImmediateOffset();
     void storeHalfReg();
+    void loadHalfReg();
     void storeRegSPRelative();
     void addRegWithImmediate();
     void addImmediate();

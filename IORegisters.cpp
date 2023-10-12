@@ -58,22 +58,32 @@ public:
     }
 
     void write8(int address, uint8_t data) {
-        if (address >= SOUND1CNT_L && address < SOUND_END)
+        if (address >= SOUND1CNT_L && address < SOUND_END){
+            DEBUG_OUT << "W: IORegisters Sound Memory: "<<address<<endl;
             sound[address-SOUND1CNT_L]=data;
-        else if (address >= DMA0SAD && address < DMA_END)
+        }
+        else if (address >= DMA0SAD && address < DMA_END){
+            DEBUG_OUT << "W: IORegisters DMA Memory: "<<address<<endl;
             dma[address-DMA0SAD]=data;
+        }
         else if (address >= DMA_END && address < TM0CNT_L)
             DEBUG_OUT << "W: IORegisters Unused Memory: "<<address<<endl;
-        else if (address >= TM0CNT_L && address < TIMER_END)
+        else if (address >= TM0CNT_L && address < TIMER_END){
+            DEBUG_OUT << "W: IORegisters TIMER Memory: "<<address<<endl;
             timer[address-TM0CNT_L]=data;
+        }
         else if (address >= TIMER_END && address < SIODATA32)
             DEBUG_OUT << "W: IORegisters Unused Memory: "<<address<<endl;
-        else if (address >= SIODATA32 && address < SERIAL1_END)
+        else if (address >= SIODATA32 && address < SERIAL1_END){
+            DEBUG_OUT << "W: IORegisters SERIAL_1 Memory: "<<address<<endl;
             serial[address-SIODATA32]=data;
+        }
         else if (address >= SERIAL1_END && address < KEYINPUT)
             DEBUG_OUT << "W: IORegisters Unused Memory: "<<address<<endl;
-        else if (address >= RCNT && address < SERIAL2_END)
+        else if (address >= RCNT && address < SERIAL2_END){
+            DEBUG_OUT << "W: IORegisters SERIAL_2 Memory: "<<address<<endl;
             serial[address-RCNT]=data;
+        }
         else if (address >= SERIAL2_END && address < IE)
             DEBUG_OUT << "W: IORegisters Unused Memory: "<<address<<endl;
         else if (checkForAddress(address, IE, HALFWORD_SIZE))
