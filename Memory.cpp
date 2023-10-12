@@ -98,6 +98,8 @@ void Memory::write8(uint32_t address, uint8_t data) {
     }
     else if (address == UNKNOWN_BIOS_FLAG)
             DEBUG_OUT << "W: UNKNOWN_BIOS_FLAG: "<<unsigned(data)<<endl;
+    // else if (address >= ROM_OFFSET && address < ROM_END)
+    //     rom[address - ROM_OFFSET] = data;
     else{
         cout << "W: Undefined Memory: "<<address<<", Data: "<<unsigned(data)<<endl;
         exit(FAILED_DMA);

@@ -5,6 +5,13 @@ int rotateRight(int data, int shift){
     return (data>>shift) | (data << (32-shift));
 }
 
+void exitIfOpcodeP(char r){
+    if (r) {
+        cout << "P opcodes = " << unsigned(r) << endl;
+        exit(PENDING_CODE);
+    }
+}
+
 class ALU : public ArmInstruction
 {
 private:
@@ -41,10 +48,13 @@ public:
         case 4:
             return new ALU(ADD, cond, psr, rDest, rN, imm);
         case 8:
+            exitIfOpcodeP(rDest);
             return new ALU(TST, cond, imm, rN);
         case 9:
+            exitIfOpcodeP(rDest);
             return new ALU(TEQ, cond, imm, rN);
         case 0xA:
+            exitIfOpcodeP(rDest);
             return new ALU(CMP, cond, imm, rN);
         case 0xC:
             return new ALU(ORR, cond, psr, rDest, rN, imm);
@@ -127,13 +137,13 @@ void ArmCpu::subtract(){
 
 void ArmCpu::addImmediate(){
     ALU* alu = (ALU*) decodedInstruction;
-    int before = reg->getReg(alu->getRegN());
-    int immediate = alu->getImmediate();
-    int result = before + immediate;
+    uint32_t before = reg->getReg(alu->getRegN());
+    uint32_t immediate = alu->getImmediate();
+    uint64_t result = before + immediate;
     DEBUG_OUT<<"result = "<< hex << result << endl;
     reg->setReg(alu->getRegDest(), result);
     if (alu->shouldUpdatePSR())
-        reg->setFlags(generateFlags(result));
+        reg->setFlags(generateFlags(before, result));
 }
 
 void ArmCpu::test(){
@@ -153,11 +163,11 @@ void ArmCpu::testXOR(){
 }
 
 void ArmCpu::cmpImmediate(){
-    int before = reg->getReg(decodedInstruction->getRegN());
-    int immediate = decodedInstruction->getImmediate();
-    int result = before - immediate;
+    uint32_t before = reg->getReg(decodedInstruction->getRegN());
+    uint32_t immediate = decodedInstruction->getImmediate();
+    uint64_t result = before - immediate;
     DEBUG_OUT<<"result = "<< hex << result << endl;
-    reg->setFlags(generateFlags(result));
+    reg->setFlags(generateFlags(before, result));
 }
 
 void ArmCpu::logicalOR(){

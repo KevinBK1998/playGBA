@@ -11,7 +11,8 @@ private:
     Registers* reg;
     Memory* mem;
     ArmInstruction* decodedInstruction = new ArmInstruction();
-    int generateFlags(int);
+    int generateFlags(long);
+    int generateFlags(int, long);
     void branch();
     void branchExchange();
     void psrTransfer();

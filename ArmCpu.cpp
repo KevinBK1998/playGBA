@@ -15,12 +15,30 @@ int rotateleft(int data, int shift){
     return (data<<shift) | (data >> (32-shift));
 }
 
-int ArmCpu::generateFlags(int result){
+int ArmCpu::generateFlags(long result){
     int flags = 0;
-    if (result < 0)
+    if ((result>>31) & 1){
         flags |= N;
-    if (result == 0)
+        DEBUG_OUT<<"N ";
+    }
+    if ((int) result == 0){
         flags |= Z;
+        DEBUG_OUT<<"Z ";
+    }
+    if ((result>>32) & 1){
+        flags |= C;
+        DEBUG_OUT<<"C ";
+    }
+    DEBUG_OUT<<"flags = "<< flags<< endl;
+    return flags;
+}
+
+int ArmCpu::generateFlags(int operand, long result){
+    int flags = generateFlags(result);
+    if (((operand>>31) & 1) != ((result>>31) & 1)){
+        flags |= V;
+        DEBUG_OUT<<"V ";
+    }
     DEBUG_OUT<<"flags = "<< flags<< endl;
     return flags;
 }

@@ -15,7 +15,6 @@ Registers::~Registers()
 
 void Registers::setControlBits() {
     irqEnable = (currentStatusReg & 0x80) == 0;
-    thumbMode = (currentStatusReg & 0x20) != 0;
     int modeMeta = currentStatusReg & 0x1F;
     switch (modeMeta) {
         case 0:
