@@ -85,9 +85,11 @@ void Registers::setCPSR(int data){
     setControlBits();
 }
 
-void Registers::setFlags(int data){
-    currentStatusReg &= 0xFFFFFF;
-    currentStatusReg |= (data & 0xFF000000);
+void Registers::setFlags(char mask, int data){
+    int changeMask = mask<<24;
+    int protectMask = ~changeMask;
+    currentStatusReg &= protectMask;
+    currentStatusReg |= (data & changeMask);
 }
 
 int Registers::getSPSR(){

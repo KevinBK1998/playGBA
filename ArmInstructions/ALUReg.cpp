@@ -125,24 +125,24 @@ public:
 
 void ArmCpu::addShifted(){
     ALUReg* alu = (ALUReg*) decodedInstruction;
-    int op1 = reg->getReg(alu->getRegN());
-    int op2 = reg->getReg(alu->getRegM());
+    uint64_t op1 = reg->getReg(alu->getRegN());
+    uint32_t op2 = reg->getReg(alu->getRegM());
     op2 = alu->getShiftedData(op2);
-    int result = op1 + op2;
+    uint64_t result = op1 + op2;
     DEBUG_OUT<<"result = "<< hex << result << endl;
     reg->setReg(decodedInstruction->getRegDest(), result);
     if (alu->shouldUpdatePSR())
-        reg->setFlags(generateFlags(result));
+        reg->setFlags(NZCV, generateFlags(op1, result));
 }
 
 void ArmCpu::cmpShifted(){
     ALUReg* alu = (ALUReg*) decodedInstruction;
-    int op1 = reg->getReg(alu->getRegN());
-    int op2 = reg->getReg(alu->getRegM());
+    uint64_t op1 = reg->getReg(alu->getRegN());
+    uint32_t op2 = reg->getReg(alu->getRegM());
     op2 = alu->getShiftedData(op2);
-    int result = op1 - op2;
+    uint64_t result = op1 - op2;
     DEBUG_OUT<<"result = "<< hex << result << endl;
-    reg->setFlags(generateFlags(result));
+    reg->setFlags(NZCV, generateFlags(op1, result));
 }
 
 void ArmCpu::moveShifted(){
@@ -152,5 +152,5 @@ void ArmCpu::moveShifted(){
     DEBUG_OUT<<"data = " << data << endl;
     reg->setReg(alu->getRegDest(), data);
     if (alu->shouldUpdatePSR())
-        reg->setFlags(generateFlags(data));
+        reg->setFlags(NZ, generateFlags(data));
 }

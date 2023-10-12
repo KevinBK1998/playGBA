@@ -71,7 +71,7 @@ public:
     void setReg(char, int);
     int getCPSR();
     void setCPSR(int);
-    void setFlags(int);
+    void setFlags(char, int);
     int getSPSR();
     void setSPSR(int);
     void branch(int);

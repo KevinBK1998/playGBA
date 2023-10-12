@@ -3,7 +3,7 @@
 #include "ThumbInstructions/ThumbALU.cpp"
 #include "ThumbInstructions/AddSP.h"
 #include "ThumbInstructions/ALUImmediate.cpp"
-#include "ThumbInstructions/ShiftedALU.h"
+#include "ThumbInstructions/ShiftedALU.cpp"
 #include "ThumbInstructions/SingleDataTransfer.h"
 #include "ThumbInstructions/LoadPCRelative.h"
 #include "ThumbInstructions/SDTRelativeSP.h"

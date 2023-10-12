@@ -9,6 +9,9 @@ const uint32_t N = 0x80000000;
 const uint32_t Z = 0x40000000;
 const uint32_t C = 0x20000000;
 const uint32_t V = 0x10000000;
+const char NZ = 0xC0;
+const char NZC = 0xE0;
+const char NZCV = 0xF0;
 bool DEBUG_LOGS = false;
 std::stringstream nop;
 

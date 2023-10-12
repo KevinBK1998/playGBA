@@ -57,21 +57,21 @@ void ThumbCpu::addImmediate(){
     uint64_t result = before + immediate;
     DEBUG_OUT<<"result = "<< result << endl;
     reg->setReg(decodedInstruction->getRegDest(), result);
-    reg->setFlags(generateFlags(before, result));
+    reg->setFlags(NZCV, generateFlags(before, result));
 }
 
 void ThumbCpu::move(){
     int immediate = decodedInstruction->getImmediate();
     DEBUG_OUT<<"result = "<< immediate << endl;
     reg->setReg(decodedInstruction->getRegDest(), immediate);
-    reg->setFlags(generateFlags(immediate));
+    reg->setFlags(NZ, generateFlags(immediate));
 }
 
 void ThumbCpu::sub(){
-    int immediate = decodedInstruction->getImmediate();
-    int result = reg->getReg(decodedInstruction->getRegDest()) - immediate;
-    int flags = generateFlags(result);
-    DEBUG_OUT<<"result = "<< result<<", flags = "<< flags << endl;
+    uint64_t before = reg->getReg(decodedInstruction->getRegDest());
+    uint32_t immediate = decodedInstruction->getImmediate();
+    uint64_t result = before - immediate;
+    DEBUG_OUT<<"result = "<< result << endl;
     reg->setReg(decodedInstruction->getRegDest(), result);
-    reg->setFlags(generateFlags(result));
+    reg->setFlags(NZCV, generateFlags(before, result));
 }

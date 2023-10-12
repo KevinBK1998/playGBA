@@ -1,6 +1,3 @@
-#ifndef THUMB_SHIFT_MOVE_H
-#define THUMB_SHIFT_MOVE_H
-
 #include "../ThumbCpu.h"
 
 using namespace std;
@@ -61,8 +58,9 @@ void ThumbCpu::shiftLeft(){
     int imm = alu->getImmediate();
     uint64_t result = regSValue << imm;
     DEBUG_OUT<<"result = "<<result<<endl;
+    char mask = imm? NZ:NZC;
     reg->setReg(alu->getRegDest(), result);
-    reg->setFlags(generateFlags(result));
+    reg->setFlags(mask, generateFlags(regSValue, result));
 }
 
 void ThumbCpu::shiftRight(){
@@ -76,7 +74,6 @@ void ThumbCpu::shiftRight(){
     uint64_t result = regSValue >> imm;
     DEBUG_OUT<<"result = "<<result<<endl;
     reg->setReg(alu->getRegDest(), result);
-    reg->setFlags(generateFlags(result));
+    // TODO: fix flag generation for LSR/ASR
+    reg->setFlags(NZC, generateFlags(regSValue, result));
 }
-
-#endif
