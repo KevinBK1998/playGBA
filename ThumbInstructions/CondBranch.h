@@ -34,5 +34,5 @@ void ThumbCpu::condBranch(){
     CondBranch* b = (CondBranch*) decodedInstruction;
     if (canExecute(b->getPreCheck())){
         reg->branch(b->getImmediate());
-    } else cout << "Skipping, condition failed" << endl;
+    } else DEBUG_OUT << "Skipping, condition failed" << endl;
 }

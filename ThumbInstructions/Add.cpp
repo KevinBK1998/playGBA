@@ -93,7 +93,7 @@ void ThumbCpu::addRegWithImmediate(){
         cout<<"signedFlags = "<< signS <<","<< signI<<","<<signR << endl;
         exit(PENDING_CODE);
     }
-    cout<<"result = "<<result<<", flags = "<<flags<<endl;
+    DEBUG_OUT<<"result = "<<result<<", flags = "<<flags<<endl;
     reg->setReg(alu->getRegDest(), result);
     reg->setFlags(flags);
 }
@@ -111,7 +111,7 @@ void ThumbCpu::subRegWithImmediate(){
         cout<<"signedFlags = "<< signS <<","<< signI<<","<<signR << endl;
         exit(PENDING_CODE);
     }
-    cout<<"result = "<<result<<", flags = "<<flags<<endl;
+    DEBUG_OUT<<"result = "<<result<<", flags = "<<flags<<endl;
     reg->setReg(alu->getRegDest(), result);
     reg->setFlags(flags);
 }

@@ -55,7 +55,7 @@ void ThumbCpu::addImmediate(){
     int immediate = decodedInstruction->getImmediate();
     int result = reg->getReg(decodedInstruction->getRegDest()) + immediate;
     int flags = generateFlags(result);
-    cout<<"result = "<< result<<", flags = "<< flags << endl;
+    DEBUG_OUT<<"result = "<< result<<", flags = "<< flags << endl;
     reg->setReg(decodedInstruction->getRegDest(), result);
     reg->setFlags(generateFlags(result));
 }
@@ -63,7 +63,7 @@ void ThumbCpu::addImmediate(){
 void ThumbCpu::move(){
     int immediate = decodedInstruction->getImmediate();
     int flags = generateFlags(immediate);
-    cout<<"result = "<< immediate <<", flags = "<< flags << endl;
+    DEBUG_OUT<<"result = "<< immediate <<", flags = "<< flags << endl;
     reg->setReg(decodedInstruction->getRegDest(), immediate);
     reg->setFlags(generateFlags(immediate));
 }
@@ -72,7 +72,7 @@ void ThumbCpu::sub(){
     int immediate = decodedInstruction->getImmediate();
     int result = reg->getReg(decodedInstruction->getRegDest()) - immediate;
     int flags = generateFlags(result);
-    cout<<"result = "<< result<<", flags = "<< flags << endl;
+    DEBUG_OUT<<"result = "<< result<<", flags = "<< flags << endl;
     reg->setReg(decodedInstruction->getRegDest(), result);
     reg->setFlags(generateFlags(result));
 }

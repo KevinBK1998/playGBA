@@ -66,11 +66,11 @@ void ThumbCpu::storeImmediateOffset(){
     int address = base + offset;
     int data = reg->getReg(sdt->getRegDest());
     if (sdt->isByteTransfer()){
-        cout<<"address = "<< address<<", data = "<< (data & 0xFF) << endl;
+        DEBUG_OUT<<"address = "<< address<<", data = "<< (data & 0xFF) << endl;
         mem->write8(address, data);
     }
     else{
-        cout<<"address = "<< address<<", data = "<< data << endl;
+        DEBUG_OUT<<"address = "<< address<<", data = "<< data << endl;
         mem->write32(address, data);
     }
 }

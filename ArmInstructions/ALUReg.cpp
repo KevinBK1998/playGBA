@@ -129,7 +129,7 @@ void ArmCpu::addShifted(){
     int op2 = reg->getReg(alu->getRegM());
     op2 = alu->getShiftedData(op2);
     int result = op1 + op2;
-    cout<<"result = "<< hex << result << endl;
+    DEBUG_OUT<<"result = "<< hex << result << endl;
     reg->setReg(decodedInstruction->getRegDest(), result);
     if (alu->shouldUpdatePSR())
         reg->setFlags(generateFlags(result));
@@ -141,7 +141,7 @@ void ArmCpu::cmpShifted(){
     int op2 = reg->getReg(alu->getRegM());
     op2 = alu->getShiftedData(op2);
     int result = op1 - op2;
-    cout<<"result = "<< hex << result << endl;
+    DEBUG_OUT<<"result = "<< hex << result << endl;
     reg->setFlags(generateFlags(result));
 }
 
@@ -149,7 +149,7 @@ void ArmCpu::moveShifted(){
     ALUReg* alu = (ALUReg*) decodedInstruction;
     int data = reg->getReg(alu->getRegM());
     data = alu->getShiftedData(data);
-    cout<<"data = " << data << endl;
+    DEBUG_OUT<<"data = " << data << endl;
     reg->setReg(alu->getRegDest(), data);
     if (alu->shouldUpdatePSR())
         reg->setFlags(generateFlags(data));

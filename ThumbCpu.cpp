@@ -33,7 +33,7 @@ ThumbCpu::ThumbCpu(Registers* registers, Memory* memory){
 void ThumbCpu::decode(){
     int currentPC = reg->getPC();
     int opcode = mem->read16(currentPC);
-    cout <<showbase<< "Debug Opcode: " << opcode << endl;
+    DEBUG_OUT <<showbase<< "Debug Opcode: " << opcode << endl;
     if (((opcode>>8) & 0xFF) == 0xB0)
         decodedInstruction = AddSP::decode(opcode);
     else if (((opcode>>10) & 0x3F)== 0b010000)
@@ -71,10 +71,10 @@ void ThumbCpu::decode(){
 }
 void ThumbCpu::execute(){
     if (decodedInstruction->getOpcode() == NOT_INITIALISED){
-        cout << "No cached Instruction, skipping" << endl;
+        DEBUG_OUT << "No cached Instruction, skipping" << endl;
         return;
     }
-    cout <<showbase<< "Debug Execute: " << decodedInstruction->toString() << endl;
+    DEBUG_OUT <<showbase<< "Debug Execute: " << decodedInstruction->toString() << endl;
     switch (decodedInstruction->getOpcode())
     {
     case MOV:
@@ -189,7 +189,7 @@ void ThumbCpu::loadRegPCRelative(){
     if(regBValue == 0x9ca) regBValue+=HALFWORD_SIZE; // Workaround for now, need to fix
     int address = regBValue + decodedInstruction->getImmediate()*4;
     int data = mem->read32(address);
-    cout<<"address = "<<address<<", data = "<< data << endl;
+    DEBUG_OUT<<"address = "<<address<<", data = "<< data << endl;
     reg->setReg(decodedInstruction->getRegDest(), data);
 }
 
@@ -198,9 +198,9 @@ void ThumbCpu::storeReg(){
     int regBValue = reg->getReg(sdt->getRegBase());
     int regOValue = reg->getReg(sdt->getRegOffset());
     int data = reg->getReg(sdt->getRegDest());
-    cout<<"data = "<< data << endl;
+    DEBUG_OUT<<"data = "<< data << endl;
     int address = regBValue + regOValue;
-    cout<<"address = "<< address << endl;
+    DEBUG_OUT<<"address = "<< address << endl;
     mem->write32(address, data);
 }
 
@@ -210,7 +210,7 @@ void ThumbCpu::storeHalfReg(){
     int offset = sdt->getImmediate()<<1;
     int data = reg->getReg(sdt->getRegDest());
     int address = base + offset;
-    cout<<"address = "<< address <<", data = "<< data << endl;
+    DEBUG_OUT<<"address = "<< address <<", data = "<< data << endl;
     mem->write16(address, data);
 }
 
@@ -218,7 +218,7 @@ void ThumbCpu::storeRegSPRelative(){
     int regBValue = reg->getReg(SP);
     int address = regBValue + decodedInstruction->getImmediate()*4;
     int data = reg->getReg(decodedInstruction->getRegDest());
-    cout<<"address = "<< address <<", data = "<< data << endl;
+    DEBUG_OUT<<"address = "<< address <<", data = "<< data << endl;
     mem->write32(address, data);
 }
 
@@ -233,7 +233,7 @@ void ThumbCpu::addSP(){
         cout<<"signedFlags = "<< signS <<","<< signI<<","<<signR << endl;
         exit(PENDING_CODE);
     }
-    cout<<"result SP = "<< result << endl;
+    DEBUG_OUT<<"result SP = "<< result << endl;
     reg->setReg(SP, result);
 }
 
@@ -243,12 +243,12 @@ void ThumbCpu::longBranch(){
         int jumpAddress = reg->getReg(PC) + HALFWORD_SIZE;
         jumpAddress += b->getImmediate();
         reg->setReg(LR, jumpAddress);
-        cout << "ADDR = "<< jumpAddress <<endl;
+        DEBUG_OUT << "ADDR = "<< jumpAddress <<endl;
     } else{
         int jumpAddress = reg->getReg(LR) + b->getImmediate();
         reg->setReg(LR, (reg->getReg(PC) + HALFWORD_SIZE)|1); // To return in THUMB mode
         reg->setReg(PC, jumpAddress);
-        cout << "ADDR = "<< jumpAddress << ", linkADDR = "<< reg->getReg(LR) <<endl;
+        DEBUG_OUT << "ADDR = "<< jumpAddress << ", linkADDR = "<< reg->getReg(LR) <<endl;
     }
 }
 
@@ -271,7 +271,7 @@ void ThumbCpu::push(){
     for (int i = 0; i < 8; i++){
         if (list & 1){
             data = reg->getReg(i);
-            cout<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
+            DEBUG_OUT<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
             mem->write32(address, data);
             address+=WORD_SIZE;
         }
@@ -279,7 +279,7 @@ void ThumbCpu::push(){
     }
     if (mdt->handleLinkFlag()){
         data = reg->getReg(LR);
-        cout<<"address = "<<address<<", R"<<dec<<LR<<hex<<" = "<< data << endl;
+        DEBUG_OUT<<"address = "<<address<<", R"<<dec<<LR<<hex<<" = "<< data << endl;
         mem->write32(address, data);
     }
 }

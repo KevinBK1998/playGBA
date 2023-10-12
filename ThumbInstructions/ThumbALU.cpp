@@ -63,7 +63,7 @@ void ThumbCpu::test(){
     int op2 = reg->getReg(alu->getRegDest());
     int result = op1 & op2;
     int flags = generateFlags(result);
-    cout<<"result = "<<result<<", flags = "<<flags<<endl;
+    DEBUG_OUT<<"result = "<<result<<", flags = "<<flags<<endl;
     reg->setFlags(flags);
 }
 
@@ -73,7 +73,7 @@ void ThumbCpu::logicalOR(){
     int op2 = reg->getReg(alu->getRegDest());
     int result = op1 | op2;
     int flags = generateFlags(result);
-    cout<<"result = "<<result<<", flags = "<<flags<<endl;
+    DEBUG_OUT<<"result = "<<result<<", flags = "<<flags<<endl;
     reg->setReg(alu->getRegDest(), result);
     reg->setFlags(flags);
 }
@@ -83,7 +83,7 @@ void ThumbCpu::moveN(){
     int data = reg->getReg(alu->getRegSource());
     data = ~data;
     int flags = generateFlags(data);
-    cout<<"data = " << data <<", flags = "<< flags<< endl;
+    DEBUG_OUT<<"data = " << data <<", flags = "<< flags<< endl;
     reg->setReg(alu->getRegDest(), data);
     reg->setFlags(flags);
 }

@@ -63,17 +63,19 @@ public:
         else if (address >= DMA0SAD && address < DMA_END)
             dma[address-DMA0SAD]=data;
         else if (address >= DMA_END && address < TM0CNT_L)
-            cout << "W: IORegisters Unused Memory: "<<address<<endl;
+            DEBUG_OUT << "W: IORegisters Unused Memory: "<<address<<endl;
         else if (address >= TM0CNT_L && address < TIMER_END)
             timer[address-TM0CNT_L]=data;
         else if (address >= TIMER_END && address < SIODATA32)
-            cout << "W: IORegisters Unused Memory: "<<address<<endl;
+            DEBUG_OUT << "W: IORegisters Unused Memory: "<<address<<endl;
         else if (address >= SIODATA32 && address < SERIAL1_END)
             serial[address-SIODATA32]=data;
         else if (address >= SERIAL1_END && address < KEYINPUT)
-            cout << "W: IORegisters Unused Memory: "<<address<<endl;
+            DEBUG_OUT << "W: IORegisters Unused Memory: "<<address<<endl;
         else if (address >= RCNT && address < SERIAL2_END)
             serial[address-RCNT]=data;
+        else if (address >= SERIAL2_END && address < IE)
+            DEBUG_OUT << "W: IORegisters Unused Memory: "<<address<<endl;
         else if (checkForAddress(address, IE, HALFWORD_SIZE))
             storeHalfWord(address&1, &ie, data);
         else if (checkForAddress(address, IF, HALFWORD_SIZE))
@@ -81,11 +83,11 @@ public:
         else if (checkForAddress(address, WAITCNT, HALFWORD_SIZE))
             storeHalfWord(address&1, &waitCnt, data);
         else if (address > WAITCNT && address < IME )
-            cout << "W: IORegisters Unused Memory: "<<address<<endl;
+            DEBUG_OUT << "W: IORegisters Unused Memory: "<<address<<endl;
         else if (checkForAddress(address, IME, HALFWORD_SIZE))
             storeHalfWord(address&1, &ime, data);
         else if (address > IME && address < POST_BOOT_FLAG )
-            cout << "W: IORegisters Unused Memory: "<<address<<endl;
+            DEBUG_OUT << "W: IORegisters Unused Memory: "<<address<<endl;
         // else if (address == POST_BOOT_FLAG)
         //     postBootFlag = data? true: false;
         else{
@@ -95,7 +97,7 @@ public:
     }
 
     void status(){
-        cout<<"IOREG:"<<endl;
-        cout<<"IE: "<<ie<<"\tIF: "<<i_f<<"\tWAITCNT: "<<waitCnt<<"\tIME: "<<ime<<"\tPBOOT: "<<postBootFlag<<endl<<endl;
+        DEBUG_OUT<<"IOREG:"<<endl;
+        DEBUG_OUT<<"IE: "<<ie<<"\tIF: "<<i_f<<"\tWAITCNT: "<<waitCnt<<"\tIME: "<<ime<<"\tPBOOT: "<<postBootFlag<<endl<<endl;
     }
 };

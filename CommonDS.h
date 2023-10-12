@@ -1,11 +1,16 @@
 #ifndef COMMON_DS_H
 #define COMMON_DS_H
 
+#include <sstream>
+
+#define DEBUG_OUT (DEBUG_LOGS? std::cout : nop)
+
 const uint32_t N = 0x80000000;
 const uint32_t Z = 0x40000000;
 const uint32_t C = 0x20000000;
 const uint32_t V = 0x10000000;
-const bool DEBUG_LOGS = true;
+bool DEBUG_LOGS = false;
+std::stringstream nop;
 
 #define BYTE_SIZE 1
 #define HALFWORD_SIZE 2

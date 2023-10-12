@@ -21,7 +21,7 @@ int ArmCpu::generateFlags(int result){
         flags |= N;
     if (result == 0)
         flags |= Z;
-    cout<<"flags = "<< flags<< endl;
+    DEBUG_OUT<<"flags = "<< flags<< endl;
     return flags;
 }
 
@@ -33,7 +33,7 @@ ArmCpu::ArmCpu(Registers* registers, Memory* memory){
 void ArmCpu::decode(){
     int currentPC = reg->getPC();
     int opcode = mem->read32(currentPC);
-    cout <<showbase<< "Debug Opcode: " << opcode << endl;
+    DEBUG_OUT <<showbase<< "Debug Opcode: " << opcode << endl;
     if (((opcode>>8) & 0xFFFFF) == 0x12FFF)
         decodedInstruction=Branch::decode(opcode, true);
     else if (((opcode>>20) & 0b11011001) == 0b10000)
@@ -56,10 +56,10 @@ void ArmCpu::decode(){
 
 void ArmCpu::execute(){
     if (decodedInstruction->getOpcode() == NOT_INITIALISED){
-        cout << "No cached Instruction, skipping" << endl;
+        DEBUG_OUT << "No cached Instruction, skipping" << endl;
         return;
     }
-    cout << "Debug Execute: " << hex << decodedInstruction->toString() << endl;
+    DEBUG_OUT << "Debug Execute: " << hex << decodedInstruction->toString() << endl;
     if (canExecute(decodedInstruction)){
         switch (decodedInstruction->getOpcode())
         {
@@ -116,7 +116,7 @@ void ArmCpu::execute(){
             cout << "Undefined: " << decodedInstruction->toString() << endl;
             exit(FAILED_TO_EXECUTE);
         }
-    } else cout << "Skipping, condition failed" << endl;
+    } else DEBUG_OUT << "Skipping, condition failed" << endl;
     time++;
 }
 
@@ -196,7 +196,7 @@ void ArmCpu::loadReg(){
         data = mem->read8(address);
     else
         data = mem->read32(address);
-    cout<<"address = "<<address<<", data = "<< data << endl;
+    DEBUG_OUT<<"address = "<<address<<", data = "<< data << endl;
     reg->setReg(sdt->getRegDest(), data);
 }
 
@@ -206,11 +206,11 @@ void ArmCpu::storeReg(){
     int address = regNValue + sdt->getImmediate();
     int data = reg->getReg(sdt->getRegDest());
     if (sdt->isByteTransfer()){
-        cout<<"address = "<<address<<", data = "<< (data & 0xFF) << endl;
+        DEBUG_OUT<<"address = "<<address<<", data = "<< (data & 0xFF) << endl;
         mem->write8(address, data);
     }
     else{
-        cout<<"address = "<<address<<", data = "<< data << endl;
+        DEBUG_OUT<<"address = "<<address<<", data = "<< data << endl;
         mem->write32(address, data);
     }
 }

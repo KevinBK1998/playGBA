@@ -61,7 +61,7 @@ void ThumbCpu::shiftLeft(){
     int imm = alu->getImmediate();
     int result = regSValue << imm;
     int flags = generateFlags(result);
-    cout<<"result = "<<result<<", flags = "<<flags<<endl;
+    DEBUG_OUT<<"result = "<<result<<", flags = "<<flags<<endl;
     reg->setReg(alu->getRegDest(), result);
     reg->setFlags(flags);
 }
@@ -72,7 +72,7 @@ void ThumbCpu::shiftRight(){
     int imm = alu->getImmediate();
     int result = regSValue >> imm;
     int flags = generateFlags(result);
-    cout<<"result = "<<result<<", flags = "<<flags<<endl;
+    DEBUG_OUT<<"result = "<<result<<", flags = "<<flags<<endl;
     reg->setReg(alu->getRegDest(), result);
     reg->setFlags(flags);
 }
