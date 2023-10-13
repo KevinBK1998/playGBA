@@ -9,6 +9,7 @@ const int SOUND3CNT_L = 0x70;
 const int SOUNDCNT_L = 0x80;
 const int SOUNDCNT_H = 0x82;
 const int SOUNDCNT_X = 0x84;
+const int SOUNDBIAS = 0x88;
 const int WAVE_RAM_OFFSET = 0x90;
 const int FIFO_A = 0xA0;
 const int FIFO_B = 0xA4;
@@ -20,6 +21,7 @@ class APU{
     uint16_t mixCnt;
     uint16_t apuCnt;
     uint16_t waveCnt;
+    uint16_t biasCnt;
     uint8_t waveRam[20];
     uint32_t fifoA;
     uint32_t fifoB;

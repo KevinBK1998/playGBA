@@ -40,21 +40,22 @@ void APU::storeWord(int address, uint32_t* var, uint8_t data){
 void APU::status(){
     DEBUG_OUT<<"\nAPU:"<<endl;
     DEBUG_OUT<<"SOUNDCNT_L: "<<volumeCnt<<"\tSOUNDCNT_H: "<<mixCnt<<"\tSOUNDCNT_X: "<<apuCnt<<endl;
-    DEBUG_OUT<<"SOUND1CNT_L: "<<chan1sweep<<"\tSOUND2CNT_H: "<<chan2frequency<<endl;
-    DEBUG_OUT<<"\tSOUND3CNT_L: "<<waveCnt<<endl;
-    for (int i = 0; i < 20; i++)
-    {
-        DEBUG_OUT<<"WAVERAM_"<<i<<": "<<unsigned(waveRam[i])<<endl;
-    }
+    DEBUG_OUT<<"SOUND1CNT_L: "<<chan1sweep<<"\tSOUND2CNT_H: "<<chan2frequency<<"\tSOUND3CNT_L: "<<waveCnt<<endl;
     DEBUG_OUT<<"FIFOA: "<<fifoA<<"\tFIFOB: "<<fifoB<<endl<<endl;
 }
 
 uint8_t APU::read8(uint8_t address){
-    if (address >= WAVE_RAM_OFFSET && address < WAVE_RAM_OFFSET+20)
+    switch (address & 0xFE){
+    case SOUNDBIAS ... SOUNDBIAS+1:
+        return biasCnt;
+    case WAVE_RAM_OFFSET ... WAVE_RAM_OFFSET+0xF:
         return waveRam[address - WAVE_RAM_OFFSET];
-    cout << "R: APU Undefined Memory: "<<unsigned(address)<<endl;
-    exit(FAILED_DMA);
+    default:
+        cout << "R: APU Undefined Memory: "<<unsigned(address)<<endl;
+        exit(FAILED_DMA);
+    }
 }
+
 void APU::write8(uint8_t address, uint8_t data){
     uint16_t* pointer;
     uint32_t* wordPointer;
@@ -80,6 +81,9 @@ void APU::write8(uint8_t address, uint8_t data){
     case SOUNDCNT_X ... SOUNDCNT_X+1:
         pointer = &apuCnt;
         break;
+    case SOUNDBIAS ... SOUNDBIAS+1:
+        pointer = &biasCnt;
+        break;
     case WAVE_RAM_OFFSET ... WAVE_RAM_OFFSET+0xF:
         waveRam[address - WAVE_RAM_OFFSET] = data;
         status();
@@ -97,7 +101,6 @@ void APU::write8(uint8_t address, uint8_t data){
         return;
     default:
         cout << "W: APU Undefined Memory: "<<unsigned(address)<<endl;
-        DEBUG_OUT << "W: APU Unused Memory: "<<unsigned(address)<<endl;
         exit(FAILED_DMA);
     }
     if(isWord)

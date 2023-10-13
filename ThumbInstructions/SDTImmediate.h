@@ -48,7 +48,7 @@ public:
 void ThumbCpu::storeHalfReg(){
     SDTHalfImmediate* sdt = (SDTHalfImmediate*) decodedInstruction;
     int base = reg->getReg(sdt->getRegBase());
-    int offset = sdt->getImmediate()<<1;
+    int offset = sdt->getImmediate();
     int data = reg->getReg(sdt->getRegDest());
     int address = base + offset;
     DEBUG_OUT<<"address = "<< address <<", data = "<< data << endl;
@@ -58,7 +58,7 @@ void ThumbCpu::storeHalfReg(){
 void ThumbCpu::loadHalfReg(){
     SDTHalfImmediate* sdt = (SDTHalfImmediate*) decodedInstruction;
     int base = reg->getReg(sdt->getRegBase());
-    int offset = sdt->getImmediate()<<1;
+    int offset = sdt->getImmediate();
     int address = base + offset;
     int data = mem->read16(address);
     DEBUG_OUT<<"address = "<< address <<", data = "<< data << endl;

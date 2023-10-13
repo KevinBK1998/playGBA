@@ -9,7 +9,7 @@
 
 using namespace std;
 int timePassed=0;
-int DEBUG_AFTER=600;
+int DEBUG_AFTER=740;
 // int DEBUG_AFTER=34000;
 Memory mem;
 Registers reg;
