@@ -9,8 +9,8 @@ class ThumbCpu{
     Registers* reg;
     Memory* mem;
     ThumbInstruction* decodedInstruction = new ThumbInstruction();
-    int generateFlags(uint64_t);
-    int generateFlags(int, uint64_t);
+    int generateFlags(long);
+    int generateFlags(int, int, long);
     int generateShiftFlags(bool, int);
     void move();
     void moveHigh();

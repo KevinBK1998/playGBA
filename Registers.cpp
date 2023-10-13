@@ -50,7 +50,7 @@ int Registers::getStepAmount() {
 }
 
 int Registers::getPC(){
-    return reg15 - getStepAmount();
+    return reg15;
 }
 
 void Registers::setPC(int imm){
@@ -64,7 +64,7 @@ uint32_t Registers::getReg(int index){
         return bankedReg[getBankedIndex(index)];
     }
     if (index == 15)
-        return reg15;
+        return reg15 + getStepAmount();
 }
 
 void Registers::setReg(char index, int data){
@@ -116,7 +116,7 @@ bool Registers::isThumbMode(){
 void Registers::exchange(int address){
     thumbMode=(address&1);
     if(thumbMode){
-        reg15 = address^1 + getStepAmount();
+        reg15 = address^1;
         DEBUG_OUT << "\nPC.t = "<< reg15 <<endl;
     }
     else{
@@ -134,6 +134,6 @@ void Registers::status(){
     DEBUG_OUT<<"R0: "<<unbankedReg[0]<<"\tR1: "<<unbankedReg[1]<<"\tR2: "<< unbankedReg[2]<<"\tR3: "<< unbankedReg[3]<< endl;
     DEBUG_OUT<<"R4: "<<unbankedReg[4]<<"\tR5: "<<unbankedReg[5]<<"\tR6: "<< unbankedReg[6]<<"\tR7: "<< unbankedReg[7]<< endl;
     DEBUG_OUT<<"R8: "<<getReg(8)<<"\tR9: "<<getReg(9)<<"\tR10: "<< getReg(10)<<"\tR11: "<< getReg(11)<< endl;
-    DEBUG_OUT<<"R12: "<<getReg(12)<<"\tR13(SP): "<<getReg(SP)<<"\tR14(LR): "<< getReg(LR)<<"\tR15(PC+"<<noshowbase<<getStepAmount()<<showbase<<"): "<< reg15<< endl;
+    DEBUG_OUT<<"R12: "<<getReg(12)<<"\tR13(SP): "<<getReg(SP)<<"\tR14(LR): "<< getReg(LR)<<"\tR15(PC+"<<noshowbase<<getStepAmount()<<showbase<<"): "<< getReg(PC)<< endl;
     DEBUG_OUT<<"CPSR: "<<currentStatusReg<< "\tSPSR:"<<getSPSR()<< endl;
 }

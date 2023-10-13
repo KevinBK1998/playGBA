@@ -52,12 +52,12 @@ public:
 };
 
 void ThumbCpu::addImmediate(){
-    uint32_t before = reg->getReg(decodedInstruction->getRegDest());
+    uint64_t before = reg->getReg(decodedInstruction->getRegDest());
     uint32_t immediate = decodedInstruction->getImmediate();
     uint64_t result = before + immediate;
     DEBUG_OUT<<"result = "<< result << endl;
     reg->setReg(decodedInstruction->getRegDest(), result);
-    reg->setFlags(NZCV, generateFlags(before, result));
+    reg->setFlags(NZCV, generateFlags(before, immediate, result));
 }
 
 void ThumbCpu::move(){
@@ -73,5 +73,5 @@ void ThumbCpu::sub(){
     uint64_t result = before - immediate;
     DEBUG_OUT<<"result = "<< result << endl;
     reg->setReg(decodedInstruction->getRegDest(), result);
-    reg->setFlags(NZCV, generateFlags(before, result));
+    reg->setFlags(NZCV, generateFlags(before, -immediate, result));
 }

@@ -152,7 +152,11 @@ public:
 void ArmCpu::addShifted(){
     ALUReg* alu = (ALUReg*) decodedInstruction;
     uint64_t op1 = reg->getReg(alu->getRegN());
+    if (alu->getRegN()==PC)
+        op1+=2*WORD_SIZE; //Rn is PC+12 for shift by reg
     uint32_t op2 = reg->getReg(alu->getRegM());
+    if (alu->getRegM()==PC)
+        op2+=2*WORD_SIZE; //Rm is PC+12 for shift by reg
     op2 = alu->getShiftedData(op2);
     uint64_t result = op1 + op2;
     DEBUG_OUT<<"result = "<< hex << result << endl;

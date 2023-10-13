@@ -87,7 +87,7 @@ void ThumbCpu::addRegWithImmediate(){
     uint64_t result = op1 + op2;
     DEBUG_OUT<<"result = "<<result<<endl;
     reg->setReg(alu->getRegDest(), result);
-    reg->setFlags(NZCV, generateFlags(op1, result));
+    reg->setFlags(NZCV, generateFlags(op1, op2, result));
 }
 
 void ThumbCpu::subRegWithImmediate(){
@@ -97,5 +97,5 @@ void ThumbCpu::subRegWithImmediate(){
     uint64_t result = op1 - op2;
     DEBUG_OUT<<"result = "<<result<<endl;
     reg->setReg(alu->getRegDest(), result);
-    reg->setFlags(NZCV, generateFlags(op1, result));
+    reg->setFlags(NZCV, generateFlags(op1, -op2, result));
 }

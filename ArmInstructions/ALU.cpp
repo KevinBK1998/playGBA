@@ -137,7 +137,9 @@ void ArmCpu::subtract(){
 
 void ArmCpu::addImmediate(){
     ALU* alu = (ALU*) decodedInstruction;
-    uint32_t before = reg->getReg(alu->getRegN());
+    uint64_t before = reg->getReg(alu->getRegN());
+    if (alu->getRegN()==PC)
+        before+=WORD_SIZE; //Base Register is PC+8
     uint32_t immediate = alu->getImmediate();
     uint64_t result = before + immediate;
     DEBUG_OUT<<"result = "<< hex << result << endl;
@@ -163,7 +165,7 @@ void ArmCpu::testXOR(){
 }
 
 void ArmCpu::cmpImmediate(){
-    uint32_t before = reg->getReg(decodedInstruction->getRegN());
+    uint64_t before = reg->getReg(decodedInstruction->getRegN());
     uint32_t immediate = decodedInstruction->getImmediate();
     uint64_t result = before - immediate;
     DEBUG_OUT<<"result = "<< hex << result << endl;

@@ -28,7 +28,7 @@ private:
     int bankedReg[10];
     int savedStatusReg[5];
     int currentStatusReg;
-    int reg15 = WORD_SIZE;
+    int reg15;
     bool irqEnable;
     bool thumbMode;
     bool privilegedUser;

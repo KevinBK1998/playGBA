@@ -9,7 +9,7 @@
 #include "ThumbInstructions/SDTRelativeSP.h"
 #include "ThumbInstructions/MultipleDataTransfer.h"
 #include "ThumbInstructions/CondBranch.h"
-#include "ThumbInstructions/Branch.h"
+#include "ThumbInstructions/Branch.cpp"
 #include "ThumbInstructions/LongBranch.h"
 #include "ThumbInstructions/SDTImmediate.h"
 #include "ThumbInstructions/Add.cpp"
@@ -34,7 +34,7 @@ int ThumbCpu::generateShiftFlags(bool carry, int result){
     return flags;
 }
 
-int ThumbCpu::generateFlags(uint64_t result){
+int ThumbCpu::generateFlags(long result){
     int flags = 0;
     if ((result>>31) & 1){
         flags |= N;
@@ -52,9 +52,12 @@ int ThumbCpu::generateFlags(uint64_t result){
     return flags;
 }
 
-int ThumbCpu::generateFlags(int operand, uint64_t result){
+int ThumbCpu::generateFlags(int op1, int op2, long result){
     int flags = generateFlags(result);
-    if (((operand>>31) & 1) != ((result>>31) & 1)){
+    bool op1Sign = op1 < 0;
+    bool op2Sign = op2 < 0;
+    bool resultSign = (result>>31)&1;
+    if (op1Sign == op2Sign && op1Sign!=resultSign){
         flags |= V;
         DEBUG_OUT<<"V ";
     }
@@ -190,12 +193,12 @@ void ThumbCpu::execute(){
 }
 
 void ThumbCpu::step(){
+    decode();
     execute();
     if (!reg->isThumbMode()){
         decodedInstruction = new ThumbInstruction();
         return;
     }
-    decode();
     reg->step();
 }
 
@@ -225,8 +228,10 @@ bool ThumbCpu::canExecute(Condition cond){
 }
 
 void ThumbCpu::loadRegPCRelative(){
-    int regBValue = reg->getPC();
-    if(regBValue == 0x9ca) regBValue+=HALFWORD_SIZE; // Workaround for now, need to fix
+    int regBValue = reg->getReg(PC);
+    // +HALFWORD_SIZE;
+    DEBUG_OUT<<"PC = "<<regBValue << endl;
+    // if(regBValue == 0x9ca) regBValue+=HALFWORD_SIZE; // Workaround for now, need to fix
     int address = regBValue + decodedInstruction->getImmediate()*4;
     int data = mem->read32(address);
     DEBUG_OUT<<"address = "<<address<<", data = "<< data << endl;

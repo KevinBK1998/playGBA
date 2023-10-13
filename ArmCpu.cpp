@@ -53,8 +53,8 @@ int ArmCpu::generateFlags(long result){
 
 int ArmCpu::generateFlags(int op1, int op2, long result){
     int flags = generateFlags(result);
-    bool op1Sign = (op1>>31)&1;
-    bool op2Sign = (op2>>31)&1;
+    bool op1Sign = op1 < 0;
+    bool op2Sign = op2 < 0;
     bool resultSign = (result>>31)&1;
     if (op1Sign == op2Sign && op1Sign!=resultSign){
         flags |= V;
@@ -160,12 +160,12 @@ void ArmCpu::execute(){
 }
 
 void ArmCpu::step(){
+    decode();
     execute();
     if (reg->isThumbMode()){
         decodedInstruction = new ArmInstruction();
         return;
     }
-    decode();
     reg->step();
 }
 
@@ -231,6 +231,8 @@ void ArmCpu::branchExchange(){
 void ArmCpu::loadReg(){
     SingleDataTransfer* sdt = (SingleDataTransfer*) decodedInstruction;
     int regNValue = reg->getReg(sdt->getRegN());
+    if (sdt->getRegN()==PC)
+        regNValue+=WORD_SIZE; //Base Register is PC+8
     int address = regNValue + sdt->getImmediate();
     int data;
     if (sdt->isByteTransfer())
@@ -244,8 +246,12 @@ void ArmCpu::loadReg(){
 void ArmCpu::storeReg(){
     SingleDataTransfer* sdt = (SingleDataTransfer*) decodedInstruction;
     int regNValue = reg->getReg(sdt->getRegN());
-    int address = regNValue + sdt->getImmediate();
+    if (sdt->getRegN()==PC)
+        regNValue+=WORD_SIZE; //Base Register is PC+8
     int data = reg->getReg(sdt->getRegDest());
+    if (sdt->getRegDest()==PC)
+        data+=2*WORD_SIZE; //Dest Register is PC+12
+    int address = regNValue + sdt->getImmediate();
     if (sdt->isByteTransfer()){
         DEBUG_OUT<<"address = "<<address<<", data = "<< (data & 0xFF) << endl;
         mem->write8(address, data);
