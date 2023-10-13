@@ -35,7 +35,7 @@ Memory::Memory(char *fileName):Memory::Memory(){
         exit(FAILED_TO_LOAD_ROM);
     }
     int i = 0;
-    while (i < BIOS_FILE_SIZE && fin)
+    while (i < 200 && fin)
     {
         fin.get(c);
         rom[i++] = c;
@@ -47,9 +47,9 @@ uint8_t Memory::read8(uint32_t address) {
     // DEBUG_OUT << "Address: "<<address<<endl;
     if (address < BIOS_FILE_SIZE)
         return bios[address];
-    // else if (address >= SLOW_WORK_RAM_OFFSET && address < SLOW_WORK_RAM_END)
-    //     return slowWorkRam[address - SLOW_WORK_RAM_OFFSET];
-    else if (address >= WRAM_OFFSET && address < WRAM_END)
+    // else if (address >= SLOW_WRAM_OFFSET && address < SLOW_WRAM_OFFSET+SLOW_WRAM_FILE_SIZE)
+    //     return slowRam[address - SLOW_WRAM_OFFSET];
+    else if (address >= WRAM_OFFSET && address < WRAM_OFFSET+WRAM_FILE_SIZE)
         return wram[address - WRAM_OFFSET];
     else if (address >= IO_REG_OFFSET && address < IO_REG_END)
     {
@@ -89,7 +89,9 @@ uint32_t Memory::read32(uint32_t address) {
 
 void Memory::write8(uint32_t address, uint8_t data) {
     // DEBUG_OUT << "Address: "<<address<<", Data: "<<unsigned(data)<<endl;
-    if (address >= WRAM_OFFSET && address < WRAM_END)
+    if (address >= SLOW_WRAM_OFFSET && address < SLOW_WRAM_OFFSET+SLOW_WRAM_FILE_SIZE)
+        slowRam[address - SLOW_WRAM_OFFSET] = data;
+    else if (address >= WRAM_OFFSET && address < WRAM_OFFSET+WRAM_FILE_SIZE)
         wram[address - WRAM_OFFSET] = data;
     else if(address >= 0x3fffe00 && address < IO_REG_OFFSET){
         DEBUG_OUT << "W: Unused Memory: "<<address<<", Data: "<<unsigned(data)<<endl;
@@ -105,20 +107,14 @@ void Memory::write8(uint32_t address, uint8_t data) {
     }
     else if (address == UNKNOWN_BIOS_FLAG)
             DEBUG_OUT << "W: UNKNOWN_BIOS_FLAG: "<<unsigned(data)<<endl;
+    else if (address >= VRAM_OFFSET && address < VRAM_OFFSET+VRAM_FILE_SIZE)
+        gpu.write8(address, data);
     // else if (address >= ROM_OFFSET && address < ROM_END)
     //     rom[address - ROM_OFFSET] = data;
     else{
         cout << "W: Undefined Memory: "<<address<<", Data: "<<unsigned(data)<<endl;
         exit(FAILED_DMA);
     }
-    // if (address < BIOS_SIZE)
-    //     throw new WriteDeniedException(address);
-    // else if (address >= SLOW_WORK_RAM_OFFSET && address < SLOW_WORK_RAM_END)
-    //     slowWorkRam[address - SLOW_WORK_RAM_OFFSET] = data;
-    // else if (address >= VRAM_OFFSET)
-    //     throw new IndexOutOfBoundsException("W: Unknown Memory: 0x" + Integer.toHexString(address) + ", set to 0x" + Integer.toHexString(data));
-    // else
-    //     System.out.println("Unused Memory: 0x" + Integer.toHexString(address) + ", set to 0x" + Integer.toHexString(data));
 }
 
 void Memory::write16(uint32_t address, uint16_t data) {

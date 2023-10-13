@@ -2,6 +2,7 @@
 #define GPU_H
 
 #include <stdint.h>
+#include "CommonDS.h"
 
 const int DISPCNT = 0;
 const int GREENSWAP = 2;
@@ -54,10 +55,11 @@ class GPU{
     uint16_t sfxCnt;
     uint16_t alphaCoeff;
     uint16_t brightCoeff;
+    uint8_t vram[VRAM_FILE_SIZE];
     void storeHalfWord(int, uint16_t*, uint8_t);
     void storeWord(int, uint32_t*, uint8_t);
 public:
-    void write8(uint8_t, uint8_t);
+    void write8(uint32_t, uint8_t);
     void status();
 };
 

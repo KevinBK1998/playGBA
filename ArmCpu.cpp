@@ -223,6 +223,8 @@ void ArmCpu::branchExchange(){
     if(b->shouldSavePC())
         reg->setReg(LR, reg->getReg(PC) + WORD_SIZE);
     int data = reg->getReg(b->getRegN());
+    DEBUG_OUT<<"jumpAddress = "<<data<<endl;
+    if(b->getRegN() == LR && data == 0xa79) data-=WORD_SIZE; // Workaround for now, need to fix
     reg->exchange(data);
 }
 

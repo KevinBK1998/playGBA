@@ -37,12 +37,17 @@ void GPU::storeWord(int address, uint32_t* var, uint8_t data){
     }
 }
 
-void GPU::write8(uint8_t address, uint8_t data){
+void GPU::write8(uint32_t address, uint8_t data){
     uint16_t* pointer;
     uint32_t* wordPointer;
     int actualAddress;
     bool isWord=false;
-    switch (address & 0xFE)
+    if (address>VRAM_OFFSET) {
+        DEBUG_OUT << "W: GPU VRAM Memory: "<<unsigned(address)<<endl;
+        vram[address-VRAM_OFFSET]=data;
+        return;
+    }
+    else switch (address & 0xFE)
     {
     case DISPCNT ... DISPCNT+1:
         pointer = &dispCnt;
