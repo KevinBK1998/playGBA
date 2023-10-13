@@ -36,6 +36,14 @@ int ThumbInstruction::getImmediate(){
     return immediate;
 }
 
+bool ThumbInstruction::useImmediateOffset(){
+    return false;
+}
+
+bool ThumbInstruction::useImmediate(){
+    return false;
+}
+
 string ThumbInstruction::toString(){
     exit(FAILED_DECODED_TO_STRING);
     return "Undefined";

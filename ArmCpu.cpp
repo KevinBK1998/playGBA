@@ -15,16 +15,6 @@ int rotateleft(int data, int shift){
     return (data<<shift) | (data >> (32-shift));
 }
 
-int ArmCpu::generateFlags(int result){
-    int flags = 0;
-    if (result < 0)
-        flags |= N;
-    if (result == 0)
-        flags |= Z;
-    cout<<"flags = "<< flags<< endl;
-    return flags;
-}
-
 ArmCpu::ArmCpu(Registers* registers, Memory* memory){
     reg = registers;
     mem = memory;
@@ -33,7 +23,7 @@ ArmCpu::ArmCpu(Registers* registers, Memory* memory){
 void ArmCpu::decode(){
     int currentPC = reg->getPC();
     int opcode = mem->read32(currentPC);
-    cout <<showbase<< "Debug Opcode: " << opcode << endl;
+    DEBUG_OUT <<showbase<< "Debug Opcode: " << opcode << endl;
     if (((opcode>>8) & 0xFFFFF) == 0x12FFF)
         decodedInstruction=Branch::decode(opcode, true);
     else if (((opcode>>20) & 0b11011001) == 0b10000)
@@ -56,10 +46,10 @@ void ArmCpu::decode(){
 
 void ArmCpu::execute(){
     if (decodedInstruction->getOpcode() == NOT_INITIALISED){
-        cout << "No cached Instruction, skipping" << endl;
+        DEBUG_OUT << "No cached Instruction, skipping" << endl;
         return;
     }
-    cout << "Debug Execute: " << hex << decodedInstruction->toString() << endl;
+    DEBUG_OUT << "Debug Execute: " << hex << decodedInstruction->toString() << endl;
     if (canExecute(decodedInstruction)){
         switch (decodedInstruction->getOpcode())
         {
@@ -116,17 +106,17 @@ void ArmCpu::execute(){
             cout << "Undefined: " << decodedInstruction->toString() << endl;
             exit(FAILED_TO_EXECUTE);
         }
-    } else cout << "Skipping, condition failed" << endl;
+    } else DEBUG_OUT << "Skipping, condition failed" << endl;
     time++;
 }
 
 void ArmCpu::step(){
+    decode();
     execute();
     if (reg->isThumbMode()){
         decodedInstruction = new ArmInstruction();
         return;
     }
-    decode();
     reg->step();
 }
 
@@ -174,7 +164,7 @@ bool ArmCpu::canExecute(ArmInstruction* instruction){
 void ArmCpu::branch(){
     Branch* b = (Branch*) decodedInstruction;
     if(b->shouldSavePC())
-        reg->setReg(LR, reg->getReg(PC) + WORD_SIZE);
+        reg->setReg(LR, reg->getPC() + WORD_SIZE);
     int data = b->getImmediate();
     reg->branch(data);
 }
@@ -182,35 +172,42 @@ void ArmCpu::branch(){
 void ArmCpu::branchExchange(){
     Branch* b = (Branch*) decodedInstruction;
     if(b->shouldSavePC())
-        reg->setReg(LR, reg->getReg(PC) + WORD_SIZE);
+        reg->setReg(LR, reg->getPC() + WORD_SIZE);
     int data = reg->getReg(b->getRegN());
+    DEBUG_OUT<<"jumpAddress = "<<data<<endl;
     reg->exchange(data);
 }
 
 void ArmCpu::loadReg(){
     SingleDataTransfer* sdt = (SingleDataTransfer*) decodedInstruction;
     int regNValue = reg->getReg(sdt->getRegN());
+    if (sdt->getRegN()==PC)
+        regNValue+=WORD_SIZE; //Base Register is PC+8
     int address = regNValue + sdt->getImmediate();
     int data;
     if (sdt->isByteTransfer())
         data = mem->read8(address);
     else
         data = mem->read32(address);
-    cout<<"address = "<<address<<", data = "<< data << endl;
+    DEBUG_OUT<<"address = "<<address<<", data = "<< data << endl;
     reg->setReg(sdt->getRegDest(), data);
 }
 
 void ArmCpu::storeReg(){
     SingleDataTransfer* sdt = (SingleDataTransfer*) decodedInstruction;
     int regNValue = reg->getReg(sdt->getRegN());
-    int address = regNValue + sdt->getImmediate();
+    if (sdt->getRegN()==PC)
+        regNValue+=WORD_SIZE; //Base Register is PC+8
     int data = reg->getReg(sdt->getRegDest());
+    if (sdt->getRegDest()==PC)
+        data+=2*WORD_SIZE; //Dest Register is PC+12
+    int address = regNValue + sdt->getImmediate();
     if (sdt->isByteTransfer()){
-        cout<<"address = "<<address<<", data = "<< (data & 0xFF) << endl;
+        DEBUG_OUT<<"address = "<<address<<", data = "<< (data & 0xFF) << endl;
         mem->write8(address, data);
     }
     else{
-        cout<<"address = "<<address<<", data = "<< data << endl;
+        DEBUG_OUT<<"address = "<<address<<", data = "<< data << endl;
         mem->write32(address, data);
     }
 }

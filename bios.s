@@ -66,7 +66,7 @@ reset_vector:  @ This isn't required if not booting from bios
     mov r12, #0x4000000
     ldrb r12, [r12, #0x300]
     teq r12, #1
-    mrseq r12, apsr
+    mrseq r12, cpsr
     orreq r12, r12, #0xc0
     msreq cpsr_fc, r12
     beq reserved_vector
@@ -118,9 +118,7 @@ _0000011C:
     ldr r1, _00000280
 _00000120:
     str r0, [r4, r1]
-    @ FIXME: Why is it assembling the wrong opcode?
-    @add r1, r1, #4
-    .2byte 0x1D09
+    add r1, r1, #4
     blt _00000120
     bx lr
 
@@ -706,9 +704,7 @@ _000009C2:
     add r1, r4, #4
     mov r2, #8
     bl sub_00000AAC
-    @ FIXME: wrong opcode
-    @sub r1, r1, #4
-    .2byte 0x1F09
+    sub r1, r1, #4
     mov r2, #0x10
     bl sub_00000AAC
     mov r1, #0xb0

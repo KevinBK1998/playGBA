@@ -18,6 +18,8 @@ public:
     Opcode getOpcode();
     char getRegDest();
     int getImmediate();
+    virtual bool useImmediateOffset();
+    virtual bool useImmediate();
     virtual string toString();
 };
 

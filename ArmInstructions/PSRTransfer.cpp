@@ -122,14 +122,14 @@ void ArmCpu::psrTransfer(){
     if (decodedInstruction->getOpcode() == MRS){
         exit(FAILED_TO_EXECUTE);
         int data = p->shouldUseSPSR() ? reg->getSPSR(): reg->getCPSR();
-        cout<<"result = "<< data << endl;
+        DEBUG_OUT<<"result = "<< data << endl;
         reg->setReg(p->getRegDest(), data);
     }
     else{
         int data = reg->getReg(p->getRegSource());
         int mask = p->getExpandedMask();
         int result = data & mask;
-        cout<<"fmask = "<<mask<<"\tresult = "<<result<<endl;
+        DEBUG_OUT<<"fmask = "<<mask<<"\tresult = "<<result<<endl;
         if(p->shouldUseSPSR())
             reg->setSPSR(result);
         else

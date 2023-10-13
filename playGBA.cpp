@@ -2,16 +2,20 @@
 #include <fstream>
 #include "Registers.cpp"
 #include "Memory.cpp"
+#include "GPU.cpp"
+#include "APU.cpp"
 #include "ArmCpu.cpp"
 #include "ThumbCpu.cpp"
 
 using namespace std;
 int timePassed=0;
+int DEBUG_AFTER=740;
+// int DEBUG_AFTER=34000;
 Memory mem;
 Registers reg;
 
 void status(){
-    cout<<"Time passed:"<<dec<<timePassed<<" cycles"<<hex<< endl;
+    DEBUG_OUT<<"Time passed:"<<dec<<timePassed<<" cycles"<<hex<< endl;
 }
 
 int main(int argc, char *args[]){
@@ -19,6 +23,7 @@ int main(int argc, char *args[]){
         mem = Memory(args[argc - 1]);
     ArmCpu cpu = ArmCpu(&reg, &mem);
     ThumbCpu thumbCpu = ThumbCpu(&reg, &mem);
+    cout<<"Starting up CPU"<<hex<< endl;
     while(timePassed < 1000){
         status();
         reg.status();
@@ -27,6 +32,7 @@ int main(int argc, char *args[]){
         else
             cpu.step();
         timePassed++;
+        if(timePassed==DEBUG_AFTER) DEBUG_LOGS=true;
     }
     cout<<"Time to start HBLANK"<< endl;
     return 0;

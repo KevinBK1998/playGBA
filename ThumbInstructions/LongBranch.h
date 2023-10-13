@@ -46,7 +46,7 @@ public:
         switch (getOpcode())
         {
         case B_WORD:
-            stream << showbase <<(firstOpcode?"first:":"second:")<< "BL "<< hex << getImmediate() << " ("<<dec<<getImmediate()<<")";
+            stream << "BL "<< showbase << hex << getImmediate() << " ("<<(firstOpcode?"first":"second")<<")";
             return stream.str();
         default:
             cout << "ERROR = " << getOpcode() << endl;
