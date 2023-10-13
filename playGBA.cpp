@@ -3,6 +3,7 @@
 #include "Registers.cpp"
 #include "Memory.cpp"
 #include "GPU.cpp"
+#include "APU.cpp"
 #include "ArmCpu.cpp"
 #include "ThumbCpu.cpp"
 

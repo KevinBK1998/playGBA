@@ -2,7 +2,6 @@
 #define GPU_H
 
 #include <stdint.h>
-using namespace std;
 
 const int DISPCNT = 0;
 const int GREENSWAP = 2;

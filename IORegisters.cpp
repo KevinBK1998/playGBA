@@ -3,8 +3,6 @@
 #include "CommonDS.h"
 using namespace std;
 
-const int SOUND1CNT_L = 0x60;
-const int SOUND_END = 0xA8;
 const int DMA0SAD = 0xB0;
 const int DMA_END = 0xE0;
 const int TM0CNT_L = 0x100;
@@ -27,7 +25,6 @@ private:
     uint16_t i_f;
     uint16_t waitCnt;
     uint16_t ime;
-    uint8_t sound[0x48];
     uint8_t dma[48];
     uint8_t timer[16];
     uint8_t serial[12];
@@ -53,16 +50,12 @@ public:
             return postBootFlag;
         // else if (address == IME)
         //     return ime;
-        cout << "R: IORegisters Undefined Memory: 0x"<<address<<endl;
+        cout << "R: IORegisters Undefined Memory: "<<address<<endl;
         exit(FAILED_DMA);
     }
 
     void write8(int address, uint8_t data) {
-        if (address >= SOUND1CNT_L && address < SOUND_END){
-            DEBUG_OUT << "W: IORegisters Sound Memory: "<<address<<endl;
-            sound[address-SOUND1CNT_L]=data;
-        }
-        else if (address >= DMA0SAD && address < DMA_END){
+        if (address >= DMA0SAD && address < DMA_END){
             DEBUG_OUT << "W: IORegisters DMA Memory: "<<address<<endl;
             dma[address-DMA0SAD]=data;
         }

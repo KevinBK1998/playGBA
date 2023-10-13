@@ -52,7 +52,12 @@ uint8_t Memory::read8(uint32_t address) {
     else if (address >= WRAM_OFFSET && address < WRAM_END)
         return wram[address - WRAM_OFFSET];
     else if (address >= IO_REG_OFFSET && address < IO_REG_END)
-        return registers.read8(address - IO_REG_OFFSET);
+    {
+        if (address>GPU_REG_END && address < APU_REG_END)
+            return apu.read8(address);
+        else
+            return registers.read8(address - IO_REG_OFFSET);
+    }
     else if (address >= ROM_OFFSET && address < ROM_END)
         return rom[address - ROM_OFFSET];
     // else if (address >= VRAM_OFFSET)
@@ -93,6 +98,8 @@ void Memory::write8(uint32_t address, uint8_t data) {
     else if (address >= IO_REG_OFFSET && address < IO_REG_END){
         if (address < GPU_REG_END)
             gpu.write8(address, data);
+        else if (address < APU_REG_END)
+            apu.write8(address, data);
         else
             registers.write8(address - IO_REG_OFFSET, data);
     }

@@ -1,14 +1,15 @@
 #include <iostream>
-#include "CommonDS.h"
 #include "FailureCodes.h"
 #include "GPU.h"
+#include "CommonDS.h"
+
+using namespace std;
 
 void GPU::storeHalfWord(int address, uint16_t* var, uint8_t data){
     if (address){
         *(var) &= 0xFF;
         *(var) |= (data<<8);
-        if(DEBUG_LOGS)
-            status();
+        status();
     }
     else {
         *(var) &= 0xFF00;
@@ -32,8 +33,7 @@ void GPU::storeWord(int address, uint32_t* var, uint8_t data){
     else {
         *(var) &= 0xFFFFFF;
         *(var) |= (data<<24);
-        if(DEBUG_LOGS)
-            status();
+        status();
     }
 }
 
