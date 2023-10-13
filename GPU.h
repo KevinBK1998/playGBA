@@ -32,8 +32,16 @@ const int BLDCNT = 0x50;
 const int BLDALPHA = 0x52;
 const int BLDY = 0x54;
 
+class ControlRegister16_t{
+    uint16_t REG;
+public:
+    bool bitCheck(int);
+    void storeHalfWord(uint8_t address, uint8_t data);
+    uint16_t getRegValue();
+};
+
 class GPU{
-    uint16_t dispCnt;
+    ControlRegister16_t dispCnt;
     uint16_t greenSwap;
     uint16_t dispStat;
     uint16_t vCount;
@@ -65,6 +73,7 @@ public:
     GPU(sf::RenderWindow*);
     void write8(uint32_t, uint8_t);
     void status();
+    void dump();
 };
 
 #endif

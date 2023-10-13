@@ -43,6 +43,7 @@ int main(int argc, char *args[]){
         timePassed++;
         if(timePassed==DEBUG_AFTER) DEBUG_LOGS=true;
     }
+    mem.dump();
     cout<<"Time to start HBLANK"<< endl;
     return 0;
 }

@@ -68,8 +68,9 @@ void GPU::write8(uint32_t address, uint8_t data){
     else switch (address & 0xFE)
     {
     case DISPCNT ... DISPCNT+1:
-        pointer = &dispCnt;
-        break;
+        dispCnt.storeHalfWord(address, data);
+        status();
+        return;
     case GREENSWAP ... GREENSWAP+1:
         pointer = &greenSwap;
         break;
@@ -159,7 +160,7 @@ void GPU::write8(uint32_t address, uint8_t data){
 
 void GPU::status(){
     DEBUG_OUT<<"\nGPU:"<<endl;
-    DEBUG_OUT<<"DISPCNT: "<<dispCnt<<"\tGREENSWAP: "<<greenSwap<<"\tDISPSTAT: "<<dispStat<<"\tVCOUNT: "<<vCount<<endl;
+    DEBUG_OUT<<"DISPCNT: "<<dispCnt.getRegValue()<<"\tGREENSWAP: "<<greenSwap<<"\tDISPSTAT: "<<dispStat<<"\tVCOUNT: "<<vCount<<endl;
     DEBUG_OUT<<"BG0CNT: "<<bgCnt[0]<<"\tBG1CNT: "<<bgCnt[1]<<"\tBG2CNT: "<<bgCnt[2]<<"\tBG3CNT: "<<bgCnt[3]<<endl;
     DEBUG_OUT<<"BG0HOFS: "<<bgOffsetX[0]<<"\tBG0HOFS: "<<bgOffsetX[1]<<"\tBG0HOFS: "<<bgOffsetX[2]<<"\tBG0HOFS: "<<bgOffsetX[3]<<endl;
     DEBUG_OUT<<"BG0VOFS: "<<bgOffsetY[0]<<"\tBG0VOFS: "<<bgOffsetY[1]<<"\tBG0VOFS: "<<bgOffsetY[2]<<"\tBG0VOFS: "<<bgOffsetY[3]<<endl;
@@ -167,4 +168,39 @@ void GPU::status(){
     DEBUG_OUT<<"BG3PA: "<<bg3Parameters[0]<<"\tBG3PB: "<<bg3Parameters[1]<<"\tBG3PC: "<<bg3Parameters[2]<<"\tBG3PD: "<<bg3Parameters[3]<<"\tBG3X: "<<bg3x<<"\tBG3Y: "<<bg3y<<endl;
     DEBUG_OUT<<"WIN0H: "<<win0x<<"\tWIN1H: "<<win1x<<"\tWIN0V: "<<win0y<<"\tWIN1V: "<<win1y<<"\tWININ: "<<winIn<<"\tWINOUT: "<<winOut<<endl;
     DEBUG_OUT<<"MOSAIC: "<<mosaic<<"\tBLDCNT: "<<sfxCnt<<"\tBLDALPHA: "<<alphaCoeff<<"\tBLDY: "<<brightCoeff<<endl<<endl;
+}
+
+void GPU::dump(){
+    ofstream fout("vram.bin", ios::out|ios::binary);
+    if (!fout)
+    {
+        cout << "Error Opening File\n";
+        exit(FAILED_TO_LOAD_ROM);
+    }
+    for (int i = 0; i < VRAM_FILE_SIZE; i++)
+    {
+        uint8_t v = vram[i];
+        fout.write((char*) &v, sizeof(uint8_t));
+    }
+}
+
+bool ControlRegister16_t::bitCheck(int bitNumber){
+    if (bitNumber < 16)
+        return (1<<bitNumber) & REG;
+    return false;
+}
+
+void ControlRegister16_t::storeHalfWord(uint8_t address, uint8_t data){
+    if (address){
+        REG &= 0xFF;
+        REG |= (data<<8);
+    }
+    else {
+        REG &= 0xFF00;
+        REG |= data;
+    }
+}
+
+uint16_t ControlRegister16_t::getRegValue(){
+    return REG;
 }
