@@ -1,6 +1,7 @@
 #ifndef GPU_H
 #define GPU_H
 
+#include <SFML/Graphics.hpp>
 #include <stdint.h>
 #include "CommonDS.h"
 
@@ -56,9 +57,12 @@ class GPU{
     uint16_t alphaCoeff;
     uint16_t brightCoeff;
     uint8_t vram[VRAM_FILE_SIZE];
+    sf::RenderWindow* gameWindow;
     void storeHalfWord(int, uint16_t*, uint8_t);
     void storeWord(int, uint32_t*, uint8_t);
 public:
+    GPU(){}
+    GPU(sf::RenderWindow*);
     void write8(uint32_t, uint8_t);
     void status();
 };

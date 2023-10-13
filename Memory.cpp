@@ -22,11 +22,12 @@ void Memory::loadBios(const char *fileName){
     DEBUG_OUT << "Loaded Bios:" << fileName << endl;
 }
 
-Memory::Memory(){
+Memory::Memory(GPU mainGpu){
+    gpu = mainGpu;
     loadBios(BIOS_FILE_NAME);
 }
 
-Memory::Memory(char *fileName):Memory::Memory(){
+Memory::Memory(GPU mainGpu, char *fileName):Memory::Memory(mainGpu){
     char c;
     ifstream fin(fileName);
     if (!fin)

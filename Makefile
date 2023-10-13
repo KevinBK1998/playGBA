@@ -5,4 +5,4 @@ run-default: playGBA
 clean: playGBA
 	rm -f playGBA
 playGBA: CommonDS.h playGBA.cpp ArmCpu.cpp ThumbCpu.cpp GPU.cpp APU.cpp Memory.cpp Registers.cpp IORegisters.cpp ArmInstructions/* ThumbInstructions/*
-	g++ playGBA.cpp -o playGBA
+	g++ playGBA.cpp -o playGBA -lsfml-graphics -lsfml-window -lsfml-system

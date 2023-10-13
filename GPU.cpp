@@ -1,9 +1,27 @@
 #include <iostream>
+#include <SFML/Graphics.hpp>
 #include "FailureCodes.h"
 #include "GPU.h"
 #include "CommonDS.h"
 
 using namespace std;
+
+GPU::GPU(sf::RenderWindow* window){
+    gameWindow = window;
+    if (gameWindow->isOpen())
+    {
+        sf::Event event;
+        while (gameWindow->pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                gameWindow->close();
+        }
+
+        gameWindow->clear();
+        // window.draw(screen);
+        gameWindow->display();
+    }
+}
 
 void GPU::storeHalfWord(int address, uint16_t* var, uint8_t data){
     if (address){
