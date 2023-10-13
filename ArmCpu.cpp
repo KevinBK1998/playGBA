@@ -15,55 +15,6 @@ int rotateleft(int data, int shift){
     return (data<<shift) | (data >> (32-shift));
 }
 
-int ArmCpu::generateShiftFlags(bool carry, int result){
-    int flags = 0;
-    if ((result>>31) & 1){
-        flags |= N;
-        DEBUG_OUT<<"N ";
-    }
-    if ((int) result == 0){
-        flags |= Z;
-        DEBUG_OUT<<"Z ";
-    }
-    if (carry){
-        flags |= C;
-        DEBUG_OUT<<"C ";
-    }
-    DEBUG_OUT<<"flags = "<< flags<< endl;
-    return flags;
-}
-
-int ArmCpu::generateFlags(long result){
-    int flags = 0;
-    if ((result>>31) & 1){
-        flags |= N;
-        DEBUG_OUT<<"N ";
-    }
-    if ((int) result == 0){
-        flags |= Z;
-        DEBUG_OUT<<"Z ";
-    }
-    if ((result>>32) & 1){
-        flags |= C;
-        DEBUG_OUT<<"C ";
-    }
-    DEBUG_OUT<<"flags = "<< flags<< endl;
-    return flags;
-}
-
-int ArmCpu::generateFlags(int op1, int op2, long result){
-    int flags = generateFlags(result);
-    bool op1Sign = op1 < 0;
-    bool op2Sign = op2 < 0;
-    bool resultSign = (result>>31)&1;
-    if (op1Sign == op2Sign && op1Sign!=resultSign){
-        flags |= V;
-        DEBUG_OUT<<"V ";
-    }
-    DEBUG_OUT<<"flags = "<< flags<< endl;
-    return flags;
-}
-
 ArmCpu::ArmCpu(Registers* registers, Memory* memory){
     reg = registers;
     mem = memory;
@@ -213,7 +164,7 @@ bool ArmCpu::canExecute(ArmInstruction* instruction){
 void ArmCpu::branch(){
     Branch* b = (Branch*) decodedInstruction;
     if(b->shouldSavePC())
-        reg->setReg(LR, reg->getReg(PC) + WORD_SIZE);
+        reg->setReg(LR, reg->getPC() + WORD_SIZE);
     int data = b->getImmediate();
     reg->branch(data);
 }
@@ -221,10 +172,10 @@ void ArmCpu::branch(){
 void ArmCpu::branchExchange(){
     Branch* b = (Branch*) decodedInstruction;
     if(b->shouldSavePC())
-        reg->setReg(LR, reg->getReg(PC) + WORD_SIZE);
+        reg->setReg(LR, reg->getPC() + WORD_SIZE);
     int data = reg->getReg(b->getRegN());
     DEBUG_OUT<<"jumpAddress = "<<data<<endl;
-    if(b->getRegN() == LR && data == 0xa79) data-=WORD_SIZE; // Workaround for now, need to fix
+    // if(b->getRegN() == LR && data == 0xa79) data-=WORD_SIZE; // Workaround for now, need to fix
     reg->exchange(data);
 }
 

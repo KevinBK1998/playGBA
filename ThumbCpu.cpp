@@ -16,55 +16,6 @@
 #include "ThumbInstructions/HiRegOperation.cpp"
 #include "ThumbInstructions/SDTRegOffset.cpp"
 
-int ThumbCpu::generateShiftFlags(bool carry, int result){
-    int flags = 0;
-    if ((result>>31) & 1){
-        flags |= N;
-        DEBUG_OUT<<"N ";
-    }
-    if ((int) result == 0){
-        flags |= Z;
-        DEBUG_OUT<<"Z ";
-    }
-    if (carry){
-        flags |= C;
-        DEBUG_OUT<<"C ";
-    }
-    DEBUG_OUT<<"flags = "<< flags<< endl;
-    return flags;
-}
-
-int ThumbCpu::generateFlags(long result){
-    int flags = 0;
-    if ((result>>31) & 1){
-        flags |= N;
-        DEBUG_OUT<<"N ";
-    }
-    if ((int) result == 0){
-        flags |= Z;
-        DEBUG_OUT<<"Z ";
-    }
-    if ((result>>32) & 1){
-        flags |= C;
-        DEBUG_OUT<<"C ";
-    }
-    DEBUG_OUT<<"flags = "<< flags<< endl;
-    return flags;
-}
-
-int ThumbCpu::generateFlags(int op1, int op2, long result){
-    int flags = generateFlags(result);
-    bool op1Sign = op1 < 0;
-    bool op2Sign = op2 < 0;
-    bool resultSign = (result>>31)&1;
-    if (op1Sign == op2Sign && op1Sign!=resultSign){
-        flags |= V;
-        DEBUG_OUT<<"V ";
-    }
-    DEBUG_OUT<<"flags = "<< flags<< endl;
-    return flags;
-}
-
 ThumbCpu::ThumbCpu(Registers* registers, Memory* memory){
     reg = registers;
     mem = memory;
@@ -228,10 +179,7 @@ bool ThumbCpu::canExecute(Condition cond){
 }
 
 void ThumbCpu::loadRegPCRelative(){
-    int regBValue = reg->getReg(PC);
-    // +HALFWORD_SIZE;
-    DEBUG_OUT<<"PC = "<<regBValue << endl;
-    // if(regBValue == 0x9ca) regBValue+=HALFWORD_SIZE; // Workaround for now, need to fix
+    int regBValue = (reg->getReg(PC)+HALFWORD_SIZE) & ~2;
     int address = regBValue + decodedInstruction->getImmediate()*4;
     int data = mem->read32(address);
     DEBUG_OUT<<"address = "<<address<<", data = "<< data << endl;
@@ -267,13 +215,13 @@ void ThumbCpu::addSP(){
 void ThumbCpu::longBranch(){
     ThumbLongBranch* b = (ThumbLongBranch*) decodedInstruction;
     if (b->isFirstOpcode()){
-        int jumpAddress = reg->getReg(PC) + HALFWORD_SIZE;
+        int jumpAddress = reg->getReg(PC);
         jumpAddress += b->getImmediate();
         reg->setReg(LR, jumpAddress);
         DEBUG_OUT << "ADDR = "<< jumpAddress <<endl;
     } else{
         int jumpAddress = reg->getReg(LR) + b->getImmediate();
-        reg->setReg(LR, (reg->getReg(PC) + HALFWORD_SIZE)|1); // To return in THUMB mode
+        reg->setReg(LR, reg->getReg(PC)|1); // To return in THUMB mode
         reg->setReg(PC, jumpAddress);
         DEBUG_OUT << "ADDR = "<< jumpAddress << ", linkADDR = "<< reg->getReg(LR) <<endl;
     }

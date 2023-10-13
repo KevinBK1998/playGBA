@@ -101,12 +101,10 @@ void Registers::setSPSR(int data){
 }
 
 void Registers::branch(int imm){
-    int jump = imm+1;
     if (thumbMode)
-        jump *= HALFWORD_SIZE;
+        reg15 += (imm+1)*HALFWORD_SIZE;
     else
-        jump *= WORD_SIZE;
-    reg15 += jump;
+        reg15 += (imm+1)*WORD_SIZE;
 }
 
 bool Registers::isThumbMode(){
@@ -114,13 +112,18 @@ bool Registers::isThumbMode(){
 }
 
 void Registers::exchange(int address){
+    bool prevThumbMode = thumbMode;
     thumbMode=(address&1);
     if(thumbMode){
-        reg15 = address^1;
+        reg15 = address & ~1;
+        if (prevThumbMode)
+            reg15 -= HALFWORD_SIZE;
         DEBUG_OUT << "\nPC.t = "<< reg15 <<endl;
     }
     else{
-        reg15 = (address&(~0b11)) - getStepAmount();
+        reg15 = address & ~2;
+        if (!prevThumbMode)
+            reg15 -= WORD_SIZE;
         DEBUG_OUT << "\nPC.a = "<< reg15 <<endl;
     }
 }
