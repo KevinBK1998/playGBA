@@ -9,7 +9,6 @@ class ThumbCpu{
     Registers* reg;
     Memory* mem;
     ThumbInstruction* decodedInstruction = new ThumbInstruction();
-    int generateFlags(int);
     void move();
     void moveHigh();
     void moveN();
@@ -17,9 +16,12 @@ class ThumbCpu{
     void storeReg();
     void storeImmediateOffset();
     void storeHalfReg();
+    void loadHalfReg();
     void storeRegSPRelative();
-    void add();
+    void addRegWithImmediate();
+    void addImmediate();
     void sub();
+    void subRegWithImmediate();
     void addSP();
     void branch();
     void condBranch();

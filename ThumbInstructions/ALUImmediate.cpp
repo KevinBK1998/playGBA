@@ -14,13 +14,19 @@ public:
         {
         case 0:
             return new ALUThumbIMM(MOV, rD, imm);
+        case 2:
+            return new ALUThumbIMM(ADD, rD, imm);
         case 3:
             return new ALUThumbIMM(SUB, rD, imm);
         default:
-            cout << "ALUThumbIMM = " << opcode << endl;
+            cout << "ALUThumbIMM = " << opcode << " "<<unsigned(op)<< endl;
             exit(FAILED_TO_DECODE);
             break;
         }
+    }
+
+    bool useImmediate(){
+        return true;
     }
 
     string toString(){
@@ -29,6 +35,9 @@ public:
         {
         case MOV:
             stream<<"MOV";
+            break;
+        case ADD:
+            stream<<"ADD";
             break;
         case SUB:
             stream<<"SUB";
@@ -42,19 +51,27 @@ public:
     }
 };
 
+void ThumbCpu::addImmediate(){
+    uint64_t before = reg->getReg(decodedInstruction->getRegDest());
+    uint32_t immediate = decodedInstruction->getImmediate();
+    uint64_t result = before + immediate;
+    DEBUG_OUT<<"result = "<< result << endl;
+    reg->setReg(decodedInstruction->getRegDest(), result);
+    reg->setFlags(NZCV, generateFlags(before, immediate, result));
+}
+
 void ThumbCpu::move(){
     int immediate = decodedInstruction->getImmediate();
-    int flags = generateFlags(immediate);
-    cout<<"result = "<< immediate <<", flags = "<< flags << endl;
+    DEBUG_OUT<<"result = "<< immediate << endl;
     reg->setReg(decodedInstruction->getRegDest(), immediate);
-    reg->setFlags(generateFlags(immediate));
+    reg->setFlags(NZ, generateFlags(immediate));
 }
 
 void ThumbCpu::sub(){
-    int immediate = decodedInstruction->getImmediate();
-    int result = reg->getReg(decodedInstruction->getRegDest()) - immediate;
-    int flags = generateFlags(result);
-    cout<<"result = "<< result<<", flags = "<< flags << endl;
+    uint64_t before = reg->getReg(decodedInstruction->getRegDest());
+    uint32_t immediate = decodedInstruction->getImmediate();
+    uint64_t result = before - immediate;
+    DEBUG_OUT<<"result = "<< result << endl;
     reg->setReg(decodedInstruction->getRegDest(), result);
-    reg->setFlags(generateFlags(immediate));
+    reg->setFlags(NZCV, generateFlags(before, -immediate, result));
 }

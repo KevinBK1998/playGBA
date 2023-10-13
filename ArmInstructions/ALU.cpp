@@ -5,6 +5,13 @@ int rotateRight(int data, int shift){
     return (data>>shift) | (data << (32-shift));
 }
 
+void exitIfOpcodeP(char r){
+    if (r) {
+        cout << "P opcodes = " << unsigned(r) << endl;
+        exit(PENDING_CODE);
+    }
+}
+
 class ALU : public ArmInstruction
 {
 private:
@@ -41,10 +48,13 @@ public:
         case 4:
             return new ALU(ADD, cond, psr, rDest, rN, imm);
         case 8:
+            exitIfOpcodeP(rDest);
             return new ALU(TST, cond, imm, rN);
         case 9:
+            exitIfOpcodeP(rDest);
             return new ALU(TEQ, cond, imm, rN);
         case 0xA:
+            exitIfOpcodeP(rDest);
             return new ALU(CMP, cond, imm, rN);
         case 0xC:
             return new ALU(ORR, cond, psr, rDest, rN, imm);
@@ -109,80 +119,82 @@ void ArmCpu::logicalAND(){
     ALU* alu = (ALU*) decodedInstruction;
     int result = reg->getReg(alu->getRegN()) & alu->getImmediate();
     reg->setReg(alu->getRegDest(), result);
-    cout<<"result = "<< hex << result << endl;
+    DEBUG_OUT<<"result = "<< hex << result << endl;
     if (alu->shouldUpdatePSR())
-        reg->setFlags(generateFlags(result));
+        reg->setFlags(NZ, generateFlags(result));
 }
 
 void ArmCpu::subtract(){
     ALU* alu = (ALU*) decodedInstruction;
-    int before = reg->getReg(alu->getRegN());
+    uint64_t before = reg->getReg(alu->getRegN());
     int immediate = alu->getImmediate();
-    int result = before - immediate;
-    cout<<"result = "<< hex << result << endl;
+    uint64_t result = before - immediate;
+    DEBUG_OUT<<"result = "<< hex << result << endl;
     reg->setReg(alu->getRegDest(), result);
     if (alu->shouldUpdatePSR())
-        reg->setFlags(generateFlags(result));
+        reg->setFlags(NZCV, generateFlags(result));
 }
 
 void ArmCpu::addImmediate(){
     ALU* alu = (ALU*) decodedInstruction;
-    int before = reg->getReg(alu->getRegN());
-    int immediate = alu->getImmediate();
-    int result = before + immediate;
-    cout<<"result = "<< hex << result << endl;
+    uint64_t before = reg->getReg(alu->getRegN());
+    if (alu->getRegN()==PC)
+        before+=WORD_SIZE; //Base Register is PC+8
+    uint32_t immediate = alu->getImmediate();
+    uint64_t result = before + immediate;
+    DEBUG_OUT<<"result = "<< hex << result << endl;
     reg->setReg(alu->getRegDest(), result);
     if (alu->shouldUpdatePSR())
-        reg->setFlags(generateFlags(result));
+        reg->setFlags(NZCV, generateFlags(before, immediate, result));
 }
 
 void ArmCpu::test(){
     int before = reg->getReg(decodedInstruction->getRegN());
     int immediate = decodedInstruction->getImmediate();
     int result = before & immediate;
-    cout<<"result = "<< hex << result << endl;
-    reg->setFlags(generateFlags(result));
+    DEBUG_OUT<<"result = "<< hex << result << endl;
+    reg->setFlags(NZ, generateFlags(result));
 }
 
 void ArmCpu::testXOR(){
     int before = reg->getReg(decodedInstruction->getRegN());
     int immediate = decodedInstruction->getImmediate();
     int result = before ^ immediate;
-    cout<<"result = "<< hex << result << endl;
-    reg->setFlags(generateFlags(result));
+    DEBUG_OUT<<"result = "<< hex << result << endl;
+    reg->setFlags(NZ, generateFlags(result));
 }
 
 void ArmCpu::cmpImmediate(){
-    int before = reg->getReg(decodedInstruction->getRegN());
-    int immediate = decodedInstruction->getImmediate();
-    int result = before - immediate;
-    cout<<"result = "<< hex << result << endl;
-    reg->setFlags(generateFlags(result));
+    uint64_t before = reg->getReg(decodedInstruction->getRegN());
+    uint32_t immediate = decodedInstruction->getImmediate();
+    uint64_t result = before - immediate;
+    DEBUG_OUT<<"result = "<< hex << result << endl;
+    reg->setFlags(NZCV, generateFlags(before, -immediate, result));
 }
 
 void ArmCpu::logicalOR(){
     ALU* alu = (ALU*) decodedInstruction;
     int result = reg->getReg(alu->getRegN()) | alu->getImmediate();
     reg->setReg(alu->getRegDest(), result);
-    cout<<"result = "<< hex << result << endl;
+    DEBUG_OUT<<"result = "<< hex << result << endl;
     if (alu->shouldUpdatePSR())
-        reg->setFlags(generateFlags(result));
+        reg->setFlags(NZ, generateFlags(result));
 }
 
 void ArmCpu::moveImmediate(){
     ALU* alu = (ALU*) decodedInstruction;
     int immediate = alu->getImmediate();
     reg->setReg(alu->getRegDest(), immediate);
-    cout<<"result = "<< hex << immediate << endl;
+    DEBUG_OUT<<"result = "<< hex << immediate << endl;
     if (alu->shouldUpdatePSR())
-        reg->setFlags(generateFlags(immediate));
+        reg->setFlags(NZ, generateFlags(immediate));
 }
 
 void ArmCpu::bitClear(){
     ALU* alu = (ALU*) decodedInstruction;
     int result = reg->getReg(alu->getRegN()) & ~alu->getImmediate();
     reg->setReg(alu->getRegDest(), result);
-    cout<<"result = "<< hex << result << endl;
+    DEBUG_OUT<<"result = "<< hex << result << endl;
     if (alu->shouldUpdatePSR())
-        reg->setFlags(generateFlags(result));
+        reg->setFlags(NZ, generateFlags(result));
 }

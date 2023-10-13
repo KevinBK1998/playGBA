@@ -2,28 +2,19 @@
 #include "ThumbInstructions/Instruction.cpp"
 #include "ThumbInstructions/ThumbALU.cpp"
 #include "ThumbInstructions/AddSP.h"
-#include "ThumbInstructions/ALUImmediate.h"
-#include "ThumbInstructions/ShiftedALU.h"
+#include "ThumbInstructions/ALUImmediate.cpp"
+#include "ThumbInstructions/ShiftedALU.cpp"
 #include "ThumbInstructions/SingleDataTransfer.h"
 #include "ThumbInstructions/LoadPCRelative.h"
 #include "ThumbInstructions/SDTRelativeSP.h"
 #include "ThumbInstructions/MultipleDataTransfer.h"
 #include "ThumbInstructions/CondBranch.h"
-#include "ThumbInstructions/Branch.h"
+#include "ThumbInstructions/Branch.cpp"
 #include "ThumbInstructions/LongBranch.h"
 #include "ThumbInstructions/SDTImmediate.h"
 #include "ThumbInstructions/Add.cpp"
 #include "ThumbInstructions/HiRegOperation.cpp"
 #include "ThumbInstructions/SDTRegOffset.cpp"
-
-int ThumbCpu::generateFlags(int result){
-    int flags = 0;
-    if (result < 0)
-        flags |= N;
-    if (result == 0)
-        flags |= Z;
-    return flags;
-}
 
 ThumbCpu::ThumbCpu(Registers* registers, Memory* memory){
     reg = registers;
@@ -31,10 +22,9 @@ ThumbCpu::ThumbCpu(Registers* registers, Memory* memory){
 }
 
 void ThumbCpu::decode(){
-    // cout<<"DEBUG"<< endl;
     int currentPC = reg->getPC();
     int opcode = mem->read16(currentPC);
-    cout <<showbase<< "Debug Opcode: " << opcode << endl;
+    DEBUG_OUT <<showbase<< "Debug Opcode: " << opcode << endl;
     if (((opcode>>8) & 0xFF) == 0xB0)
         decodedInstruction = AddSP::decode(opcode);
     else if (((opcode>>10) & 0x3F)== 0b010000)
@@ -42,7 +32,7 @@ void ThumbCpu::decode(){
     else if (((opcode>>10) & 0x3F)== 0b10001)
         decodedInstruction = HiRegOperation::decode(opcode);
     else if (((opcode>>11) & 0x1F)== 0b11)
-        decodedInstruction = Add::decode(opcode);
+        decodedInstruction = AddRegImmediate::decode(opcode);
     else if (((opcode>>11) & 0x1F)== 0b1001)
         decodedInstruction = LoadPCRelative::decode(opcode);
     else if (((opcode>>11) & 0x1F)== 0b11100)
@@ -72,17 +62,20 @@ void ThumbCpu::decode(){
 }
 void ThumbCpu::execute(){
     if (decodedInstruction->getOpcode() == NOT_INITIALISED){
-        cout << "No cached Instruction, skipping" << endl;
+        DEBUG_OUT << "No cached Instruction, skipping" << endl;
         return;
     }
-    cout <<showbase<< "Debug Execute: " << decodedInstruction->toString() << endl;
+    DEBUG_OUT <<showbase<< "Debug Execute: " << decodedInstruction->toString() << endl;
     switch (decodedInstruction->getOpcode())
     {
     case MOV:
         move();
         break;
     case SUB:
-        sub();
+        if(decodedInstruction->useImmediateOffset())
+            subRegWithImmediate();
+        else
+            sub();
         break;
     case MOV_HI:
         moveHigh();
@@ -97,7 +90,7 @@ void ThumbCpu::execute(){
         storeRegSPRelative();
         break;
     case STR:
-        if(decodedInstruction->useImmediate())
+        if(decodedInstruction->useImmediateOffset())
             storeImmediateOffset();
         else
             storeReg();
@@ -105,8 +98,14 @@ void ThumbCpu::execute(){
     case STRH:
         storeHalfReg();
         break;
+    case LDRH:
+        loadHalfReg();
+        break;
     case ADD:
-        add();
+        if (decodedInstruction->useImmediateOffset())
+            addRegWithImmediate();
+        else
+            addImmediate();
         break;
     case ADDSP:
         addSP();
@@ -145,12 +144,12 @@ void ThumbCpu::execute(){
 }
 
 void ThumbCpu::step(){
+    decode();
     execute();
     if (!reg->isThumbMode()){
         decodedInstruction = new ThumbInstruction();
         return;
     }
-    decode();
     reg->step();
 }
 
@@ -180,11 +179,10 @@ bool ThumbCpu::canExecute(Condition cond){
 }
 
 void ThumbCpu::loadRegPCRelative(){
-    int regBValue = reg->getPC();
-    if(regBValue == 0x9ca) regBValue+=HALFWORD_SIZE; // Workaround for now, need to fix
+    int regBValue = (reg->getReg(PC)+HALFWORD_SIZE) & ~2;
     int address = regBValue + decodedInstruction->getImmediate()*4;
     int data = mem->read32(address);
-    cout<<"address = "<<address<<", data = "<< data << endl;
+    DEBUG_OUT<<"address = "<<address<<", data = "<< data << endl;
     reg->setReg(decodedInstruction->getRegDest(), data);
 }
 
@@ -193,57 +191,39 @@ void ThumbCpu::storeReg(){
     int regBValue = reg->getReg(sdt->getRegBase());
     int regOValue = reg->getReg(sdt->getRegOffset());
     int data = reg->getReg(sdt->getRegDest());
-    cout<<"data = "<< data << endl;
     int address = regBValue + regOValue;
-    cout<<"address = "<< address << endl;
+    DEBUG_OUT<<"address = "<< address <<", data = "<< data << endl;
     mem->write32(address, data);
-}
-
-void ThumbCpu::storeHalfReg(){
-    SDTHalfImmediate* sdt = (SDTHalfImmediate*) decodedInstruction;
-    int base = reg->getReg(sdt->getRegBase());
-    int offset = sdt->getImmediate()<<1;
-    int data = reg->getReg(sdt->getRegDest());
-    int address = base + offset;
-    cout<<"address = "<< address <<", data = "<< data << endl;
-    mem->write16(address, data);
 }
 
 void ThumbCpu::storeRegSPRelative(){
     int regBValue = reg->getReg(SP);
     int address = regBValue + decodedInstruction->getImmediate()*4;
     int data = reg->getReg(decodedInstruction->getRegDest());
-    cout<<"address = "<< address <<", data = "<< data << endl;
+    DEBUG_OUT<<"address = "<< address <<", data = "<< data << endl;
     mem->write32(address, data);
 }
 
 void ThumbCpu::addSP(){
     int regSValue = reg->getReg(SP);
-    bool signS= regSValue > 0;
     int imm = decodedInstruction->getImmediate() << 2;
-    bool signI= imm > 0;
     int result = regSValue + imm;
-    bool signR= result > 0;
-    if (signS == signI && signR!=signI){
-        cout<<"signedFlags = "<< signS <<","<< signI<<","<<signR << endl;
-        exit(PENDING_CODE);
-    }
-    cout<<"result SP = "<< result << endl;
+    DEBUG_OUT<<"result SP = "<< result << endl;
     reg->setReg(SP, result);
 }
 
 void ThumbCpu::longBranch(){
     ThumbLongBranch* b = (ThumbLongBranch*) decodedInstruction;
     if (b->isFirstOpcode()){
-        int jumpAddress = reg->getReg(PC) + HALFWORD_SIZE;
+        int jumpAddress = reg->getReg(PC);
         jumpAddress += b->getImmediate();
         reg->setReg(LR, jumpAddress);
-        cout << "ADDR = "<< jumpAddress <<endl;
+        DEBUG_OUT << "ADDR = "<< jumpAddress <<endl;
     } else{
         int jumpAddress = reg->getReg(LR) + b->getImmediate();
-        reg->setReg(LR, (reg->getReg(PC) + HALFWORD_SIZE)|1); // To return in THUMB mode
+        reg->setReg(LR, reg->getReg(PC)|1); // To return in THUMB mode
         reg->setReg(PC, jumpAddress);
-        cout << "ADDR = "<< jumpAddress << ", linkADDR = "<< reg->getReg(LR) <<endl;
+        DEBUG_OUT << "ADDR = "<< jumpAddress << ", linkADDR = "<< reg->getReg(LR) <<endl;
     }
 }
 
@@ -266,7 +246,7 @@ void ThumbCpu::push(){
     for (int i = 0; i < 8; i++){
         if (list & 1){
             data = reg->getReg(i);
-            cout<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
+            DEBUG_OUT<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
             mem->write32(address, data);
             address+=WORD_SIZE;
         }
@@ -274,7 +254,7 @@ void ThumbCpu::push(){
     }
     if (mdt->handleLinkFlag()){
         data = reg->getReg(LR);
-        cout<<"address = "<<address<<", R"<<dec<<LR<<hex<<" = "<< data << endl;
+        DEBUG_OUT<<"address = "<<address<<", R"<<dec<<LR<<hex<<" = "<< data << endl;
         mem->write32(address, data);
     }
 }

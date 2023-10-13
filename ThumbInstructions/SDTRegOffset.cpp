@@ -8,7 +8,7 @@ private:
     bool byteTransfer;
 public:
     SDTRegOffset(Opcode opcode, bool flag, char rD, char rB, int offset): ThumbInstruction(opcode, rD, offset){
-        byteTransfer = true;
+        byteTransfer = flag;
         regBase = rB;
     }
 
@@ -19,6 +19,8 @@ public:
         char rD = opcode & 0b111;
         switch (op)
         {
+        case 0:
+            return new SDTRegOffset(STR, false, rD, rB, offset);
         case 2:
             return new SDTRegOffset(STR, true, rD, rB, offset);
         default:
@@ -32,7 +34,7 @@ public:
         return regBase;
     }
 
-    bool useImmediate(){
+    bool useImmediateOffset(){
         return true;
     }
 
@@ -66,11 +68,11 @@ void ThumbCpu::storeImmediateOffset(){
     int address = base + offset;
     int data = reg->getReg(sdt->getRegDest());
     if (sdt->isByteTransfer()){
-        cout<<"address = "<< address<<", data = "<< (data & 0xFF) << endl;
+        DEBUG_OUT<<"address strbtest = "<< address<<", data = "<< (data & 0xFF) << endl;
         mem->write8(address, data);
     }
     else{
-        cout<<"address = "<< address<<", data = "<< data << endl;
+        DEBUG_OUT<<"address = "<< address<<", data = "<< data << endl;
         mem->write32(address, data);
     }
 }

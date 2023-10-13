@@ -28,7 +28,7 @@ private:
     int bankedReg[10];
     int savedStatusReg[5];
     int currentStatusReg;
-    int reg15 = WORD_SIZE;
+    int reg15;
     bool irqEnable;
     bool thumbMode;
     bool privilegedUser;
@@ -67,11 +67,11 @@ public:
     int getStepAmount();
     int getPC();
     void setPC(int);
-    int getReg(int);
+    uint32_t getReg(int);
     void setReg(char, int);
     int getCPSR();
     void setCPSR(int);
-    void setFlags(int);
+    void setFlags(char, int);
     int getSPSR();
     void setSPSR(int);
     void branch(int);

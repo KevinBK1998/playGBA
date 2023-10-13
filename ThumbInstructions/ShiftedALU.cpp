@@ -1,6 +1,3 @@
-#ifndef THUMB_SHIFT_MOVE_H
-#define THUMB_SHIFT_MOVE_H
-
 #include "../ThumbCpu.h"
 
 using namespace std;
@@ -57,24 +54,28 @@ public:
 
 void ThumbCpu::shiftLeft(){
     ShiftMove* alu = (ShiftMove*) decodedInstruction;
-    int regSValue = reg->getReg(alu->getRegSource());
+    uint64_t regSValue = reg->getReg(alu->getRegSource());
     int imm = alu->getImmediate();
-    int result = regSValue << imm;
-    int flags = generateFlags(result);
-    cout<<"result = "<<result<<", flags = "<<flags<<endl;
+    uint64_t result = regSValue << imm;
+    bool carry = ((result>>32)&1)!=0;
+    DEBUG_OUT<<"result = "<<result<<endl;
+    char mask = imm? NZ:NZC;
     reg->setReg(alu->getRegDest(), result);
-    reg->setFlags(flags);
+    reg->setFlags(mask, generateShiftFlags(carry, result));
 }
 
 void ThumbCpu::shiftRight(){
     ShiftMove* alu = (ShiftMove*) decodedInstruction;
-    int regSValue = reg->getReg(alu->getRegSource());
+    uint64_t regSValue = reg->getReg(alu->getRegSource());
     int imm = alu->getImmediate();
-    int result = regSValue >> imm;
-    int flags = generateFlags(result);
-    cout<<"result = "<<result<<", flags = "<<flags<<endl;
+    if (!imm) {
+        cout << "LSR Shift is zero"<<endl;
+        exit(PENDING_CODE);
+    }
+    uint64_t result = regSValue >> (imm-1);
+    bool carry = (result&1)!=0;
+    result >>= 1;
+    DEBUG_OUT<<"result = "<<result<<endl;
     reg->setReg(alu->getRegDest(), result);
-    reg->setFlags(flags);
+    reg->setFlags(NZC, generateShiftFlags(carry, result));
 }
-
-#endif

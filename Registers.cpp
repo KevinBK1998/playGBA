@@ -15,7 +15,6 @@ Registers::~Registers()
 
 void Registers::setControlBits() {
     irqEnable = (currentStatusReg & 0x80) == 0;
-    thumbMode = (currentStatusReg & 0x20) != 0;
     int modeMeta = currentStatusReg & 0x1F;
     switch (modeMeta) {
         case 0:
@@ -51,21 +50,21 @@ int Registers::getStepAmount() {
 }
 
 int Registers::getPC(){
-    return reg15 - getStepAmount();
+    return reg15;
 }
 
 void Registers::setPC(int imm){
     reg15 = imm + getStepAmount();
 }
 
-int Registers::getReg(int index){
+uint32_t Registers::getReg(int index){
     if (index < 13)
         return unbankedReg[index];
     if (index < 15){
         return bankedReg[getBankedIndex(index)];
     }
     if (index == 15)
-        return reg15;
+        return reg15 + getStepAmount();
 }
 
 void Registers::setReg(char index, int data){
@@ -86,9 +85,11 @@ void Registers::setCPSR(int data){
     setControlBits();
 }
 
-void Registers::setFlags(int data){
-    currentStatusReg &= 0xFFFFFF;
-    currentStatusReg |= (data & 0xFF000000);
+void Registers::setFlags(char mask, int data){
+    int changeMask = mask<<24;
+    int protectMask = ~changeMask;
+    currentStatusReg &= protectMask;
+    currentStatusReg |= (data & changeMask);
 }
 
 int Registers::getSPSR(){
@@ -100,12 +101,10 @@ void Registers::setSPSR(int data){
 }
 
 void Registers::branch(int imm){
-    int jump = imm+1;
     if (thumbMode)
-        jump *= HALFWORD_SIZE;
+        reg15 += (imm+1)*HALFWORD_SIZE;
     else
-        jump *= WORD_SIZE;
-    reg15 += jump;
+        reg15 += (imm+1)*WORD_SIZE;
 }
 
 bool Registers::isThumbMode(){
@@ -113,14 +112,19 @@ bool Registers::isThumbMode(){
 }
 
 void Registers::exchange(int address){
+    bool prevThumbMode = thumbMode;
     thumbMode=(address&1);
     if(thumbMode){
-        reg15 = address^1 + getStepAmount();
-        cout << "\nPC.t = "<< reg15 <<endl;
+        reg15 = address & ~1;
+        if (prevThumbMode)
+            reg15 -= HALFWORD_SIZE;
+        DEBUG_OUT << "\nPC.t = "<< reg15 <<endl;
     }
     else{
-        reg15 = (address&(~0b11)) - getStepAmount();
-        cout << "\nPC.a = "<< reg15 <<endl;
+        reg15 = address & ~2;
+        if (!prevThumbMode)
+            reg15 -= WORD_SIZE;
+        DEBUG_OUT << "\nPC.a = "<< reg15 <<endl;
     }
 }
 
@@ -129,10 +133,10 @@ void Registers::step(){
 }
 
 void Registers::status(){
-    cout<<"\nMODE: "<<(thumbMode?"THUMB":"ARM")<<"("<<getMode()<<")"<<" \tPC: "<<getPC()<<endl;
-    cout<<"R0: "<<unbankedReg[0]<<"\tR1: "<<unbankedReg[1]<<"\tR2: "<< unbankedReg[2]<<"\tR3: "<< unbankedReg[3]<< endl;
-    cout<<"R4: "<<unbankedReg[4]<<"\tR5: "<<unbankedReg[5]<<"\tR6: "<< unbankedReg[6]<<"\tR7: "<< unbankedReg[7]<< endl;
-    cout<<"R8: "<<getReg(8)<<"\tR9: "<<getReg(9)<<"\tR10: "<< getReg(10)<<"\tR11: "<< getReg(11)<< endl;
-    cout<<"R12: "<<getReg(12)<<"\tR13(SP): "<<getReg(SP)<<"\tR14(LR): "<< getReg(LR)<<"\tR15(PC+"<<noshowbase<<getStepAmount()<<showbase<<"): "<< reg15<< endl;
-    cout<<"CPSR: "<<currentStatusReg<< "\tSPSR:"<<getSPSR()<< endl;
+    DEBUG_OUT<<"\nMODE: "<<(thumbMode?"THUMB":"ARM")<<"("<<getMode()<<")"<<" \tPC: "<<getPC()<<endl;
+    DEBUG_OUT<<"R0: "<<unbankedReg[0]<<"\tR1: "<<unbankedReg[1]<<"\tR2: "<< unbankedReg[2]<<"\tR3: "<< unbankedReg[3]<< endl;
+    DEBUG_OUT<<"R4: "<<unbankedReg[4]<<"\tR5: "<<unbankedReg[5]<<"\tR6: "<< unbankedReg[6]<<"\tR7: "<< unbankedReg[7]<< endl;
+    DEBUG_OUT<<"R8: "<<getReg(8)<<"\tR9: "<<getReg(9)<<"\tR10: "<< getReg(10)<<"\tR11: "<< getReg(11)<< endl;
+    DEBUG_OUT<<"R12: "<<getReg(12)<<"\tR13(SP): "<<getReg(SP)<<"\tR14(LR): "<< getReg(LR)<<"\tR15(PC+"<<noshowbase<<getStepAmount()<<showbase<<"): "<< getReg(PC)<< endl;
+    DEBUG_OUT<<"CPSR: "<<currentStatusReg<< "\tSPSR:"<<getSPSR()<< endl;
 }

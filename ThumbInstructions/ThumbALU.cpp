@@ -62,9 +62,8 @@ void ThumbCpu::test(){
     int op1 = reg->getReg(alu->getRegSource());
     int op2 = reg->getReg(alu->getRegDest());
     int result = op1 & op2;
-    int flags = generateFlags(result);
-    cout<<"result = "<<result<<", flags = "<<flags<<endl;
-    reg->setFlags(flags);
+    DEBUG_OUT<<"result = "<<result<<endl;
+    reg->setFlags(NZ, generateFlags(result));
 }
 
 void ThumbCpu::logicalOR(){
@@ -72,18 +71,16 @@ void ThumbCpu::logicalOR(){
     int op1 = reg->getReg(alu->getRegSource());
     int op2 = reg->getReg(alu->getRegDest());
     int result = op1 | op2;
-    int flags = generateFlags(result);
-    cout<<"result = "<<result<<", flags = "<<flags<<endl;
+    DEBUG_OUT<<"result = "<<result<<endl;
     reg->setReg(alu->getRegDest(), result);
-    reg->setFlags(flags);
+    reg->setFlags(NZ, generateFlags(result));
 }
 
 void ThumbCpu::moveN(){
     ThumbALU* alu = (ThumbALU*) decodedInstruction;
     int data = reg->getReg(alu->getRegSource());
     data = ~data;
-    int flags = generateFlags(data);
-    cout<<"data = " << data <<", flags = "<< flags<< endl;
+    DEBUG_OUT<<"data = " << data << endl;
     reg->setReg(alu->getRegDest(), data);
-    reg->setFlags(flags);
+    reg->setFlags(NZ, generateFlags(data));
 }

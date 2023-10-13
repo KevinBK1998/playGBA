@@ -36,6 +36,10 @@ int ThumbInstruction::getImmediate(){
     return immediate;
 }
 
+bool ThumbInstruction::useImmediateOffset(){
+    return false;
+}
+
 bool ThumbInstruction::useImmediate(){
     return false;
 }

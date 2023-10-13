@@ -39,7 +39,7 @@ public:
 
     static MultipleDataTransfer* decode(int opcode){
         Condition cond = Condition((opcode >> 28) & 0xF);
-        cout << "MultipleDataTransfer = " << opcode << endl;
+        DEBUG_OUT << "MultipleDataTransfer = " << opcode << endl;
         int flags = (opcode >> 21) & 0xF;
         int imm = opcode & 0xFFF;
         char rN = (opcode >> 16) & 0xF;
@@ -117,7 +117,7 @@ void ArmCpu::loadMultipleReg(){
             if (!(mdt->addBeforeTransfer() ^ mdt->shouldAddOffset()))
                 address+=WORD_SIZE;
             data = mem->read32(address);
-            cout<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
+            DEBUG_OUT<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
             reg->setReg(i, data);
             if (mdt->addBeforeTransfer() ^ mdt->shouldAddOffset())
                 address+=WORD_SIZE;
@@ -152,7 +152,7 @@ void ArmCpu::storeMultipleReg(){
             if (!(mdt->addBeforeTransfer() ^ mdt->shouldAddOffset()))
                 address+=WORD_SIZE;
             data = reg->getReg(i);
-            cout<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
+            DEBUG_OUT<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
             mem->write32(address, data);
             if (mdt->addBeforeTransfer() ^ mdt->shouldAddOffset())
                 address+=WORD_SIZE;
