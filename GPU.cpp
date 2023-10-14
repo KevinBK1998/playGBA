@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <SFML/Graphics.hpp>
 #include "FailureCodes.h"
 #include "GPU.h"
@@ -60,12 +61,7 @@ void GPU::write8(uint32_t address, uint8_t data){
     uint32_t* wordPointer;
     int actualAddress;
     bool isWord=false;
-    if (address>VRAM_OFFSET) {
-        DEBUG_OUT << "W: GPU VRAM Memory: "<<unsigned(address)<<endl;
-        vram[address-VRAM_OFFSET]=data;
-        return;
-    }
-    else switch (address & 0xFE)
+    if (address<PAL_RAM_OFFSET) switch (address & 0xFE)
     {
     case DISPCNT ... DISPCNT+1:
         dispCnt.storeHalfWord(address, data);
@@ -90,8 +86,8 @@ void GPU::write8(uint32_t address, uint8_t data){
         break;
     case BG2PAR_OFFSET ... BG2PAR_OFFSET_END:
         actualAddress = (address>>1) & 0b11;
-        pointer = &bg2Parameters[actualAddress];
-        break;
+        bg2Parameters[actualAddress].storeHalfWord(address, data);
+        return;
     case BG2X ... BG2X+3:
         isWord = true;
         wordPointer = &bg2x;
@@ -102,8 +98,8 @@ void GPU::write8(uint32_t address, uint8_t data){
         break;
     case BG3PAR_OFFSET ... BG3PAR_OFFSET_END:
         actualAddress = (address>>1) & 0b11;
-        pointer = &bg3Parameters[actualAddress];
-        break;
+        bg3Parameters[actualAddress].storeHalfWord(address, data);
+        return;
     case BG3X ... BG3X+3:
         isWord = true;
         wordPointer = &bg3x;
@@ -152,6 +148,21 @@ void GPU::write8(uint32_t address, uint8_t data){
         cout << "W: GPU Undefined Memory: "<<unsigned(address)<<endl;
         exit(FAILED_DMA);
     }
+    else if (address < VRAM_OFFSET){
+        DEBUG_OUT << "W: GPU Palette RAM Memory: "<<unsigned(address)<<endl;
+        palRam[address-PAL_RAM_OFFSET]=data;
+        return;
+    }
+    else if (address < OAM_OFFSET){
+        DEBUG_OUT << "W: GPU VRAM Memory: "<<unsigned(address)<<endl;
+        vram[address-VRAM_OFFSET]=data;
+        return;
+    }
+    else {
+        DEBUG_OUT << "W: GPU OAM Memory: "<<unsigned(address)<<endl;
+        oam[address-OAM_OFFSET]=data;
+        return;
+    }
     if(isWord)
         storeWord(address&0b11, wordPointer, data);
     else
@@ -164,8 +175,8 @@ void GPU::status(){
     DEBUG_OUT<<"BG0CNT: "<<bgCnt[0]<<"\tBG1CNT: "<<bgCnt[1]<<"\tBG2CNT: "<<bgCnt[2]<<"\tBG3CNT: "<<bgCnt[3]<<endl;
     DEBUG_OUT<<"BG0HOFS: "<<bgOffsetX[0]<<"\tBG0HOFS: "<<bgOffsetX[1]<<"\tBG0HOFS: "<<bgOffsetX[2]<<"\tBG0HOFS: "<<bgOffsetX[3]<<endl;
     DEBUG_OUT<<"BG0VOFS: "<<bgOffsetY[0]<<"\tBG0VOFS: "<<bgOffsetY[1]<<"\tBG0VOFS: "<<bgOffsetY[2]<<"\tBG0VOFS: "<<bgOffsetY[3]<<endl;
-    DEBUG_OUT<<"BG2PA: "<<bg2Parameters[0]<<"\tBG2PB: "<<bg2Parameters[1]<<"\tBG2PC: "<<bg2Parameters[2]<<"\tBG2PD: "<<bg2Parameters[3]<<"\tBG2X: "<<bg2x<<"\tBG2Y: "<<bg2y<<endl;
-    DEBUG_OUT<<"BG3PA: "<<bg3Parameters[0]<<"\tBG3PB: "<<bg3Parameters[1]<<"\tBG3PC: "<<bg3Parameters[2]<<"\tBG3PD: "<<bg3Parameters[3]<<"\tBG3X: "<<bg3x<<"\tBG3Y: "<<bg3y<<endl;
+    DEBUG_OUT<<"BG2PA: "<<bg2Parameters[0].getRegValue()<<"\tBG2PB: "<<bg2Parameters[1].getRegValue()<<"\tBG2PC: "<<bg2Parameters[2].getRegValue()<<"\tBG2PD: "<<bg2Parameters[3].getRegValue()<<"\tBG2X: "<<bg2x<<"\tBG2Y: "<<bg2y<<endl;
+    DEBUG_OUT<<"BG3PA: "<<bg3Parameters[0].getRegValue()<<"\tBG3PB: "<<bg3Parameters[1].getRegValue()<<"\tBG3PC: "<<bg3Parameters[2].getRegValue()<<"\tBG3PD: "<<bg3Parameters[3].getRegValue()<<"\tBG3X: "<<bg3x<<"\tBG3Y: "<<bg3y<<endl;
     DEBUG_OUT<<"WIN0H: "<<win0x<<"\tWIN1H: "<<win1x<<"\tWIN0V: "<<win0y<<"\tWIN1V: "<<win1y<<"\tWININ: "<<winIn<<"\tWINOUT: "<<winOut<<endl;
     DEBUG_OUT<<"MOSAIC: "<<mosaic<<"\tBLDCNT: "<<sfxCnt<<"\tBLDALPHA: "<<alphaCoeff<<"\tBLDY: "<<brightCoeff<<endl<<endl;
 }
@@ -177,7 +188,7 @@ void GPU::dump(){
         cout << "Error Opening File\n";
         exit(FAILED_TO_LOAD_ROM);
     }
-    for (int i = 0; i < VRAM_FILE_SIZE; i++)
+    for (int i = 0; i < VRAM_SIZE; i++)
     {
         uint8_t v = vram[i];
         fout.write((char*) &v, sizeof(uint8_t));

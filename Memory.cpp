@@ -108,10 +108,12 @@ void Memory::write8(uint32_t address, uint8_t data) {
     }
     else if (address == UNKNOWN_BIOS_FLAG)
             DEBUG_OUT << "W: UNKNOWN_BIOS_FLAG: "<<unsigned(data)<<endl;
-    else if (address >= VRAM_OFFSET && address < VRAM_OFFSET+VRAM_FILE_SIZE)
+    else if (address >= PAL_RAM_OFFSET && address < PAL_RAM_OFFSET+PAL_RAM_SIZE)
         gpu.write8(address, data);
-    // else if (address >= ROM_OFFSET && address < ROM_END)
-    //     rom[address - ROM_OFFSET] = data;
+    else if (address >= VRAM_OFFSET && address < VRAM_OFFSET+VRAM_SIZE)
+        gpu.write8(address, data);
+    else if (address >= OAM_OFFSET && address < OAM_OFFSET+OAM_SIZE)
+        gpu.write8(address, data);
     else{
         cout << "W: Undefined Memory: "<<address<<", Data: "<<unsigned(data)<<endl;
         exit(FAILED_DMA);

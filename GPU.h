@@ -48,10 +48,10 @@ class GPU{
     uint16_t bgCnt[4];
     uint16_t bgOffsetX[4];
     uint16_t bgOffsetY[4];
-    uint16_t bg2Parameters[4];
+    ControlRegister16_t bg2Parameters[4];
     uint32_t bg2x;
     uint32_t bg2y;
-    uint16_t bg3Parameters[4];
+    ControlRegister16_t bg3Parameters[4];
     uint32_t bg3x;
     uint32_t bg3y;
     uint16_t win0x;
@@ -64,7 +64,9 @@ class GPU{
     uint16_t sfxCnt;
     uint16_t alphaCoeff;
     uint16_t brightCoeff;
-    uint8_t vram[VRAM_FILE_SIZE];
+    uint8_t palRam[PAL_RAM_SIZE];
+    uint8_t vram[VRAM_SIZE];
+    uint8_t oam[OAM_SIZE];
     sf::RenderWindow* gameWindow;
     void storeHalfWord(int, uint16_t*, uint8_t);
     void storeWord(int, uint32_t*, uint8_t);

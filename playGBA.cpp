@@ -16,8 +16,8 @@ const int SCREEN_HEIGHT = INITIAL_ZOOM*OSCREEN_HEIGHT;
 
 using namespace std;
 int timePassed=0;
-int DEBUG_AFTER=740;
-// int DEBUG_AFTER=34000;
+// int DEBUG_AFTER=740;
+int DEBUG_AFTER=34980;
 Registers reg;
 
 void status(){
@@ -33,7 +33,7 @@ int main(int argc, char *args[]){
     ArmCpu cpu = ArmCpu(&reg, &mem);
     ThumbCpu thumbCpu = ThumbCpu(&reg, &mem);
     cout<<"Starting up CPU"<<hex<< endl;
-    while(timePassed < 1000){
+    while(timePassed < 35500){
         status();
         reg.status();
         if (reg.isThumbMode())
