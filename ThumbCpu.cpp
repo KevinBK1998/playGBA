@@ -102,10 +102,7 @@ void ThumbCpu::execute(){
         loadHalfReg();
         break;
     case ADD:
-        if (decodedInstruction->useImmediateOffset())
-            addRegWithImmediate();
-        else
-            addImmediate();
+        add();
         break;
     case ADDSP:
         addSP();
@@ -139,6 +136,9 @@ void ThumbCpu::execute(){
         break;
     case ORR:
         logicalOR();
+        break;
+    case CMP:
+        compare();
         break;
     default:
         cout << "Undefined: " << decodedInstruction->toString() << endl;
@@ -228,4 +228,11 @@ void ThumbCpu::longBranch(){
         reg->setReg(PC, jumpAddress);
         DEBUG_OUT << "ADDR = "<< jumpAddress << ", linkADDR = "<< reg->getReg(LR) <<endl;
     }
+}
+
+void ThumbCpu::add(){
+    if (decodedInstruction->useImmediateOffset())
+        addRegWithImmediate();
+    else
+        addImmediate();
 }

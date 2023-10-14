@@ -18,6 +18,7 @@ class ThumbCpu{
     void storeHalfReg();
     void loadHalfReg();
     void storeRegSPRelative();
+    void add();
     void addRegWithImmediate();
     void addImmediate();
     void sub();
@@ -33,6 +34,7 @@ class ThumbCpu{
     void shiftRight();
     void test();
     void logicalOR();
+    void compare();
     bool canExecute(int);
     bool canExecute(Condition);
 public:

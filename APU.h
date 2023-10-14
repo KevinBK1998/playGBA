@@ -14,6 +14,14 @@ const int WAVE_RAM_OFFSET = 0x90;
 const int FIFO_A = 0xA0;
 const int FIFO_B = 0xA4;
 
+class ControlRegister32_t{
+    uint32_t REG;
+public:
+    bool bitCheck(int);
+    void storeWord(uint8_t, uint8_t);
+    uint32_t getRegValue();
+};
+
 class APU{
     uint16_t chan1sweep;
     uint16_t chan2frequency;
@@ -21,7 +29,7 @@ class APU{
     uint16_t mixCnt;
     uint16_t apuCnt;
     uint16_t waveCnt;
-    uint16_t biasCnt;
+    ControlRegister32_t biasCnt;
     uint8_t waveRam[20];
     uint32_t fifoA;
     uint32_t fifoB;
