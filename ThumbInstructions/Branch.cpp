@@ -14,7 +14,7 @@ public:
 
     string toString(){
         stringstream stream;
-        stream<<"B "<<showbase<<hex<<getImmediate();
+        stream<<"B "<<showbase<<hex<<getImmediate()<<" ("<<dec<<getImmediate()<<")";
         return stream.str();
     }
 };

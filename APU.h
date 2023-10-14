@@ -29,7 +29,7 @@ class APU{
     uint16_t mixCnt;
     uint16_t apuCnt;
     uint16_t waveCnt;
-    ControlRegister32_t biasCnt;
+    ControlRegister16_t biasCnt;
     uint8_t waveRam[20];
     uint32_t fifoA;
     uint32_t fifoB;

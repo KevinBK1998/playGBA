@@ -109,25 +109,3 @@ int ArmInstruction::getRegDest(){
 int ArmInstruction::getRegN(){
     return regN;
 }
-
-string Condition::toString(){
-    switch (value)
-    {
-    case EQ:
-        return "{eq}";
-    case NE:
-        return "{ne}";
-    case CC:
-        return "{cc}";
-    case GE:
-        return "{ge}";
-    case LT:
-        return "{lt}";
-    case ALWAYS:
-        return "";
-    default:
-        cout << "COND = " << value << endl;
-        exit(FAILED_DECODED_TO_STRING);
-    }
-    return "Never";
-}

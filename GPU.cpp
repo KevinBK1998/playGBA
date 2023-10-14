@@ -54,7 +54,7 @@ void GPU::write8(uint32_t address, uint8_t data){
     if (address<PAL_RAM_OFFSET) switch (address & 0xFE)
     {
     case DISPCNT ... DISPCNT+1:
-        dispCnt.storeHalfWord(address, data);
+        dispCnt.storeReg(address, data);
         status();
         return;
     case GREENSWAP ... GREENSWAP+1:
@@ -76,7 +76,7 @@ void GPU::write8(uint32_t address, uint8_t data){
         break;
     case BG2PAR_OFFSET ... BG2PAR_OFFSET_END:
         actualAddress = (address>>1) & 0b11;
-        bg2Parameters[actualAddress].storeHalfWord(address, data);
+        bg2Parameters[actualAddress].storeReg(address, data);
         return;
     case BG2X ... BG2X+3:
         isWord = true;
@@ -88,7 +88,7 @@ void GPU::write8(uint32_t address, uint8_t data){
         break;
     case BG3PAR_OFFSET ... BG3PAR_OFFSET_END:
         actualAddress = (address>>1) & 0b11;
-        bg3Parameters[actualAddress].storeHalfWord(address, data);
+        bg3Parameters[actualAddress].storeReg(address, data);
         return;
     case BG3X ... BG3X+3:
         isWord = true;
@@ -229,25 +229,4 @@ void GPU::step(){
             gameWindow->display();
         }
     }
-}
-
-bool ControlRegister16_t::bitCheck(int bitNumber){
-    if (bitNumber < 16)
-        return (1<<bitNumber) & REG;
-    return false;
-}
-
-void ControlRegister16_t::storeHalfWord(uint8_t address, uint8_t data){
-    if (address){
-        REG &= 0xFF;
-        REG |= (data<<8);
-    }
-    else {
-        REG &= 0xFF00;
-        REG |= data;
-    }
-}
-
-uint16_t ControlRegister16_t::getRegValue(){
-    return REG;
 }

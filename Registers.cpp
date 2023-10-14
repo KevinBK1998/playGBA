@@ -152,6 +152,8 @@ bool Registers::canExecute(int cond){
         return (currentStatusReg & C) == 0;
     case MI:
         return (currentStatusReg & N) != 0;
+    case PL:
+        return (currentStatusReg & N) == 0;
     case VS:
         return (currentStatusReg & V) != 0;
     case GE:
@@ -165,13 +167,35 @@ bool Registers::canExecute(int cond){
         cout << "Cond Undefined: " << Condition(cond).toString() << endl;
         exit(FAILED_TO_EXECUTE);
     }
-    // if (cond == PL) return currentStatusReg >= 0;
-    // else if (cond == CS) return (currentStatusReg & 0x20_00_00_00) != 0;
+    // if (cond == CS) return (currentStatusReg & 0x20_00_00_00) != 0;
     // else if (cond == VC) return (currentStatusReg & 0x10_00_00_00) == 0;
     // else if (cond == HI) return canExecute(CS) && canExecute(NE);
     // else if (cond == LS) return canExecute(CC) || canExecute(EQ);
     // else if (cond == GT) return canExecute(NE) && canExecute(GE);
     // else if (cond == LE) return canExecute(EQ) || canExecute(LT);
-    // else throw new IndexOutOfBoundsException(cond.name());
     return false;
+}
+
+string Condition::toString(){
+    switch (value)
+    {
+    case EQ:
+        return "{eq}";
+    case NE:
+        return "{ne}";
+    case CC:
+        return "{cc}";
+    case PL:
+        return "{pl}";
+    case GE:
+        return "{ge}";
+    case LT:
+        return "{lt}";
+    case ALWAYS:
+        return "";
+    default:
+        cout << "COND = " << value << endl;
+        exit(FAILED_DECODED_TO_STRING);
+    }
+    return "Never";
 }

@@ -21,7 +21,7 @@ public:
         char op = (opcode>>8) & 0b11;
         char rS = (opcode>>3) & 0xF;
         char rD = opcode & 0b111;
-        rD |= ((opcode>>4) & 0x80);
+        rD |= ((opcode>>4) & 0x8);
         switch (op)
         {
         case 1:

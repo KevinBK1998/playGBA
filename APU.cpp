@@ -47,7 +47,7 @@ void APU::status(){
 uint8_t APU::read8(uint8_t address){
     switch (address & 0xFE){
     case SOUNDBIAS ... SOUNDBIAS+1:
-        return biasCnt.getRegValue();
+        return biasCnt.loadReg(address);
     case WAVE_RAM_OFFSET ... WAVE_RAM_OFFSET+0xF:
         return waveRam[address - WAVE_RAM_OFFSET];
     default:
@@ -82,7 +82,7 @@ void APU::write8(uint8_t address, uint8_t data){
         pointer = &apuCnt;
         break;
     case SOUNDBIAS ... SOUNDBIAS+1:
-        biasCnt.storeWord(address, data);
+        biasCnt.storeReg(address, data);
         status();
         return;
     case WAVE_RAM_OFFSET ... WAVE_RAM_OFFSET+0xF:
@@ -117,15 +117,15 @@ bool ControlRegister32_t::bitCheck(int bitNumber){
 }
 
 void ControlRegister32_t::storeWord(uint8_t address, uint8_t data){
-        if (address == 0){
+    if (address & 2 == 0){
         REG &= 0xFFFFFF00;
         REG |= data;
     }
-    else if (address == 1){
+    else if (address & 2 == 1){
         REG &= 0xFFFF00FF;
         REG |= (data<<8);
     }
-    else if (address == 2){
+    else if (address & 2 == 2){
         REG &= 0xFF00FFFF;
         REG |= (data<<16);
     }
