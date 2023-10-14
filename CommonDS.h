@@ -20,6 +20,14 @@ const char NZ = 0xC0;
 const char NZC = 0xE0;
 const char NZCV = 0xF0;
 bool DEBUG_LOGS = false;
+
+// Screen Size
+const int OSCREEN_WIDTH = 240;
+const int OSCREEN_HEIGHT = 160;
+const int INITIAL_ZOOM = 2;
+const int SCREEN_WIDTH = INITIAL_ZOOM*OSCREEN_WIDTH;
+const int SCREEN_HEIGHT = INITIAL_ZOOM*OSCREEN_HEIGHT;
+
 stringstream nop;
 
 #define BYTE_SIZE 1

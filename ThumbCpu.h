@@ -27,6 +27,7 @@ class ThumbCpu{
     void condBranch();
     void longBranch();
     void push();
+    void pop();
     void branchExchange();
     void shiftLeft();
     void shiftRight();

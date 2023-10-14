@@ -9,19 +9,9 @@ using namespace std;
 
 GPU::GPU(sf::RenderWindow* window){
     gameWindow = window;
-    if (gameWindow->isOpen())
-    {
-        sf::Event event;
-        while (gameWindow->pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                gameWindow->close();
-        }
-
-        gameWindow->clear();
-        // window.draw(screen);
-        gameWindow->display();
-    }
+    gameWindow->setPosition(sf::Vector2i(0,0));
+    gameWindow->clear(sf::Color::White);
+    gameWindow->display();
 }
 
 void GPU::storeHalfWord(int address, uint16_t* var, uint8_t data){
@@ -181,17 +171,63 @@ void GPU::status(){
     DEBUG_OUT<<"MOSAIC: "<<mosaic<<"\tBLDCNT: "<<sfxCnt<<"\tBLDALPHA: "<<alphaCoeff<<"\tBLDY: "<<brightCoeff<<endl<<endl;
 }
 
-void GPU::dump(){
-    ofstream fout("vram.bin", ios::out|ios::binary);
+void dumpArrayToFile(uint8_t* array, int size, string fileName){
+    ofstream fout(fileName, ios::out|ios::binary);
     if (!fout)
     {
         cout << "Error Opening File\n";
         exit(FAILED_TO_LOAD_ROM);
     }
-    for (int i = 0; i < VRAM_SIZE; i++)
+    for (int i = 0; i < size; i++)
     {
-        uint8_t v = vram[i];
+        uint8_t v = array[i];
         fout.write((char*) &v, sizeof(uint8_t));
+    }
+    fout.close();
+}
+
+void GPU::dump(){
+    dumpArrayToFile(vram, VRAM_SIZE, "vram.bin");
+    dumpArrayToFile(oam, OAM_SIZE, "oam.bin");
+    dumpArrayToFile(palRam, PAL_RAM_SIZE, "palRam.bin");
+}
+
+sf::VertexArray fillColor(sf::Color clearColor){
+    sf::VertexArray screen(sf::Triangles, 6);
+    // Position
+    screen[0].position = sf::Vector2f(0, 0);
+    screen[1].position = sf::Vector2f(SCREEN_WIDTH, 0);
+    screen[2].position = sf::Vector2f(0, SCREEN_HEIGHT);
+    screen[3].position = sf::Vector2f(0, SCREEN_HEIGHT);
+    screen[4].position = sf::Vector2f(SCREEN_WIDTH, 0);
+    screen[5].position = sf::Vector2f(SCREEN_WIDTH, SCREEN_HEIGHT);
+    // Color
+    screen[0].color = clearColor;
+    screen[1].color = clearColor;
+    screen[2].color = clearColor;
+    screen[3].color = clearColor;
+    screen[4].color = clearColor;
+    screen[5].color = clearColor;
+    return screen;
+}
+
+void GPU::step(){
+    timer++;
+    if (timer>100000){
+        timer=0;
+        if (gameWindow->isOpen())
+        {
+            sf::Event event;
+            while (gameWindow->pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                    gameWindow->close();
+            }
+
+            gameWindow->clear(sf::Color::White);
+            gameWindow->draw(fillColor(sf::Color::Magenta));
+            gameWindow->display();
+        }
     }
 }
 

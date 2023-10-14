@@ -29,7 +29,7 @@ private:
     uint8_t timer[16];
     uint8_t serial[12];
     uint8_t serial2[0x26];
-    bool postBootFlag;
+    uint8_t postBootFlag;
     bool checkForAddress(int address, int IOreg, int size){
         return address>=IOreg && address<IOreg+size;
     }
@@ -91,8 +91,8 @@ public:
             storeHalfWord(address&1, &ime, data);
         else if (address > IME && address < POST_BOOT_FLAG )
             DEBUG_OUT << "W: IORegisters Unused Memory: "<<address<<endl;
-        // else if (address == POST_BOOT_FLAG)
-        //     postBootFlag = data? true: false;
+        else if (address == POST_BOOT_FLAG)
+            postBootFlag = data;
         else{
             cout << "W: IORegisters Undefined Memory: "<<address<<endl;
             exit(FAILED_DMA);

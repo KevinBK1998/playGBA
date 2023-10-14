@@ -8,16 +8,9 @@
 #include "ArmCpu.cpp"
 #include "ThumbCpu.cpp"
 
-const int OSCREEN_WIDTH = 240;
-const int OSCREEN_HEIGHT = 160;
-const int INITIAL_ZOOM = 2;
-const int SCREEN_WIDTH = INITIAL_ZOOM*OSCREEN_WIDTH;
-const int SCREEN_HEIGHT = INITIAL_ZOOM*OSCREEN_HEIGHT;
-
 using namespace std;
 int timePassed=0;
-// int DEBUG_AFTER=740;
-int DEBUG_AFTER=34980;
+int DEBUG_AFTER=38070;
 Registers reg;
 
 void status(){
@@ -27,19 +20,20 @@ void status(){
 int main(int argc, char *args[]){
     sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "playGBA - debug mode");
     GPU gpu(&window);
-    Memory mem(gpu);
+    Memory mem(&gpu);
     if (argc > 1)
-        mem = Memory(gpu, args[argc - 1]);
+        mem = Memory(&gpu, args[argc - 1]);
     ArmCpu cpu = ArmCpu(&reg, &mem);
     ThumbCpu thumbCpu = ThumbCpu(&reg, &mem);
     cout<<"Starting up CPU"<<hex<< endl;
-    while(timePassed < 35500){
+    while(timePassed < 38500){
         status();
         reg.status();
         if (reg.isThumbMode())
             thumbCpu.step();
         else
             cpu.step();
+        gpu.step();
         timePassed++;
         if(timePassed==DEBUG_AFTER) DEBUG_LOGS=true;
     }

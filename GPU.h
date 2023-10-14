@@ -41,6 +41,7 @@ public:
 };
 
 class GPU{
+    int timer;
     ControlRegister16_t dispCnt;
     uint16_t greenSwap;
     uint16_t dispStat;
@@ -76,6 +77,7 @@ public:
     void write8(uint32_t, uint8_t);
     void status();
     void dump();
+    void step();
 };
 
 #endif

@@ -14,6 +14,7 @@ public:
     static AddSP* decode(int opcode){
         char imm = opcode&0x7F;
         int signedImm = (opcode&0x80)? -imm : imm;
+        signedImm <<= 2;
         return new AddSP(signedImm);
     }
 

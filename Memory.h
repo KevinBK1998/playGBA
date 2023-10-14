@@ -27,12 +27,12 @@ private:
     uint8_t wram[WRAM_FILE_SIZE];
     uint8_t rom[200];
     IORegisters registers;
-    GPU gpu;
+    GPU* gpu;
     APU apu;
     void loadBios(const char *);
 public:
-    Memory(GPU);
-    Memory(GPU, char *);
+    Memory(GPU*);
+    Memory(GPU*, char *);
     uint8_t read8(uint32_t);
     void write8(uint32_t, uint8_t);
     uint16_t read16(uint32_t);

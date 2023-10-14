@@ -1,12 +1,5 @@
-#ifndef THUMB_MDT_H
-#define THUMB_MDT_H
-
-#include <iostream>
 #include <sstream>
-#include "Instruction.h"
-#include "../FailureCodes.h"
-
-using namespace std;
+#include "../ThumbCpu.h"
 
 class ThumbMDT: public ThumbInstruction
 {
@@ -70,4 +63,57 @@ public:
     }
 };
 
-#endif
+void ThumbCpu::push(){
+    ThumbMDT* mdt = (ThumbMDT*) decodedInstruction;
+    int address = reg->getReg(SP);
+    int data;
+    int list = mdt->getRegList();
+
+    // Calculate lowest address first
+    for (int i = 0; i < 8; i++){
+        if (list & 1) address-=WORD_SIZE;
+        list>>=1;
+    }
+    if (mdt->handleLinkFlag()) address-=WORD_SIZE;
+
+    reg->setReg(SP, address);
+    list = mdt->getRegList();
+
+    for (int i = 0; i < 8; i++){
+        if (list & 1){
+            data = reg->getReg(i);
+            DEBUG_OUT<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
+            mem->write32(address, data);
+            address+=WORD_SIZE;
+        }
+        list>>=1;
+    }
+    if (mdt->handleLinkFlag()){
+        data = reg->getReg(LR);
+        DEBUG_OUT<<"address = "<<address<<", R"<<dec<<LR<<hex<<" = "<< data << endl;
+        mem->write32(address, data);
+    }
+}
+
+void ThumbCpu::pop(){
+    ThumbMDT* mdt = (ThumbMDT*) decodedInstruction;
+    int address = reg->getReg(SP);
+    int data;
+    int list = mdt->getRegList();
+
+    for (int i = 0; i < 8; i++){
+        if (list & 1){
+            data = mem->read32(address);
+            DEBUG_OUT<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
+            reg->setReg(i, data);
+            address+=WORD_SIZE;
+        }
+        list>>=1;
+    }
+    if (mdt->handleLinkFlag()){
+        data = mem->read32(address);
+        DEBUG_OUT<<"address = "<<address<<", R"<<dec<<PC<<hex<<" = "<< data << endl;
+        reg->setReg(PC, data);
+    }
+    reg->setReg(SP, address);
+}

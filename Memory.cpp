@@ -22,12 +22,12 @@ void Memory::loadBios(const char *fileName){
     DEBUG_OUT << "Loaded Bios:" << fileName << endl;
 }
 
-Memory::Memory(GPU mainGpu){
+Memory::Memory(GPU* mainGpu){
     gpu = mainGpu;
     loadBios(BIOS_FILE_NAME);
 }
 
-Memory::Memory(GPU mainGpu, char *fileName):Memory::Memory(mainGpu){
+Memory::Memory(GPU* mainGpu, char *fileName):Memory::Memory(mainGpu){
     char c;
     ifstream fin(fileName);
     if (!fin)
@@ -100,7 +100,7 @@ void Memory::write8(uint32_t address, uint8_t data) {
     }
     else if (address >= IO_REG_OFFSET && address < IO_REG_END){
         if (address < GPU_REG_END)
-            gpu.write8(address, data);
+            gpu->write8(address, data);
         else if (address < APU_REG_END)
             apu.write8(address, data);
         else
@@ -109,11 +109,11 @@ void Memory::write8(uint32_t address, uint8_t data) {
     else if (address == UNKNOWN_BIOS_FLAG)
             DEBUG_OUT << "W: UNKNOWN_BIOS_FLAG: "<<unsigned(data)<<endl;
     else if (address >= PAL_RAM_OFFSET && address < PAL_RAM_OFFSET+PAL_RAM_SIZE)
-        gpu.write8(address, data);
+        gpu->write8(address, data);
     else if (address >= VRAM_OFFSET && address < VRAM_OFFSET+VRAM_SIZE)
-        gpu.write8(address, data);
+        gpu->write8(address, data);
     else if (address >= OAM_OFFSET && address < OAM_OFFSET+OAM_SIZE)
-        gpu.write8(address, data);
+        gpu->write8(address, data);
     else{
         cout << "W: Undefined Memory: "<<address<<", Data: "<<unsigned(data)<<endl;
         exit(FAILED_DMA);
@@ -137,6 +137,6 @@ void Memory::write32(uint32_t address, uint32_t data) {
 }
 
 void Memory::dump(){
-    gpu.status();
-    gpu.dump();
+    gpu->status();
+    gpu->dump();
 }

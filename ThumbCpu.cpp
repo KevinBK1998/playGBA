@@ -125,6 +125,9 @@ void ThumbCpu::execute(){
     case PUSH:
         push();
         break;
+    case POP:
+        pop();
+        break;
     case LSL:
         shiftLeft();
         break;
@@ -206,7 +209,7 @@ void ThumbCpu::storeRegSPRelative(){
 
 void ThumbCpu::addSP(){
     int regSValue = reg->getReg(SP);
-    int imm = decodedInstruction->getImmediate() << 2;
+    int imm = decodedInstruction->getImmediate();
     int result = regSValue + imm;
     DEBUG_OUT<<"result SP = "<< result << endl;
     reg->setReg(SP, result);
@@ -224,37 +227,5 @@ void ThumbCpu::longBranch(){
         reg->setReg(LR, reg->getReg(PC)|1); // To return in THUMB mode
         reg->setReg(PC, jumpAddress);
         DEBUG_OUT << "ADDR = "<< jumpAddress << ", linkADDR = "<< reg->getReg(LR) <<endl;
-    }
-}
-
-void ThumbCpu::push(){
-    ThumbMDT* mdt = (ThumbMDT*) decodedInstruction;
-    int address = reg->getReg(SP);
-    int data;
-    int list = mdt->getRegList();
-
-    // Calculate lowest address first
-    for (int i = 0; i < 8; i++){
-        if (list & 1) address-=WORD_SIZE;
-        list>>=1;
-    }
-    if (mdt->handleLinkFlag()) address-=WORD_SIZE;
-
-    reg->setReg(SP, address);
-    list = mdt->getRegList();
-
-    for (int i = 0; i < 8; i++){
-        if (list & 1){
-            data = reg->getReg(i);
-            DEBUG_OUT<<"address = "<<address<<", R"<<dec<<i<<hex<<" = "<< data << endl;
-            mem->write32(address, data);
-            address+=WORD_SIZE;
-        }
-        list>>=1;
-    }
-    if (mdt->handleLinkFlag()){
-        data = reg->getReg(LR);
-        DEBUG_OUT<<"address = "<<address<<", R"<<dec<<LR<<hex<<" = "<< data << endl;
-        mem->write32(address, data);
     }
 }

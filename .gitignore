@@ -3,5 +3,7 @@ a.out
 playGBA
 gba_bios.bin
 vram.bin
+oam.bin
+palRam.bin
 *.gba
 poc-video
