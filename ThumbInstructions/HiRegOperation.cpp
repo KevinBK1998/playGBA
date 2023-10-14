@@ -24,6 +24,8 @@ public:
         rD |= ((opcode>>4) & 0x80);
         switch (op)
         {
+        case 1:
+            return new HiRegOperation(CMP_HI, rD, rS);
         case 2:
             return new HiRegOperation(MOV_HI, rD, rS);
         case 3:
@@ -39,6 +41,9 @@ public:
         stringstream stream;
         switch (getOpcode())
         {
+        case CMP_HI:
+            stream<<"CMP";
+            break;
         case MOV_HI:
             stream<<"MOV";
             break;
@@ -56,18 +61,29 @@ public:
     }
 };
 
+void ThumbCpu::compareHigh(){
+    HiRegOperation* alu = (HiRegOperation*) decodedInstruction;
+    uint64_t before = reg->getReg(decodedInstruction->getRegDest());
+    uint32_t data = reg->getReg(alu->getRegSource());
+    if(alu->getRegSource() == PC)
+        data+=HALFWORD_SIZE; //Source Register is PC+4
+    uint64_t result = before - data;
+    DEBUG_OUT<<"result = "<< result << endl;
+    reg->setFlags(NZCV, generateFlags(before, -data, result));
+}
+
+void ThumbCpu::moveHigh(){
+    HiRegOperation* alu = (HiRegOperation*) decodedInstruction;
+    int data = reg->getReg(alu->getRegSource());
+    if(alu->getRegSource() == PC)
+        data+=HALFWORD_SIZE; //Source Register is PC+4
+    DEBUG_OUT<<"data = "<<data<<endl;
+    reg->setReg(alu->getRegDest(), data);
+}
+
 void ThumbCpu::branchExchange(){
     HiRegOperation* b = (HiRegOperation*) decodedInstruction;
     int jumpTo = reg->getReg(b->getRegSource());
     DEBUG_OUT<<"jumpAddress = "<<jumpTo<<endl;
     reg->exchange(jumpTo);
-}
-
-void ThumbCpu::moveHigh(){
-    HiRegOperation* b = (HiRegOperation*) decodedInstruction;
-    int data = reg->getReg(b->getRegSource());
-    if(b->getRegSource() == PC)
-        data+=HALFWORD_SIZE; //Source Register is PC+4
-    DEBUG_OUT<<"data = "<<data<<endl;
-    reg->setReg(b->getRegDest(), data);
 }

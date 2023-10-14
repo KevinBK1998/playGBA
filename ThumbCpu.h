@@ -35,7 +35,7 @@ class ThumbCpu{
     void test();
     void logicalOR();
     void compare();
-    bool canExecute(int);
+    void compareHigh();
     bool canExecute(Condition);
 public:
     ThumbCpu(Registers*, Memory*);

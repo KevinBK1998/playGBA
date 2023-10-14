@@ -33,7 +33,6 @@ private:
     void storeReg();
     void loadMultipleReg();
     void storeMultipleReg();
-    bool canExecute(int);
     bool canExecute(ArmInstruction*);
 public:
     long time=0;

@@ -140,6 +140,9 @@ void ThumbCpu::execute(){
     case CMP:
         compare();
         break;
+    case CMP_HI:
+        compareHigh();
+        break;
     default:
         cout << "Undefined: " << decodedInstruction->toString() << endl;
         exit(FAILED_TO_EXECUTE);
@@ -156,29 +159,8 @@ void ThumbCpu::step(){
     reg->step();
 }
 
-bool ThumbCpu::canExecute(int cond){
-    int status = reg->getCPSR();
-    switch (cond)
-    {
-    case EQ:
-        return (status & Z) != 0;
-    case NE:
-        return (status & Z) == 0;
-    case MI:
-        return (status & N) != 0;
-    case VS:
-        return (status & V) != 0;
-    case LT:
-        return canExecute(MI) != canExecute(VS);
-    default:
-        cout << "Cond Undefined: " << Condition(cond).toString() << endl;
-        exit(FAILED_TO_EXECUTE);
-    }
-    return false;
-}
-
 bool ThumbCpu::canExecute(Condition cond){
-    return canExecute(cond.value);
+    return reg->canExecute(cond.value);
 }
 
 void ThumbCpu::loadRegPCRelative(){

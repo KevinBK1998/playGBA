@@ -120,45 +120,9 @@ void ArmCpu::step(){
     reg->step();
 }
 
-bool ArmCpu::canExecute(int cond){
-    int status = reg->getCPSR();
-    switch (cond)
-    {
-    case EQ:
-        return (status & Z) != 0;
-    case NE:
-        return (status & Z) == 0;
-    case CC:
-        return (status & C) == 0;
-    case MI:
-        return (status & N) != 0;
-    case VS:
-        return (status & V) != 0;
-    case LT:
-        return canExecute(MI) != canExecute(VS);
-    case ALWAYS:
-        return true;
-    default:
-        cout << "Undefined: " << Condition(cond).toString() << endl;
-        exit(FAILED_TO_EXECUTE);
-    }
-    // if (cond == PL) return currentStatusReg >= 0;
-    // else if (cond == CS) return (currentStatusReg & 0x20_00_00_00) != 0;
-    // else if (cond == CC) return (currentStatusReg & 0x20_00_00_00) == 0;
-    // else if (cond == VC) return (currentStatusReg & 0x10_00_00_00) == 0;
-    // else if (cond == HI) return canExecute(CS) && canExecute(NE);
-    // else if (cond == LS) return canExecute(CC) || canExecute(EQ);
-    // else if (cond == GE) return canExecute(MI) == canExecute(VS);
-    // else if (cond == LT) return canExecute(MI) != canExecute(VS);
-    // else if (cond == GT) return canExecute(NE) && canExecute(GE);
-    // else if (cond == LE) return canExecute(EQ) || canExecute(LT);
-    // else throw new IndexOutOfBoundsException(cond.name());
-    return false;
-}
-
 bool ArmCpu::canExecute(ArmInstruction* instruction){
     Condition cond = instruction->getPreCheck();
-    return canExecute(cond.value);
+    return reg->canExecute(cond.value);
 }
 
 void ArmCpu::branch(){

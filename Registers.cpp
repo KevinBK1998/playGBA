@@ -140,3 +140,38 @@ void Registers::status(){
     DEBUG_OUT<<"R12: "<<getReg(12)<<"\tR13(SP): "<<getReg(SP)<<"\tR14(LR): "<< getReg(LR)<<"\tR15(PC+"<<noshowbase<<getStepAmount()<<showbase<<"): "<< getReg(PC)<< endl;
     DEBUG_OUT<<"CPSR: "<<currentStatusReg<< "\tSPSR:"<<getSPSR()<< endl;
 }
+
+bool Registers::canExecute(int cond){
+    switch (cond)
+    {
+    case EQ:
+        return (currentStatusReg & Z) != 0;
+    case NE:
+        return (currentStatusReg & Z) == 0;
+    case CC:
+        return (currentStatusReg & C) == 0;
+    case MI:
+        return (currentStatusReg & N) != 0;
+    case VS:
+        return (currentStatusReg & V) != 0;
+    case GE:
+        return canExecute(MI) == canExecute(VS);
+    case LT:
+        return canExecute(MI) != canExecute(VS);
+    case ALWAYS:
+        if(thumbMode) exit(FAILED_TO_DECODE);
+        return true;
+    default:
+        cout << "Cond Undefined: " << Condition(cond).toString() << endl;
+        exit(FAILED_TO_EXECUTE);
+    }
+    // if (cond == PL) return currentStatusReg >= 0;
+    // else if (cond == CS) return (currentStatusReg & 0x20_00_00_00) != 0;
+    // else if (cond == VC) return (currentStatusReg & 0x10_00_00_00) == 0;
+    // else if (cond == HI) return canExecute(CS) && canExecute(NE);
+    // else if (cond == LS) return canExecute(CC) || canExecute(EQ);
+    // else if (cond == GT) return canExecute(NE) && canExecute(GE);
+    // else if (cond == LE) return canExecute(EQ) || canExecute(LT);
+    // else throw new IndexOutOfBoundsException(cond.name());
+    return false;
+}

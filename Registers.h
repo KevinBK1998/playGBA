@@ -79,6 +79,7 @@ public:
     void exchange(int);
     void step();
     void status();
+    bool canExecute(int);
 };
 
 #endif
