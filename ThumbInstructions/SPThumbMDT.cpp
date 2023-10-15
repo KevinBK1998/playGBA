@@ -1,18 +1,18 @@
 #include <sstream>
 #include "../ThumbCpu.h"
 
-class ThumbMDT: public ThumbInstruction
+class SPThumbMDT: public ThumbInstruction
 {
 private:
     bool linkFlag;
     char regList;
 public:
-    ThumbMDT(Opcode opcode, bool flag, char list): ThumbInstruction(opcode){
+    SPThumbMDT(Opcode opcode, bool flag, char list): ThumbInstruction(opcode){
         linkFlag = flag;
         regList = list;
     }
 
-    static ThumbMDT* decode(int opcode){
+    static SPThumbMDT* decode(int opcode){
         Opcode op = ((opcode>>11)&1)? POP : PUSH;
         if (((opcode>>9)&0b11) != 0b10){
             cout<<"Not MDT"<< endl;
@@ -20,7 +20,7 @@ public:
         }
         bool flag = (opcode>>8)&1;
         char rList = opcode & 0xFF;
-        return new ThumbMDT(op, flag, rList);
+        return new SPThumbMDT(op, flag, rList);
     }
 
     char getRegList(){
@@ -64,7 +64,7 @@ public:
 };
 
 void ThumbCpu::push(){
-    ThumbMDT* mdt = (ThumbMDT*) decodedInstruction;
+    SPThumbMDT* mdt = (SPThumbMDT*) decodedInstruction;
     int address = reg->getReg(SP);
     int data;
     int list = mdt->getRegList();
@@ -96,7 +96,7 @@ void ThumbCpu::push(){
 }
 
 void ThumbCpu::pop(){
-    ThumbMDT* mdt = (ThumbMDT*) decodedInstruction;
+    SPThumbMDT* mdt = (SPThumbMDT*) decodedInstruction;
     int address = reg->getReg(SP);
     int data;
     int list = mdt->getRegList();

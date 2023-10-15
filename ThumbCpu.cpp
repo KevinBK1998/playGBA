@@ -7,7 +7,6 @@
 #include "ThumbInstructions/SingleDataTransfer.h"
 #include "ThumbInstructions/LoadPCRelative.h"
 #include "ThumbInstructions/SDTRelativeSP.h"
-#include "ThumbInstructions/MultipleDataTransfer.h"
 #include "ThumbInstructions/CondBranch.h"
 #include "ThumbInstructions/Branch.cpp"
 #include "ThumbInstructions/LongBranch.h"
@@ -15,6 +14,8 @@
 #include "ThumbInstructions/Add.cpp"
 #include "ThumbInstructions/HiRegOperation.cpp"
 #include "ThumbInstructions/SDTRegOffset.cpp"
+#include "ThumbInstructions/SPThumbMDT.cpp"
+#include "ThumbInstructions/ThumbMDT.cpp"
 
 ThumbCpu::ThumbCpu(Registers* registers, Memory* memory){
     reg = registers;
@@ -44,6 +45,8 @@ void ThumbCpu::decode(){
     else if (((opcode>>12) & 0b1111)== 0b1001)
         decodedInstruction = SDTRelativeSP::decode(opcode);
     else if (((opcode>>12) & 0b1111)== 0b1011)
+        decodedInstruction = SPThumbMDT::decode(opcode);
+    else if (((opcode>>12) & 0b1111)== 0b1100)
         decodedInstruction = ThumbMDT::decode(opcode);
     else if (((opcode>>12) & 0b1111)== 0b1101)
         decodedInstruction = CondBranch::decode(opcode);
@@ -142,6 +145,12 @@ void ThumbCpu::execute(){
         break;
     case CMP_HI:
         compareHigh();
+        break;
+    case LDM:
+        loadMultipleReg();
+        break;
+    case STM:
+        storeMultipleReg();
         break;
     default:
         cout << "Undefined: " << decodedInstruction->toString() << endl;
