@@ -18,6 +18,7 @@ const int IO_REG_END = 0x4000400;
 const int UNKNOWN_BIOS_FLAG = 0x4000410;
 const int ROM_OFFSET = 0x8000000;
 const int ROM_END = 0xE010000;
+const int ROM_SIZE_INMEMORY = 0x6010000;
 
 const int IE = 0x4000200;
 const int IF = 0x4000202;
@@ -26,9 +27,9 @@ class Memory
 {
 private:
     uint8_t bios[BIOS_FILE_SIZE];
-    uint8_t slowRam[SLOW_WRAM_SIZE];
+    uint8_t* slowRam = new uint8_t[SLOW_WRAM_SIZE];
     uint8_t wram[WRAM_SIZE];
-    uint8_t rom[200];
+    uint8_t* rom = new uint8_t[ROM_SIZE_INMEMORY];
     ControlRegister16_t intEnable;
     ControlRegister16_t intFlags;
     IORegisters registers;

@@ -107,6 +107,9 @@ void ThumbCpu::execute(){
     case STRH:
         storeHalfReg();
         break;
+    case STRH_E:
+        storeHalfRegExtended();
+        break;
     case LDRH:
         loadHalfReg();
         break;

@@ -21,6 +21,8 @@ public:
         char rD = opcode & 0b111;
         switch (op)
         {
+        case 0:
+            return new ExtendedSDT(STRH_E, rO, rB, rD);
         case 2:
             return new ExtendedSDT(LDRH_E, rO, rB, rD);
         default:
@@ -42,6 +44,9 @@ public:
         stringstream stream;
         switch (getOpcode())
         {
+        case STRH_E:
+            stream << showbase << "STRH R" << unsigned(getRegDest()) <<", [R"<<unsigned(regBase) << ", R" << unsigned(regOffset)<<"]";
+            return stream.str();
         case LDRH_E:
             stream << showbase << "LDRH R" << unsigned(getRegDest()) <<", [R"<<unsigned(regBase) << ", R" << unsigned(regOffset)<<"]";
             return stream.str();
@@ -62,4 +67,15 @@ void ThumbCpu::loadHalfRegExtended(){
     int data = mem->read16(address);
     DEBUG_OUT<<"address = "<< address <<", data = "<< data << endl;
     reg->setReg(sdt->getRegDest(), data);
+}
+
+void ThumbCpu::storeHalfRegExtended(){
+    ExtendedSDT* sdt = (ExtendedSDT*) decodedInstruction;
+    int base = reg->getReg(sdt->getRegBase());
+    DEBUG_OUT<<"address = "<< base << endl;
+    int offset = reg->getReg(sdt->getRegOffset());
+    int address = base + offset;
+    int data = reg->getReg(sdt->getRegDest());
+    DEBUG_OUT<<"address = "<< address <<", data = "<< data << endl;
+    mem->write16(address, data);
 }

@@ -36,7 +36,7 @@ Memory::Memory(GPU* mainGpu, char *fileName):Memory::Memory(mainGpu){
         exit(FAILED_TO_LOAD_ROM);
     }
     int i = 0;
-    while (i < 200 && fin)
+    while (fin && i < ROM_SIZE_INMEMORY)
     {
         fin.get(c);
         rom[i++] = c;

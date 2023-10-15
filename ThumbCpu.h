@@ -21,6 +21,7 @@ class ThumbCpu{
     void loadImmediateOffset();
     void storeHalfReg();
     void loadHalfReg();
+    void storeHalfRegExtended();
     void loadHalfRegExtended();
     void storeRegSPRelative();
     void add();
