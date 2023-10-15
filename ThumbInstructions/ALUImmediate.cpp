@@ -63,7 +63,7 @@ void ThumbCpu::move(){
     reg->setFlags(NZ, generateFlags(immediate));
 }
 
-void ThumbCpu::compare(){
+void ThumbCpu::compareImmediate(){
     uint64_t before = reg->getReg(decodedInstruction->getRegDest());
     uint32_t immediate = decodedInstruction->getImmediate();
     uint64_t result = before - immediate;

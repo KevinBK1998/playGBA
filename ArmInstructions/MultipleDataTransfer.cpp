@@ -32,7 +32,10 @@ public:
         preFlag = ((flags >> 3) & 1) != 0;
         addFlag = ((flags >> 2) & 1) != 0;
         bool specialFlag = ((flags >> 1) & 1) != 0;
-        if (specialFlag) exit(FAILED_TO_DECODE);
+        if (specialFlag) {
+            DEBUG_OUT << "MultipleDataTransfer special = " << operation << endl;
+            exit(FAILED_TO_DECODE);
+        }
         writeBackFlag = (flags & 1) != 0;
         regList = list;
     }

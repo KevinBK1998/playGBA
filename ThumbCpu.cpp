@@ -248,3 +248,10 @@ void ThumbCpu::ldr(){
         // loadReg();
         exit(PENDING_CODE);
 }
+
+void ThumbCpu::compare(){
+    if(decodedInstruction->useImmediate())
+        compareImmediate();
+    else
+        compareReg();
+}

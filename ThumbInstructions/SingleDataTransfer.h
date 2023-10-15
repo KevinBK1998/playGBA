@@ -22,8 +22,10 @@ public:
 
     static ThumbSDT* decode(int opcode){
         char op = (opcode>>10) & 0b11;
-        if((opcode>>9) & 1) exit(FAILED_TO_DECODE);
-        char rO = (opcode>>6) & 0b111;
+        if((opcode>>9) & 1) {
+            cout << "LDR/STR OP special = " << hex << unsigned(op) << endl;
+            exit(FAILED_TO_DECODE);
+        }char rO = (opcode>>6) & 0b111;
         char rB = (opcode>>3) & 0b111;
         char rD = opcode & 0b111;
         switch (op)

@@ -41,6 +41,8 @@ class ThumbCpu{
     void test();
     void logicalOR();
     void compare();
+    void compareImmediate();
+    void compareReg();
     void compareHigh();
     void moveRegAddress();
     bool canExecute(Condition);
