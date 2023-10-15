@@ -69,6 +69,7 @@ enum Opcode {
     LSR,
     MOV_HI,
     CMP_HI,
+    MOV_REG_ADDRESS,
 };
 
 enum ShiftType{

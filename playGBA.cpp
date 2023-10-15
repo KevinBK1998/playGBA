@@ -10,7 +10,7 @@
 
 using namespace std;
 int timePassed=0;
-int DEBUG_AFTER=47040;
+int DEBUG_AFTER=47050;
 Registers reg;
 
 void status(){

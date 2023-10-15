@@ -38,6 +38,7 @@ class ThumbCpu{
     void logicalOR();
     void compare();
     void compareHigh();
+    void moveRegAddress();
     bool canExecute(Condition);
 public:
     ThumbCpu(Registers*, Memory*);

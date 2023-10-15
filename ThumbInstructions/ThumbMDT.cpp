@@ -23,13 +23,12 @@ public:
         return regList;
     }
 
-    bool getRegBase(){
+    char getRegBase(){
         return regBase;
     }
 
     string toString(){
         stringstream stream;
-        string linkString;
         switch (getOpcode())
         {
         case STM:

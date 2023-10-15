@@ -16,6 +16,7 @@
 #include "ThumbInstructions/SDTRegOffset.cpp"
 #include "ThumbInstructions/SPThumbMDT.cpp"
 #include "ThumbInstructions/ThumbMDT.cpp"
+#include "ThumbInstructions/GetRelativeAddress.cpp"
 
 ThumbCpu::ThumbCpu(Registers* registers, Memory* memory){
     reg = registers;
@@ -44,6 +45,8 @@ void ThumbCpu::decode(){
         decodedInstruction = SDTHalfImmediate::decode(opcode);
     else if (((opcode>>12) & 0b1111)== 0b1001)
         decodedInstruction = SDTRelativeSP::decode(opcode);
+    else if (((opcode>>12) & 0b1111)== 0b1010)
+        decodedInstruction = GetRelativeAddress::decode(opcode);
     else if (((opcode>>12) & 0b1111)== 0b1011)
         decodedInstruction = SPThumbMDT::decode(opcode);
     else if (((opcode>>12) & 0b1111)== 0b1100)
@@ -151,6 +154,9 @@ void ThumbCpu::execute(){
         break;
     case STM:
         storeMultipleReg();
+        break;
+    case MOV_REG_ADDRESS:
+        moveRegAddress();
         break;
     default:
         cout << "Undefined: " << decodedInstruction->toString() << endl;
