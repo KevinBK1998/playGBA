@@ -54,7 +54,7 @@ int Registers::getPC(){
 }
 
 void Registers::setPC(int imm){
-    reg15 = imm + getStepAmount();
+    reg15 = imm;
 }
 
 uint32_t Registers::getReg(int index){
@@ -73,7 +73,7 @@ void Registers::setReg(char index, int data){
     else if (index < 15)
         bankedReg[getBankedIndex(index)] = data;
     else if (index == 15)
-        reg15 = data;
+        reg15 = data - getStepAmount();
 }
 
 int Registers::getCPSR(){
@@ -160,6 +160,8 @@ bool Registers::canExecute(int cond){
         return canExecute(MI) == canExecute(VS);
     case LT:
         return canExecute(MI) != canExecute(VS);
+    case GT:
+        return canExecute(NE) != canExecute(GE);
     case ALWAYS:
         if(thumbMode) exit(FAILED_TO_DECODE);
         return true;
@@ -191,6 +193,8 @@ string Condition::toString(){
         return "{ge}";
     case LT:
         return "{lt}";
+    case GT:
+        return "{gt}";
     case ALWAYS:
         return "";
     default:

@@ -113,7 +113,7 @@ void ThumbCpu::pop(){
     if (mdt->handleLinkFlag()){
         data = mem->read32(address);
         DEBUG_OUT<<"address = "<<address<<", R"<<dec<<PC<<hex<<" = "<< data << endl;
-        reg->setReg(PC, data);
+        reg->setReg(PC, data & ~1);
     }
     reg->setReg(SP, address);
 }

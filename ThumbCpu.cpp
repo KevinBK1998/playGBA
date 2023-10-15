@@ -227,7 +227,7 @@ void ThumbCpu::longBranch(){
     } else{
         int jumpAddress = reg->getReg(LR) + b->getImmediate();
         reg->setReg(LR, reg->getReg(PC)|1); // To return in THUMB mode
-        reg->setReg(PC, jumpAddress);
+        reg->setPC(jumpAddress);
         DEBUG_OUT << "ADDR = "<< jumpAddress << ", linkADDR = "<< reg->getReg(LR) <<endl;
     }
 }
