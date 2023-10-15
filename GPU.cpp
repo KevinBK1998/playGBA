@@ -61,8 +61,9 @@ void GPU::write8(uint32_t address, uint8_t data){
         pointer = &greenSwap;
         break;
     case DISPSTAT ... DISPSTAT+1:
-        pointer = &dispStat;
-        break;
+        dispStat.storeReg(address, data, 0x47);
+        status();
+        return;
     case VCOUNT ... VCOUNT+1:
         pointer = &vCount;
         break;
@@ -161,7 +162,7 @@ void GPU::write8(uint32_t address, uint8_t data){
 
 void GPU::status(){
     DEBUG_OUT<<"\nGPU:"<<endl;
-    DEBUG_OUT<<"DISPCNT: "<<dispCnt.getRegValue()<<"\tGREENSWAP: "<<greenSwap<<"\tDISPSTAT: "<<dispStat<<"\tVCOUNT: "<<vCount<<endl;
+    DEBUG_OUT<<"DISPCNT: "<<dispCnt.getRegValue()<<"\tGREENSWAP: "<<greenSwap<<"\tDISPSTAT: "<<dispStat.getRegValue()<<"\tVCOUNT: "<<vCount<<endl;
     DEBUG_OUT<<"BG0CNT: "<<bgCnt[0]<<"\tBG1CNT: "<<bgCnt[1]<<"\tBG2CNT: "<<bgCnt[2]<<"\tBG3CNT: "<<bgCnt[3]<<endl;
     DEBUG_OUT<<"BG0HOFS: "<<bgOffsetX[0]<<"\tBG0HOFS: "<<bgOffsetX[1]<<"\tBG0HOFS: "<<bgOffsetX[2]<<"\tBG0HOFS: "<<bgOffsetX[3]<<endl;
     DEBUG_OUT<<"BG0VOFS: "<<bgOffsetY[0]<<"\tBG0VOFS: "<<bgOffsetY[1]<<"\tBG0VOFS: "<<bgOffsetY[2]<<"\tBG0VOFS: "<<bgOffsetY[3]<<endl;
@@ -214,6 +215,10 @@ sf::VertexArray fillColor(sf::Color clearColor){
 void GPU::step(){
     timer++;
     if (timer>100000){
+        if (dispStat.bitCheck(3)){
+            dispStat.storeReg(0, 1, 0xFFFE);
+            DEBUG_OUT<<"VBLANKING"<<endl;
+        }
         timer=0;
         if (gameWindow->isOpen())
         {
@@ -229,4 +234,8 @@ void GPU::step(){
             gameWindow->display();
         }
     }
+}
+
+bool GPU::checkVBlankInterruptFlag(){
+    return dispStat.bitCheck(0);
 }

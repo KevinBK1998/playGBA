@@ -19,6 +19,9 @@ const int UNKNOWN_BIOS_FLAG = 0x4000410;
 const int ROM_OFFSET = 0x8000000;
 const int ROM_END = 0xE010000;
 
+const int IE = 0x4000200;
+const int IF = 0x4000202;
+
 class Memory
 {
 private:
@@ -26,6 +29,8 @@ private:
     uint8_t slowRam[SLOW_WRAM_FILE_SIZE];
     uint8_t wram[WRAM_FILE_SIZE];
     uint8_t rom[200];
+    ControlRegister16_t intEnable;
+    ControlRegister16_t intFlags;
     IORegisters registers;
     GPU* gpu;
     APU apu;

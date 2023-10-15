@@ -1,6 +1,7 @@
 #ifndef COMMON_DS_H
 #define COMMON_DS_H
 
+#include <iostream>
 #include <sstream>
 using namespace std;
 
@@ -98,8 +99,9 @@ class ControlRegister16_t{
     uint16_t REG;
 public:
     bool bitCheck(int);
-    void storeReg(uint8_t address, uint8_t data);
-    uint8_t loadReg(uint8_t address);
+    void storeReg(uint8_t, uint8_t);
+    void storeReg(uint8_t, uint8_t, uint16_t);
+    uint8_t loadReg(uint8_t);
     uint16_t getRegValue();
 };
 
@@ -118,6 +120,19 @@ void ControlRegister16_t::storeReg(uint8_t address, uint8_t data){
         REG &= 0xFF00;
         REG |= data;
     }
+    DEBUG_OUT<<"IOREG: "<<unsigned(address)<<"\tData: "<<REG<<endl;
+}
+
+void ControlRegister16_t::storeReg(uint8_t address, uint8_t data, uint16_t mask){
+    if (address & 1){
+        REG &= (0xFF|mask);
+        REG |= ((data<<8) & ~mask);
+    }
+    else {
+        REG &= (0xFF00|mask);
+        REG |= (data & ~mask);
+    }
+    DEBUG_OUT<<"IOREG: "<<unsigned(address)<<"\tData: "<<REG<<endl;
 }
 
 uint8_t ControlRegister16_t::loadReg(uint8_t address){

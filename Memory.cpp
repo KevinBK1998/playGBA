@@ -103,6 +103,10 @@ void Memory::write8(uint32_t address, uint8_t data) {
             gpu->write8(address, data);
         else if (address < APU_REG_END)
             apu.write8(address, data);
+        else if (address>=IE && address<IE+HALFWORD_SIZE)
+            intEnable.storeReg(address, data);
+        else if (address>=IF && address<IF+HALFWORD_SIZE)
+            intFlags.storeReg(address, data);
         else
             registers.write8(address - IO_REG_OFFSET, data);
     }
@@ -137,6 +141,7 @@ void Memory::write32(uint32_t address, uint32_t data) {
 }
 
 void Memory::dump(){
+    DEBUG_OUT<<"IE: "<<intEnable.getRegValue()<<"\tIF: "<<intFlags.getRegValue()<<endl;
     gpu->status();
     gpu->dump();
 }

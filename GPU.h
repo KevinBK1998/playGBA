@@ -36,7 +36,7 @@ class GPU{
     int timer;
     ControlRegister16_t dispCnt;
     uint16_t greenSwap;
-    uint16_t dispStat;
+    ControlRegister16_t dispStat;
     uint16_t vCount;
     uint16_t bgCnt[4];
     uint16_t bgOffsetX[4];
@@ -70,6 +70,7 @@ public:
     void status();
     void dump();
     void step();
+    bool checkVBlankInterruptFlag();
 };
 
 #endif
