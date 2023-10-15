@@ -18,6 +18,8 @@ public:
         char op = (opcode>>6) & 0xF;
         switch (op)
         {
+        case 7:
+            return new ThumbALU(ROR, rD, rS);
         case 8:
             return new ThumbALU(TST, rD, rS);
         case 0xA:
@@ -41,6 +43,9 @@ public:
         stringstream stream;
         switch (getOpcode())
         {
+        case ROR:
+            stream<<"ROR";
+            break;
         case TST:
             stream<<"TST";
             break;
@@ -64,11 +69,21 @@ public:
 
 void ThumbCpu::test(){
     ThumbALU* alu = (ThumbALU*) decodedInstruction;
-    int op1 = reg->getReg(alu->getRegSource());
-    int op2 = reg->getReg(alu->getRegDest());
+    int op1 = reg->getReg(alu->getRegDest());
+    int op2 = reg->getReg(alu->getRegSource());
     int result = op1 & op2;
     DEBUG_OUT<<"result = "<<result<<endl;
     reg->setFlags(NZ, generateFlags(result));
+}
+
+void ThumbCpu::rotateRight(){
+    ThumbALU* alu = (ThumbALU*) decodedInstruction;
+    int op1 = reg->getReg(alu->getRegDest());
+    int op2 = reg->getReg(alu->getRegSource()) & 0xFF;
+    int result = ROR(op1, op2);
+    bool carry = CARRY_ROR(op1, op2);
+    DEBUG_OUT<<"result = "<<result<<endl;
+    reg->setFlags(NZC, generateShiftFlags(carry, result));
 }
 
 void ThumbCpu::compareReg(){
@@ -82,8 +97,8 @@ void ThumbCpu::compareReg(){
 
 void ThumbCpu::logicalOR(){
     ThumbALU* alu = (ThumbALU*) decodedInstruction;
-    int op1 = reg->getReg(alu->getRegSource());
-    int op2 = reg->getReg(alu->getRegDest());
+    int op1 = reg->getReg(alu->getRegDest());
+    int op2 = reg->getReg(alu->getRegSource());
     int result = op1 | op2;
     DEBUG_OUT<<"result = "<<result<<endl;
     reg->setReg(alu->getRegDest(), result);

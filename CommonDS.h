@@ -72,6 +72,7 @@ enum Opcode {
     MOV_REG_ADDRESS,
     LDRH_E,
     STRH_E,
+    ROR,
 };
 
 enum ShiftType{
@@ -161,6 +162,9 @@ public:
     ~Condition(){}
     std::string toString();
 };
+
+#define ROR(a,b) (((a)>>(b))|((a)<<(32 - (b))))
+#define CARRY_ROR(a,b) (((a)>>((b)-1)) & 1)
 
 int generateShiftFlags(bool carry, int result){
     int flags = 0;

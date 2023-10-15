@@ -1,10 +1,6 @@
 #include <sstream>
 #include "../ArmCpu.h"
 
-int rotateRight(int data, int shift){
-    return (data>>shift) | (data << (32-shift));
-}
-
 void exitIfOpcodeP(char r){
     if (r) {
         cout << "P opcodes = " << unsigned(r) << endl;
@@ -38,7 +34,7 @@ public:
         char rDest = (opcode >> 12) & 0xF;
         int shift = (opcode >> 8) & 0xF;
         int imm = opcode & 0xFF;
-        imm = rotateRight(imm, shift*2);
+        imm = ROR(imm, shift*2);
         switch (op)
         {
         case 0:

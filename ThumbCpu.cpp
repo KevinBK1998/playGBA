@@ -167,6 +167,9 @@ void ThumbCpu::execute(){
     case MOV_REG_ADDRESS:
         moveRegAddress();
         break;
+    case ROR:
+        rotateRight();
+        break;
     default:
         cout << "Undefined: " << decodedInstruction->toString() << endl;
         exit(FAILED_TO_EXECUTE);
