@@ -18,6 +18,8 @@ public:
         char op = (opcode>>6) & 0xF;
         switch (op)
         {
+        case 1:
+            return new ThumbALU(EOR, rD, rS);
         case 7:
             return new ThumbALU(ROR, rD, rS);
         case 8:
@@ -43,6 +45,9 @@ public:
         stringstream stream;
         switch (getOpcode())
         {
+        case EOR:
+            stream<<"EOR";
+            break;
         case ROR:
             stream<<"ROR";
             break;
@@ -67,12 +72,13 @@ public:
     }
 };
 
-void ThumbCpu::test(){
+void ThumbCpu::exclusiveOR(){
     ThumbALU* alu = (ThumbALU*) decodedInstruction;
     int op1 = reg->getReg(alu->getRegDest());
     int op2 = reg->getReg(alu->getRegSource());
-    int result = op1 & op2;
+    int result = op1 ^ op2;
     DEBUG_OUT<<"result = "<<result<<endl;
+    reg->setReg(alu->getRegDest(), result);
     reg->setFlags(NZ, generateFlags(result));
 }
 
@@ -84,6 +90,15 @@ void ThumbCpu::rotateRight(){
     bool carry = CARRY_ROR(op1, op2);
     DEBUG_OUT<<"result = "<<result<<endl;
     reg->setFlags(NZC, generateShiftFlags(carry, result));
+}
+
+void ThumbCpu::test(){
+    ThumbALU* alu = (ThumbALU*) decodedInstruction;
+    int op1 = reg->getReg(alu->getRegDest());
+    int op2 = reg->getReg(alu->getRegSource());
+    int result = op1 & op2;
+    DEBUG_OUT<<"result = "<<result<<endl;
+    reg->setFlags(NZ, generateFlags(result));
 }
 
 void ThumbCpu::compareReg(){

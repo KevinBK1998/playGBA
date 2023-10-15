@@ -73,6 +73,7 @@ enum Opcode {
     LDRH_E,
     STRH_E,
     ROR,
+    EOR,
 };
 
 enum ShiftType{
