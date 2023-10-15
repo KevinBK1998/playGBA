@@ -70,6 +70,7 @@ enum Opcode {
     MOV_HI,
     CMP_HI,
     MOV_REG_ADDRESS,
+    LDRH_E,
 };
 
 enum ShiftType{

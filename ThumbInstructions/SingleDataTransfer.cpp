@@ -1,11 +1,5 @@
-#ifndef THUMB_SDT_H
-#define THUMB_SDT_H
-
-#include <iostream>
-#include <string>
 #include <sstream>
-#include "../FailureCodes.h"
-#include "Instruction.h"
+#include "../ThumbCpu.h"
 
 using namespace std;
 
@@ -22,10 +16,7 @@ public:
 
     static ThumbSDT* decode(int opcode){
         char op = (opcode>>10) & 0b11;
-        if((opcode>>9) & 1) {
-            cout << "LDR/STR OP special = " << hex << unsigned(op) << endl;
-            exit(FAILED_TO_DECODE);
-        }char rO = (opcode>>6) & 0b111;
+        char rO = (opcode>>6) & 0b111;
         char rB = (opcode>>3) & 0b111;
         char rD = opcode & 0b111;
         switch (op)
@@ -33,7 +24,7 @@ public:
         case 0:
             return new ThumbSDT(STR, rO, rB, rD);
         default:
-            cout << "LDR/STR OP = " << hex << unsigned(op) << endl;
+            cout << "ThumbSDT = " << hex << unsigned(op) << endl;
             exit(FAILED_TO_DECODE);
             break;
         }
@@ -62,4 +53,12 @@ public:
     }
 };
 
-#endif
+void ThumbCpu::storeReg(){
+    ThumbSDT* sdt = (ThumbSDT*) decodedInstruction;
+    int regBValue = reg->getReg(sdt->getRegBase());
+    int regOValue = reg->getReg(sdt->getRegOffset());
+    int data = reg->getReg(sdt->getRegDest());
+    int address = regBValue + regOValue;
+    DEBUG_OUT<<"address = "<< address <<", data = "<< data << endl;
+    mem->write32(address, data);
+}

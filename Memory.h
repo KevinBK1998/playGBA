@@ -7,8 +7,8 @@
 
 const char* BIOS_FILE_NAME = "gba_bios.bin";
 const int BIOS_FILE_SIZE = 0x4000;
-const int WRAM_FILE_SIZE = 0x8000;
-const int SLOW_WRAM_FILE_SIZE = 0x40000;
+const int WRAM_SIZE = 0x8000;
+const int SLOW_WRAM_SIZE = 0x40000;
 const int SLOW_WRAM_OFFSET = 0x2000000;
 const int WRAM_OFFSET = 0x3000000;
 const int IO_REG_OFFSET = 0x4000000;
@@ -26,8 +26,8 @@ class Memory
 {
 private:
     uint8_t bios[BIOS_FILE_SIZE];
-    uint8_t slowRam[SLOW_WRAM_FILE_SIZE];
-    uint8_t wram[WRAM_FILE_SIZE];
+    uint8_t slowRam[SLOW_WRAM_SIZE];
+    uint8_t wram[WRAM_SIZE];
     uint8_t rom[200];
     ControlRegister16_t intEnable;
     ControlRegister16_t intFlags;

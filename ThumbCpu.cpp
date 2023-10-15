@@ -4,7 +4,7 @@
 #include "ThumbInstructions/AddSP.h"
 #include "ThumbInstructions/ALUImmediate.cpp"
 #include "ThumbInstructions/ShiftedALU.cpp"
-#include "ThumbInstructions/SingleDataTransfer.h"
+#include "ThumbInstructions/SingleDataTransfer.cpp"
 #include "ThumbInstructions/LoadPCRelative.h"
 #include "ThumbInstructions/SDTRelativeSP.h"
 #include "ThumbInstructions/CondBranch.h"
@@ -17,6 +17,7 @@
 #include "ThumbInstructions/SPThumbMDT.cpp"
 #include "ThumbInstructions/ThumbMDT.cpp"
 #include "ThumbInstructions/GetRelativeAddress.cpp"
+#include "ThumbInstructions/ExtendedSDT.cpp"
 
 ThumbCpu::ThumbCpu(Registers* registers, Memory* memory){
     reg = registers;
@@ -29,6 +30,10 @@ void ThumbCpu::decode(){
     DEBUG_OUT <<showbase<< "Debug Opcode: " << opcode << endl;
     if (((opcode>>8) & 0xFF) == 0xB0)
         decodedInstruction = AddSP::decode(opcode);
+    else if (((opcode>>9) & 0x79)== 0x28)
+        decodedInstruction = ThumbSDT::decode(opcode);
+    else if (((opcode>>9) & 0x79)== 0x29)
+        decodedInstruction = ExtendedSDT::decode(opcode);
     else if (((opcode>>10) & 0x3F)== 0b010000)
         decodedInstruction = ThumbALU::decode(opcode);
     else if (((opcode>>10) & 0x3F)== 0b10001)
@@ -39,8 +44,6 @@ void ThumbCpu::decode(){
         decodedInstruction = LoadPCRelative::decode(opcode);
     else if (((opcode>>11) & 0x1F)== 0b11100)
         decodedInstruction = ThumbBranch::decode(opcode);
-    else if (((opcode>>12) & 0b1111)== 0b101)
-        decodedInstruction = ThumbSDT::decode(opcode);
     else if (((opcode>>12) & 0b1111)== 0b1000)
         decodedInstruction = SDTHalfImmediate::decode(opcode);
     else if (((opcode>>12) & 0b1111)== 0b1001)
@@ -106,6 +109,9 @@ void ThumbCpu::execute(){
         break;
     case LDRH:
         loadHalfReg();
+        break;
+    case LDRH_E:
+        loadHalfRegExtended();
         break;
     case ADD:
         add();
@@ -184,16 +190,6 @@ void ThumbCpu::loadRegPCRelative(){
     int data = mem->read32(address);
     DEBUG_OUT<<"address = "<<address<<", data = "<< data << endl;
     reg->setReg(decodedInstruction->getRegDest(), data);
-}
-
-void ThumbCpu::storeReg(){
-    ThumbSDT* sdt = (ThumbSDT*) decodedInstruction;
-    int regBValue = reg->getReg(sdt->getRegBase());
-    int regOValue = reg->getReg(sdt->getRegOffset());
-    int data = reg->getReg(sdt->getRegDest());
-    int address = regBValue + regOValue;
-    DEBUG_OUT<<"address = "<< address <<", data = "<< data << endl;
-    mem->write32(address, data);
 }
 
 void ThumbCpu::storeRegSPRelative(){
