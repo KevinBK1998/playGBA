@@ -13,8 +13,12 @@ class ThumbCpu{
     void moveHigh();
     void moveN();
     void loadRegPCRelative();
+    void str();
+    void ldr();
     void storeReg();
+    void loadReg();
     void storeImmediateOffset();
+    void loadImmediateOffset();
     void storeHalfReg();
     void loadHalfReg();
     void storeRegSPRelative();

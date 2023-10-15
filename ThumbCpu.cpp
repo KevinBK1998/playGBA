@@ -96,10 +96,10 @@ void ThumbCpu::execute(){
         storeRegSPRelative();
         break;
     case STR:
-        if(decodedInstruction->useImmediateOffset())
-            storeImmediateOffset();
-        else
-            storeReg();
+        str();
+        break;
+    case LDR:
+        ldr();
         break;
     case STRH:
         storeHalfReg();
@@ -232,4 +232,19 @@ void ThumbCpu::add(){
         addRegWithImmediate();
     else
         addImmediate();
+}
+
+void ThumbCpu::str(){
+    if (decodedInstruction->useImmediateOffset())
+        storeImmediateOffset();
+    else
+        storeReg();
+}
+
+void ThumbCpu::ldr(){
+    if(decodedInstruction->useImmediateOffset())
+        loadImmediateOffset();
+    else
+        // loadReg();
+        exit(PENDING_CODE);
 }
