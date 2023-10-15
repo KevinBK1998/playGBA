@@ -49,6 +49,7 @@ class ThumbCpu{
     void moveRegAddress();
     void rotateRight();
     void exclusiveOR();
+    void multiply();
     bool canExecute(Condition);
 public:
     ThumbCpu(Registers*, Memory*);

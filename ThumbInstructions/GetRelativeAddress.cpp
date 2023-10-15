@@ -42,6 +42,6 @@ void ThumbCpu::moveRegAddress(){
         op1 = (reg->getPC() + 4) & ~2; // PC value should be (($+4) AND NOT 2)
     int op2 = mov->getImmediate();
     int result = op1 + op2;
-    DEBUG_OUT<<"result = "<<result<<", data ="<< op1 << endl;
+    DEBUG_OUT<<"result = "<<result<<", data = "<< op1 << endl;
     reg->setReg(mov->getRegDest(), result);
 }

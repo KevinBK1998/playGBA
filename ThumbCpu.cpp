@@ -173,6 +173,9 @@ void ThumbCpu::execute(){
     case EOR:
         exclusiveOR();
         break;
+    case MUL:
+        multiply();
+        break;
     default:
         cout << "Undefined: " << decodedInstruction->toString() << endl;
         exit(FAILED_TO_EXECUTE);

@@ -28,6 +28,8 @@ public:
             return new ThumbALU(CMP, rD, rS);
         case 0xC:
             return new ThumbALU(ORR, rD, rS);
+        case 0xD:
+            return new ThumbALU(MUL, rD, rS);
         case 0xF:
             return new ThumbALU(MVN, rD, rS);
         default:
@@ -59,6 +61,9 @@ public:
             break;
         case ORR:
             stream<<"ORR";
+            break;
+        case MUL:
+            stream<<"MUL";
             break;
         case MVN:
             stream<<"MVN";
@@ -115,6 +120,16 @@ void ThumbCpu::logicalOR(){
     int op1 = reg->getReg(alu->getRegDest());
     int op2 = reg->getReg(alu->getRegSource());
     int result = op1 | op2;
+    DEBUG_OUT<<"result = "<<result<<endl;
+    reg->setReg(alu->getRegDest(), result);
+    reg->setFlags(NZ, generateFlags(result));
+}
+
+void ThumbCpu::multiply(){
+    ThumbALU* alu = (ThumbALU*) decodedInstruction;
+    int op1 = reg->getReg(alu->getRegDest());
+    int op2 = reg->getReg(alu->getRegSource());
+    int result = op1 * op2;
     DEBUG_OUT<<"result = "<<result<<endl;
     reg->setReg(alu->getRegDest(), result);
     reg->setFlags(NZ, generateFlags(result));
