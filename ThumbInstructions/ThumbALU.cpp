@@ -94,6 +94,7 @@ void ThumbCpu::rotateRight(){
     int result = ROR(op1, op2);
     bool carry = CARRY_ROR(op1, op2);
     DEBUG_OUT<<"result = "<<result<<endl;
+    reg->setReg(alu->getRegDest(), result);
     reg->setFlags(NZC, generateShiftFlags(carry, result));
 }
 

@@ -172,21 +172,6 @@ void GPU::status(){
     DEBUG_OUT<<"MOSAIC: "<<mosaic<<"\tBLDCNT: "<<sfxCnt<<"\tBLDALPHA: "<<alphaCoeff<<"\tBLDY: "<<brightCoeff<<endl<<endl;
 }
 
-void dumpArrayToFile(uint8_t* array, int size, string fileName){
-    ofstream fout(fileName, ios::out|ios::binary);
-    if (!fout)
-    {
-        cout << "Error Opening File\n";
-        exit(FAILED_TO_LOAD_ROM);
-    }
-    for (int i = 0; i < size; i++)
-    {
-        uint8_t v = array[i];
-        fout.write((char*) &v, sizeof(uint8_t));
-    }
-    fout.close();
-}
-
 void GPU::dump(){
     dumpArrayToFile(vram, VRAM_SIZE, "vram.bin");
     dumpArrayToFile(oam, OAM_SIZE, "oam.bin");
@@ -217,7 +202,7 @@ void GPU::step(){
     if (timer>100000){
         if (dispStat.bitCheck(3)){
             dispStat.storeReg(0, 1, 0xFFFE);
-            DEBUG_OUT<<"VBLANKING"<<endl;
+            cout<<"VBLANKING"<<endl;
         }
         timer=0;
         if (gameWindow->isOpen())

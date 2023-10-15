@@ -45,7 +45,7 @@ public:
     void write16(uint32_t, uint16_t);
     uint32_t read32(uint32_t);
     void write32(uint32_t, uint32_t);
-    void dump();
+    void dump(int);
 };
 
 #endif

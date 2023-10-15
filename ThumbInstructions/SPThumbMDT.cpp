@@ -114,6 +114,7 @@ void ThumbCpu::pop(){
         data = mem->read32(address);
         DEBUG_OUT<<"address = "<<address<<", R"<<dec<<PC<<hex<<" = "<< data << endl;
         reg->setReg(PC, data & ~1);
+        address+=WORD_SIZE;
     }
     reg->setReg(SP, address);
 }

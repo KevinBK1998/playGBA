@@ -102,7 +102,7 @@ enum ConditionConstant {
 };
 
 class ControlRegister16_t{
-    uint16_t REG;
+    uint16_t REG=0;
 public:
     bool bitCheck(int);
     void storeReg(uint8_t, uint8_t);
@@ -138,7 +138,7 @@ void ControlRegister16_t::storeReg(uint8_t address, uint8_t data, uint16_t mask)
         REG &= (0xFF00|mask);
         REG |= (data & ~mask);
     }
-    DEBUG_OUT<<"IOREG: "<<unsigned(address)<<"\tData: "<<REG<<endl;
+    DEBUG_OUT<<"IOREG: "<<unsigned(address)<<"\tData: "<<unsigned(data)<<"\tREG: "<<REG<<"\tmask: "<<mask<<endl;
 }
 
 uint8_t ControlRegister16_t::loadReg(uint8_t address){
@@ -165,7 +165,12 @@ public:
     std::string toString();
 };
 
-#define ROR(a,b) (((a)>>(b))|((a)<<(32 - (b))))
+#define ROR(a,b) RotateRight((a), (b))
+
+int RotateRight(uint32_t data, int shift){
+    return (data>>shift)|(data<<(32-shift));
+}
+
 #define CARRY_ROR(a,b) (((a)>>((b)-1)) & 1)
 
 int generateShiftFlags(bool carry, int result){
@@ -215,6 +220,21 @@ int generateFlags(int op1, int op2, long result){
     }
     DEBUG_OUT<<"flags = "<< flags<< endl;
     return flags;
+}
+
+void dumpArrayToFile(uint8_t* array, int size, string fileName){
+    ofstream fout(fileName, ios::out|ios::binary);
+    if (!fout)
+    {
+        cout << "Error Opening File\n";
+        exit(FAILED_TO_LOAD_ROM);
+    }
+    for (int i = 0; i < size; i++)
+    {
+        uint8_t v = array[i];
+        fout.write((char*) &v, sizeof(uint8_t));
+    }
+    fout.close();
 }
 
 #endif

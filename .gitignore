@@ -2,6 +2,9 @@
 a.out
 playGBA
 gba_bios.bin
+wram.bin
+wram.txt
+slowWram.bin
 vram.bin
 oam.bin
 palRam.bin

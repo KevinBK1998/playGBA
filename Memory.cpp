@@ -140,7 +140,31 @@ void Memory::write32(uint32_t address, uint32_t data) {
     }
 }
 
-void Memory::dump(){
+void Memory::dump(int stack){
+    ofstream fout("wram.txt", ios::out);
+    if (!fout)
+    {
+        cout << "Error Opening File\n";
+        exit(FAILED_TO_LOAD_ROM);
+    }
+    fout<<hex;
+    for (int i = 0; i < WRAM_SIZE; i++)
+    {
+        if (i!=0 && i%16==0)
+            fout<<endl;
+        uint8_t v = wram[i];
+        fout<<" ";
+        if(v<0x10)
+            fout<<" ";
+        if(i == stack-WRAM_OFFSET)
+            fout<<"SP(";
+        fout<<unsigned(v);
+        if(i == stack-WRAM_OFFSET)
+            fout<<")";
+    }
+    fout.close();
+    dumpArrayToFile(wram, WRAM_SIZE, "wram.bin");
+    dumpArrayToFile(slowRam, SLOW_WRAM_SIZE, "slowWram.bin");
     DEBUG_OUT<<"IE: "<<intEnable.getRegValue()<<"\tIF: "<<intFlags.getRegValue()<<endl;
     gpu->status();
     gpu->dump();

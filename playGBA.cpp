@@ -10,7 +10,9 @@
 
 using namespace std;
 int timePassed=0;
-int DEBUG_AFTER=48200;
+int DEBUG_AFTER_CYCLES=51444;
+// int DEBUG_AFTER_PC=0x6ac;
+int DEBUG_AFTER_PC=0x0;
 Registers reg;
 
 void status(){
@@ -26,7 +28,7 @@ int main(int argc, char *args[]){
     ArmCpu cpu = ArmCpu(&reg, &mem);
     ThumbCpu thumbCpu = ThumbCpu(&reg, &mem);
     cout<<"Starting up CPU"<<hex<<showbase<<endl;
-    while(timePassed < 49000){
+    while(timePassed < 60000){
         status();
         reg.status();
         if (reg.isThumbMode())
@@ -35,9 +37,9 @@ int main(int argc, char *args[]){
             cpu.step();
         gpu.step();
         timePassed++;
-        if(timePassed==DEBUG_AFTER) DEBUG_LOGS=true;
+        if(timePassed==DEBUG_AFTER_CYCLES || reg.getPC()==DEBUG_AFTER_PC) DEBUG_LOGS=true;
     }
-    mem.dump();
+    mem.dump(reg.getReg(SP));
     cout<<"Time to start HBLANK"<< endl;
     return 0;
 }
