@@ -60,9 +60,11 @@ public:
         case 0xA:
             return new ALUReg(CMP, cond, rN, rM, useShiftByReg, shiftType, imm);
         case 0xC:
-            return new ALUReg(ORR, cond, rN, rM, useShiftByReg, shiftType, imm);
+            return new ALUReg(ORR, cond, psr, rDest, rN, rM, useShiftByReg, shiftType, imm);
         case 0xD:
             return new ALUReg(MOV, cond, psr, rDest, rM, useShiftByReg, shiftType, imm);
+        case 0xE:
+            return new ALUReg(BIC, cond, psr, rDest, rN, rM, useShiftByReg, shiftType, imm);
         default:
             cout << "ALUReg = " << unsigned(op) << endl;
             exit(FAILED_TO_DECODE);
@@ -163,6 +165,9 @@ public:
         case MOV:
             stream<<"MOV"<<getPSRToString()<<getCondition()<<" R"<<getRegDest();
             break;
+        case BIC:
+            stream<<"BIC"<<getPSRToString()<<getCondition()<<" R"<<getRegDest()<<", R"<< getRegN();
+            break;
         default:
             cout << "ALUReg = " << getOpcode() << endl;
             exit(FAILED_DECODED_TO_STRING);
@@ -210,7 +215,7 @@ void ArmCpu::andShifted(){
     char mask=NZC;
     if (!alu->getShiftType() && !alu->getImmediate()) mask = NZ; //LSL#0 does not change carry flag
     if (alu->shouldUpdatePSR())
-        reg->setFlags(NZCV, generateShiftFlags(carry, result));
+        reg->setFlags(mask, generateShiftFlags(carry, result));
 }
 
 void ArmCpu::addShifted(){
@@ -292,5 +297,31 @@ void ArmCpu::orShifted(){
     char mask=NZC;
     if (!alu->getShiftType() && !alu->getImmediate()) mask = NZ; //LSL#0 does not change carry flag
     if (alu->shouldUpdatePSR())
-        reg->setFlags(NZCV, generateShiftFlags(carry, result));
+        reg->setFlags(mask, generateShiftFlags(carry, result));
+}
+
+void ArmCpu::bitClearShifted(){
+    ALUReg* alu = (ALUReg*) decodedInstruction;
+    uint32_t op1 = reg->getReg(alu->getRegN());
+    if (alu->getRegN()==PC)
+        op1+=2*WORD_SIZE; //Rn is PC+12 for shift by reg
+    uint32_t op2 = reg->getReg(alu->getRegM());
+    if (alu->getRegM()==PC)
+        op2+=2*WORD_SIZE; //Rm is PC+12 for shift by reg
+    bool carry;
+    if(alu->shouldUseShiftByReg()){
+        int shift = reg->getReg(alu->getRegShift()) & 0xFF;
+        carry = alu->getShiftedCarry(op2, shift);
+        op2 = alu->getShiftedData(op2, shift);
+    } else{
+        carry = alu->getShiftedCarry(op2);
+        op2 = alu->getShiftedData(op2);
+    }
+    uint32_t result = op1 & ~op2;
+    DEBUG_OUT<<"result = " << result<<", carry = "<< carry << endl;
+    reg->setReg(decodedInstruction->getRegDest(), result);
+    char mask=NZC;
+    if (!alu->getShiftType() && !alu->getImmediate()) mask = NZ; //LSL#0 does not change carry flag
+    if (alu->shouldUpdatePSR())
+        reg->setFlags(mask, generateShiftFlags(carry, result));
 }

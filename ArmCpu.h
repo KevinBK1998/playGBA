@@ -30,6 +30,8 @@ private:
     void orImmediate();
     void orShifted();
     void bitClear();
+    void bitClearImmediate();
+    void bitClearShifted();
     void move();
     void moveImmediate();
     void moveShifted();

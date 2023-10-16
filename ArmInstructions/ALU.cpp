@@ -202,7 +202,7 @@ void ArmCpu::moveImmediate(){
         reg->setFlags(NZ, generateFlags(immediate));
 }
 
-void ArmCpu::bitClear(){
+void ArmCpu::bitClearImmediate(){
     ALU* alu = (ALU*) decodedInstruction;
     int result = reg->getReg(alu->getRegN()) & ~alu->getImmediate();
     reg->setReg(alu->getRegDest(), result);

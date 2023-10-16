@@ -213,3 +213,10 @@ void ArmCpu::logicalOR(){
     else
         orShifted();
 }
+
+void ArmCpu::bitClear(){
+    if(decodedInstruction->shouldUseImmediate())
+        bitClearImmediate();
+    else
+        bitClearShifted();
+}
