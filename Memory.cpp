@@ -141,6 +141,8 @@ void Memory::write32(uint32_t address, uint32_t data) {
 }
 
 void Memory::dump(int stack){
+    stack -= WRAM_OFFSET;
+    int LineStart = stack & ~0xF;
     ofstream fout("wram.txt", ios::out);
     if (!fout)
     {
@@ -148,18 +150,18 @@ void Memory::dump(int stack){
         exit(FAILED_TO_LOAD_ROM);
     }
     fout<<hex;
-    for (int i = 0; i < WRAM_SIZE; i++)
+    for (int i = LineStart; i < WRAM_SIZE; i++)
     {
-        if (i!=0 && i%16==0)
+        if (i!=LineStart && i%16==0)
             fout<<endl;
         uint8_t v = wram[i];
         fout<<" ";
         if(v<0x10)
             fout<<" ";
-        if(i == stack-WRAM_OFFSET)
+        if(i == stack)
             fout<<"SP(";
         fout<<unsigned(v);
-        if(i == stack-WRAM_OFFSET)
+        if(i == stack)
             fout<<")";
     }
     fout.close();

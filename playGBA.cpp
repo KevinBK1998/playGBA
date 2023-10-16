@@ -10,7 +10,7 @@
 
 using namespace std;
 int timePassed=0;
-int DEBUG_AFTER_CYCLES=51444;
+int DEBUG_AFTER_CYCLES=51480;
 // int DEBUG_AFTER_PC=0x6ac;
 int DEBUG_AFTER_PC=0x0;
 Registers reg;
@@ -28,7 +28,7 @@ int main(int argc, char *args[]){
     ArmCpu cpu = ArmCpu(&reg, &mem);
     ThumbCpu thumbCpu = ThumbCpu(&reg, &mem);
     cout<<"Starting up CPU"<<hex<<showbase<<endl;
-    while(timePassed < 60000){
+    while(timePassed < 51500){
         status();
         reg.status();
         if (reg.isThumbMode())

@@ -162,6 +162,8 @@ bool Registers::canExecute(int cond){
         return canExecute(MI) != canExecute(VS);
     case GT:
         return canExecute(NE) && canExecute(GE);
+    case LE:
+        return canExecute(EQ) && canExecute(LT);
     case ALWAYS:
         if(thumbMode) exit(FAILED_TO_DECODE);
         return true;
@@ -194,6 +196,8 @@ string Condition::toString(){
         return "{lt}";
     case GT:
         return "{gt}";
+    case LE:
+        return "{le}";
     case ALWAYS:
         return "";
     default:
