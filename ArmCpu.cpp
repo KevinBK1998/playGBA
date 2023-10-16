@@ -176,6 +176,13 @@ void ArmCpu::storeReg(){
     }
 }
 
+void ArmCpu::logicalAND(){
+    if(decodedInstruction->shouldUseImmediate())
+        andImmediate();
+    else
+        andShifted();
+}
+
 void ArmCpu::add(){
     if(decodedInstruction->shouldUseImmediate())
         addImmediate();

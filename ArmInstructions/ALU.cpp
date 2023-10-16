@@ -111,7 +111,7 @@ public:
     }
 };
 
-void ArmCpu::logicalAND(){
+void ArmCpu::andImmediate(){
     ALU* alu = (ALU*) decodedInstruction;
     int result = reg->getReg(alu->getRegN()) & alu->getImmediate();
     reg->setReg(alu->getRegDest(), result);

@@ -15,6 +15,8 @@ private:
     void branchExchange();
     void psrTransfer();
     void logicalAND();
+    void andImmediate();
+    void andShifted();
     void subtract();
     void add();
     void addImmediate();
