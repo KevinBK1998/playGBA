@@ -41,6 +41,8 @@ public:
             return new ALU(AND, cond, psr, rDest, rN, imm);
         case 2:
             return new ALU(SUB, cond, psr, rDest, rN, imm);
+        case 3:
+            return new ALU(RSB, cond, psr, rDest, rN, imm);
         case 4:
             return new ALU(ADD, cond, psr, rDest, rN, imm);
         case 8:
@@ -80,6 +82,9 @@ public:
             break;
         case SUB:
             stream<< "SUB"<<getPSRToString()<<getCondition()<<" R" << getRegDest() << ", R" << getRegN();
+            break;
+        case RSB:
+            stream<< "RSB"<<getPSRToString()<<getCondition()<<" R" << getRegDest() << ", R" << getRegN();
             break;
         case ADD:
             stream<< "ADD"<<getPSRToString()<<getCondition()<<" R" << getRegDest() << ", R" << getRegN();
@@ -123,8 +128,19 @@ void ArmCpu::andImmediate(){
 void ArmCpu::subtract(){
     ALU* alu = (ALU*) decodedInstruction;
     uint64_t before = reg->getReg(alu->getRegN());
-    int immediate = alu->getImmediate();
+    uint32_t immediate = alu->getImmediate();
     uint64_t result = before - immediate;
+    DEBUG_OUT<<"result = "<< hex << result << endl;
+    reg->setReg(alu->getRegDest(), result);
+    if (alu->shouldUpdatePSR())
+        reg->setFlags(NZCV, generateFlags(result));
+}
+
+void ArmCpu::reverseSubtract(){
+    ALU* alu = (ALU*) decodedInstruction;
+    uint64_t op1 = alu->getImmediate();
+    uint32_t op2 = reg->getReg(alu->getRegN());
+    uint64_t result = op1 - op2;
     DEBUG_OUT<<"result = "<< hex << result << endl;
     reg->setReg(alu->getRegDest(), result);
     if (alu->shouldUpdatePSR())

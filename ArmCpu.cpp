@@ -102,6 +102,9 @@ void ArmCpu::execute(){
         case STM:
             storeMultipleReg();
             break;
+        case RSB:
+            reverseSubtract();
+            break;
         default:
             cout << "Undefined: " << decodedInstruction->toString() << endl;
             exit(FAILED_TO_EXECUTE);
