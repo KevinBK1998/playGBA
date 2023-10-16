@@ -33,7 +33,8 @@ const int BLDALPHA = 0x52;
 const int BLDY = 0x54;
 
 class GPU{
-    int timer;
+    int timer=0;
+    int timerC=0;
     ControlRegister16_t dispCnt;
     uint16_t greenSwap;
     ControlRegister16_t dispStat;
@@ -58,7 +59,7 @@ class GPU{
     uint16_t alphaCoeff;
     uint16_t brightCoeff;
     uint8_t palRam[PAL_RAM_SIZE];
-    uint8_t vram[VRAM_SIZE];
+    uint8_t* vram = new uint8_t[VRAM_SIZE];
     uint8_t oam[OAM_SIZE];
     sf::RenderWindow* gameWindow;
     void storeHalfWord(int, uint16_t*, uint8_t);

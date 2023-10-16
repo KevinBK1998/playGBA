@@ -10,7 +10,7 @@ using namespace std;
 GPU::GPU(sf::RenderWindow* window){
     gameWindow = window;
     gameWindow->setPosition(sf::Vector2i(0,0));
-    gameWindow->clear(sf::Color::White);
+    gameWindow->clear(sf::Color::Black);
     gameWindow->display();
 }
 
@@ -199,7 +199,9 @@ sf::VertexArray fillColor(sf::Color clearColor){
 
 void GPU::step(){
     timer++;
-    if (timer>100000){
+    DEBUG_OUT<<"GPU:"<<timer<<endl;
+    DEBUG_OUT<<"GPUc:"<<timerC<<endl;
+    if (timer > 100000){
         if (dispStat.bitCheck(3)){
             dispStat.storeReg(0, 1, 0xFFFE);
             cout<<"VBLANKING"<<endl;
@@ -214,8 +216,10 @@ void GPU::step(){
                     gameWindow->close();
             }
 
-            gameWindow->clear(sf::Color::White);
-            gameWindow->draw(fillColor(sf::Color::Magenta));
+            gameWindow->clear(sf::Color::Black);
+            sf::Color color = sf::Color(timerC, timerC, timerC, 0xFF);
+            timerC++;
+            gameWindow->draw(fillColor(color));
             gameWindow->display();
         }
     }

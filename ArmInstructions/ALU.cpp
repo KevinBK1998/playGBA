@@ -184,7 +184,7 @@ void ArmCpu::cmpImmediate(){
     reg->setFlags(NZCV, generateFlags(before, -immediate, result));
 }
 
-void ArmCpu::logicalOR(){
+void ArmCpu::orImmediate(){
     ALU* alu = (ALU*) decodedInstruction;
     int result = reg->getReg(alu->getRegN()) | alu->getImmediate();
     reg->setReg(alu->getRegDest(), result);

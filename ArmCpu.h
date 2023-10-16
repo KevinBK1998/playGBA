@@ -27,6 +27,8 @@ private:
     void cmpImmediate();
     void cmpShifted();
     void logicalOR();
+    void orImmediate();
+    void orShifted();
     void bitClear();
     void move();
     void moveImmediate();

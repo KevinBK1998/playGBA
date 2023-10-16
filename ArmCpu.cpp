@@ -206,3 +206,10 @@ void ArmCpu::compare(){
     else
         cmpShifted();
 }
+
+void ArmCpu::logicalOR(){
+    if(decodedInstruction->shouldUseImmediate())
+        orImmediate();
+    else
+        orShifted();
+}

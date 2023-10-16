@@ -163,7 +163,7 @@ bool Registers::canExecute(int cond){
     case GT:
         return canExecute(NE) && canExecute(GE);
     case LE:
-        return canExecute(EQ) && canExecute(LT);
+        return canExecute(EQ) || canExecute(LT);
     case ALWAYS:
         if(thumbMode) exit(FAILED_TO_DECODE);
         return true;
@@ -175,7 +175,6 @@ bool Registers::canExecute(int cond){
     // else if (cond == VC) return (currentStatusReg & 0x10_00_00_00) == 0;
     // else if (cond == HI) return canExecute(CS) && canExecute(NE);
     // else if (cond == LS) return canExecute(CC) || canExecute(EQ);
-    // else if (cond == LE) return canExecute(EQ) || canExecute(LT);
     return false;
 }
 

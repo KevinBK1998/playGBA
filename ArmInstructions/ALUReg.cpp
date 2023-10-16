@@ -59,6 +59,8 @@ public:
             return new ALUReg(ADD, cond, psr, rDest, rN, rM, useShiftByReg,shiftType, imm);
         case 0xA:
             return new ALUReg(CMP, cond, rN, rM, useShiftByReg, shiftType, imm);
+        case 0xC:
+            return new ALUReg(ORR, cond, rN, rM, useShiftByReg, shiftType, imm);
         case 0xD:
             return new ALUReg(MOV, cond, psr, rDest, rM, useShiftByReg, shiftType, imm);
         default:
@@ -148,6 +150,9 @@ public:
         {
         case AND:
             stream<<"AND"<<getPSRToString()<<getCondition()<<" R"<<getRegDest()<<", R"<< getRegN();
+            break;
+        case ORR:
+            stream<<"ORR"<<getPSRToString()<<getCondition()<<" R"<<getRegDest()<<", R"<< getRegN();
             break;
         case ADD:
             stream<<"ADD"<<getPSRToString()<<getCondition()<<" R"<<getRegDest()<<", R"<< getRegN();
@@ -262,4 +267,30 @@ void ArmCpu::moveShifted(){
     if (!alu->getShiftType() && !alu->getImmediate()) mask = NZ; //LSL#0 does not change carry flag
     if (alu->shouldUpdatePSR())
         reg->setFlags(mask, generateShiftFlags(carry, data));
+}
+
+void ArmCpu::orShifted(){
+    ALUReg* alu = (ALUReg*) decodedInstruction;
+    uint32_t op1 = reg->getReg(alu->getRegN());
+    if (alu->getRegN()==PC)
+        op1+=2*WORD_SIZE; //Rn is PC+12 for shift by reg
+    uint32_t op2 = reg->getReg(alu->getRegM());
+    if (alu->getRegM()==PC)
+        op2+=2*WORD_SIZE; //Rm is PC+12 for shift by reg
+    bool carry;
+    if(alu->shouldUseShiftByReg()){
+        int shift = reg->getReg(alu->getRegShift()) & 0xFF;
+        carry = alu->getShiftedCarry(op2, shift);
+        op2 = alu->getShiftedData(op2, shift);
+    } else{
+        carry = alu->getShiftedCarry(op2);
+        op2 = alu->getShiftedData(op2);
+    }
+    uint32_t result = op1 | op2;
+    DEBUG_OUT<<"result = " << result<<", carry = "<< carry << endl;
+    reg->setReg(decodedInstruction->getRegDest(), result);
+    char mask=NZC;
+    if (!alu->getShiftType() && !alu->getImmediate()) mask = NZ; //LSL#0 does not change carry flag
+    if (alu->shouldUpdatePSR())
+        reg->setFlags(NZCV, generateShiftFlags(carry, result));
 }
