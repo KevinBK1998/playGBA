@@ -159,6 +159,13 @@ void ArmCpu::add(){
         addShifted();
 }
 
+void ArmCpu::subtract(){
+    if(decodedInstruction->shouldUseImmediate())
+        subtractImmediate();
+    else
+        subtractShifted();
+}
+
 void ArmCpu::move(){
     if(decodedInstruction->shouldUseImmediate())
         moveImmediate();

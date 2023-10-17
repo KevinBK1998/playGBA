@@ -18,6 +18,8 @@ private:
     void andImmediate();
     void andShifted();
     void subtract();
+    void subtractImmediate();
+    void subtractShifted();
     void add();
     void addImmediate();
     void addShifted();

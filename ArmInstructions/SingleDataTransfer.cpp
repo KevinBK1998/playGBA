@@ -13,12 +13,8 @@ public:
     ~SingleDataTransfer(){}
 
     SingleDataTransfer(Condition cond, Opcode operation, char op1, int flags, int imm, char destReg):ArmInstruction(cond, operation, op1, destReg, imm){
-        preFlag = ((flags >> 3) & 1) != 0;//P
+        preFlag = ((flags >> 3) & 1) != 0;
         addFlag = ((flags >> 2) & 1) != 0;//U
-        if(preFlag && !addFlag){
-            cout<< "PRE FLAG in SingleDataTransfer: "<< addFlag << endl;
-            exit(PENDING_CODE);
-        }
         byteTransfer = ((flags>>1) & 1) != 0;
         bool tFlag = (flags & 1) != 0; //T
         if(!preFlag && tFlag){

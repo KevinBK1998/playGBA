@@ -125,7 +125,7 @@ void ArmCpu::andImmediate(){
         reg->setFlags(NZ, generateFlags(result));
 }
 
-void ArmCpu::subtract(){
+void ArmCpu::subtractImmediate(){
     ALU* alu = (ALU*) decodedInstruction;
     uint64_t before = reg->getReg(alu->getRegN());
     uint32_t immediate = alu->getImmediate();

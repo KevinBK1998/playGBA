@@ -1303,13 +1303,14 @@ _000010F8:
     lsls r12, r2, #0
     bl sub_00000BA4
     beq _0000118C
+_00001114:
     cmp r2, #0
     ble #108
     ldrb lr, [r0] #1!
     mov r4, #8
 _00001124:
     subs r4, r4, #1
-    blt #-28
+    blt _00001114
     tst lr, #0x80
     bne _00001144
     ldrb r6, [r0] #1!
@@ -1324,11 +1325,17 @@ _00001144:
     mov r6, #3
     add r3, r6, r5, asr#4
     ldrb r6, [r0] #1!
-
-    .byte 0x0F, 0x50, 0x06, 0xE2, 0x05, 0xC4, 0xA0, 0xE1, 0x01, 0x60, 0xD0, 0xE4
-    .byte 0x0C, 0x50, 0x86, 0xE1, 0x01, 0xC0, 0x85, 0xE2, 0x03, 0x20, 0x42, 0xE0, 0x0C, 0x50, 0x51, 0xE7
-    .byte 0x01, 0x50, 0xC1, 0xE4, 0x01, 0x30, 0x53, 0xE2, 0xFB, 0xFF, 0xFF, 0xCA
-
+    and r5, r6, #0xf
+    lsl r12, r5, #8
+    ldrb r6, [r0] #1!
+    orr r5, r6, r12
+    add r12, r5, #1
+    sub r2, r2, r3
+_0000116C:
+    ldrb r5, [r1, -0xc]
+    strb r5, [r1] +0x1!
+    subs r3, r3, #1
+    bgt _0000116C
 _0000117C:
     cmp r2, #0
     movgt lr, lr, lsl#1
