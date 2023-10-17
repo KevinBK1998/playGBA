@@ -3,7 +3,7 @@
 #include "ArmCpu.h"
 #include "ArmInstructions/Instruction.cpp"
 #include "ArmInstructions/Branch.h"
-#include "ArmInstructions/SingleDataTransfer.h"
+#include "ArmInstructions/SingleDataTransfer.cpp"
 #include "ArmInstructions/MultipleDataTransfer.cpp"
 #include "ArmInstructions/ALU.cpp"
 #include "ArmInstructions/ALUReg.cpp"
@@ -143,40 +143,6 @@ void ArmCpu::branchExchange(){
     int data = reg->getReg(b->getRegN());
     DEBUG_OUT<<"jumpAddress = "<<data<<endl;
     reg->exchange(data);
-}
-
-void ArmCpu::loadReg(){
-    SingleDataTransfer* sdt = (SingleDataTransfer*) decodedInstruction;
-    int regNValue = reg->getReg(sdt->getRegN());
-    if (sdt->getRegN()==PC)
-        regNValue+=WORD_SIZE; //Base Register is PC+8
-    int address = regNValue + sdt->getImmediate();
-    int data;
-    if (sdt->isByteTransfer())
-        data = mem->read8(address);
-    else
-        data = mem->read32(address);
-    DEBUG_OUT<<"address = "<<address<<", data = "<< data << endl;
-    reg->setReg(sdt->getRegDest(), data);
-}
-
-void ArmCpu::storeReg(){
-    SingleDataTransfer* sdt = (SingleDataTransfer*) decodedInstruction;
-    int regNValue = reg->getReg(sdt->getRegN());
-    if (sdt->getRegN()==PC)
-        regNValue+=WORD_SIZE; //Base Register is PC+8
-    int data = reg->getReg(sdt->getRegDest());
-    if (sdt->getRegDest()==PC)
-        data+=2*WORD_SIZE; //Dest Register is PC+12
-    int address = regNValue + sdt->getImmediate();
-    if (sdt->isByteTransfer()){
-        DEBUG_OUT<<"address = "<<address<<", data = "<< (data & 0xFF) << endl;
-        mem->write8(address, data);
-    }
-    else{
-        DEBUG_OUT<<"address = "<<address<<", data = "<< data << endl;
-        mem->write32(address, data);
-    }
 }
 
 void ArmCpu::logicalAND(){

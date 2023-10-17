@@ -1256,7 +1256,7 @@ _00001064:
     cmp r12, #0
     ble #124
     mov r8, #0x20
-    ldr r5, [r0, #4]
+    ldr r5, [r0], #4!
 _00001074:
     subs r8, r8, #1
     blt _00001064
@@ -1280,7 +1280,7 @@ _00001074:
     add r14, r14, #1
     ldr r11, [r13, #4]
     cmp r14, r11
-    streq r3, [r1, #4]
+    streq r3, [r1], #4!
     subeq r12, r12, #4
     moveq r14, #0
 _000010DC:
@@ -1298,26 +1298,32 @@ _000010F8:
     bx r3
     .ARM
     push {r4, r5, r6, lr}
-    ldr r5, [r0, #4]
+    ldr r5, [r0], #4!
     lsr r2, r5, #8
     lsls r12, r2, #0
     bl sub_00000BA4
     beq _0000118C
     cmp r2, #0
     ble #108
-    ldrb lr, [r0, #1]
+    ldrb lr, [r0] #1!
     mov r4, #8
 _00001124:
     subs r4, r4, #1
     blt #-28
     tst lr, #0x80
-    bne #12
-    ldrb r6, [r0, #1]
-    strb r6, [r1, #1]
+    bne _00001144
+    ldrb r6, [r0] #1!
+    strb r6, [r1] #1!
     sub r2, r2, #1
     b _0000117C
 
-    .byte 0x0D, 0x00, 0x00, 0xEA, 0x00, 0x50, 0xD0, 0xE5, 0x03, 0x60, 0xA0, 0xE3, 0x45, 0x32, 0x86, 0xE0
+    .byte 0x0D, 0x00, 0x00, 0xEA
+
+_00001144:
+    ldrb r5, [r0]
+    mov r6, #3
+
+     0x45, 0x32, 0x86, 0xE0
     .byte 0x01, 0x60, 0xD0, 0xE4, 0x0F, 0x50, 0x06, 0xE2, 0x05, 0xC4, 0xA0, 0xE1, 0x01, 0x60, 0xD0, 0xE4
     .byte 0x0C, 0x50, 0x86, 0xE1, 0x01, 0xC0, 0x85, 0xE2, 0x03, 0x20, 0x42, 0xE0, 0x0C, 0x50, 0x51, 0xE7
     .byte 0x01, 0x50, 0xC1, 0xE4, 0x01, 0x30, 0x53, 0xE2, 0xFB, 0xFF, 0xFF, 0xCA
