@@ -95,10 +95,14 @@ public:
     }
 
     bool getShiftedCarry(long data, int shift){
-        if (shiftType && !shift) {
+        if (!shift && !shiftType)
+            return false;
+        if (shiftType > ArithmeticShiftRight && !shift) {
             cout<<"shifttype = " << shiftType<<", shift = 0" << endl;
             exit(FAILED_TO_EXECUTE);
         }
+        if(!shift)
+            shift=32;
         long result;
         bool carry;
         uint32_t copy = data;
@@ -111,8 +115,6 @@ public:
             return result&1;
         case ArithmeticShiftRight:
             result = data>>(shift-1);
-            cout<< "result = "<<result<< ", data = "<< data<<", immediate = "<< shift<<", flag = "<< (result&1)<<endl;
-            exit(FAILED_TO_EXECUTE);
             return result&1;
         default:
             cout<<"ALUReg shifttype = " << shiftType <<", shift = " << shift << endl;
@@ -125,11 +127,15 @@ public:
     }
 
     uint64_t getShiftedData(int data, int shift){
-        DEBUG_OUT<<"shift = " << shift << endl;
-        if (shiftType && !shift) {
+        if (!shift && !shiftType)
+            return data;
+        if (shiftType > ArithmeticShiftRight && !shift) {
             cout<<"shifttype = " << shiftType<<", shift = 0" << endl;
             exit(FAILED_TO_EXECUTE);
         }
+        if(!shift)
+            shift=32;
+        DEBUG_OUT<<"shift = " << shift << endl;
         uint32_t copy = data;
         switch(shiftType){
         case ShiftLeft:
