@@ -1214,7 +1214,7 @@ _00000F5C:
     .ARM
     push {r4, r5, r6, r7, r8, r9, r10, r11, lr}
     sub r13, r13, #8
-    bics r7, R56, R0,LSR,R0
+    bics r7, r2, r0, LSR, r0
 
     .byte 0x08, 0xD0, 0x4D, 0xE2, 0xB0, 0x70, 0xD2, 0xE1, 0x07, 0xC0, 0xB0, 0xE1
     .byte 0x0B, 0xFF, 0xFF, 0xEB, 0x22, 0x00, 0x00, 0x0A, 0x02, 0x60, 0xD2, 0xE5, 0x08, 0xA0, 0x66, 0xE2
@@ -1305,7 +1305,7 @@ _000010F8:
     beq _0000118C
 _00001114:
     cmp r2, #0
-    ble #108
+    ble _0000118C
     ldrb lr, [r0] #1!
     mov r4, #8
 _00001124:
@@ -1340,9 +1340,7 @@ _0000117C:
     cmp r2, #0
     movgt lr, lr, lsl#1
     bgt _00001124
-
-    .byte 0xE1, 0xFF, 0xFF, 0xEA
-
+    b _00001114
 _0000118C:
     pop {r4, r5, r6, lr}
     bx lr

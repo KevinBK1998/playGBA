@@ -14,7 +14,7 @@ public:
 
     SingleDataTransfer(Condition cond, Opcode operation, char op1, int flags, int imm, char destReg):ArmInstruction(cond, operation, op1, destReg, imm){
         preFlag = ((flags >> 3) & 1) != 0;
-        addFlag = ((flags >> 2) & 1) != 0;//U
+        addFlag = ((flags >> 2) & 1) != 0;
         byteTransfer = ((flags>>1) & 1) != 0;
         bool tFlag = (flags & 1) != 0; //T
         if(!preFlag && tFlag){
