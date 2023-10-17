@@ -180,6 +180,9 @@ public:
         case ShiftRight:
             stream<<",LSR";
             break;
+        case ArithmeticShiftRight:
+            stream<<",ASR";
+            break;
         default:
             cout << "ALUReg shifttype = " << unsigned(shiftType) << endl;
             exit(FAILED_DECODED_TO_STRING);

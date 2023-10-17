@@ -10,7 +10,7 @@
 
 using namespace std;
 int timePassed=0;
-int DEBUG_AFTER_CYCLES=194840;
+int DEBUG_AFTER_CYCLES=194885;
 // int DEBUG_AFTER_PC=0x6ac;
 int DEBUG_AFTER_PC=0x0;
 Registers reg;
