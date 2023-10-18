@@ -46,6 +46,15 @@ void GPU::storeWord(int address, uint32_t* var, uint8_t data){
     }
 }
 
+uint8_t GPU::read8(uint32_t address){
+    if (address >= VRAM_OFFSET && address < OAM_OFFSET){
+        DEBUG_OUT << "R: GPU VRAM Memory: "<<address<<endl;
+        return vram[address-VRAM_OFFSET];
+    }
+    cout << "R: GPU Undefined Memory: "<<address<<endl;
+    exit(FAILED_DMA);
+}
+
 void GPU::write8(uint32_t address, uint8_t data){
     uint16_t* pointer;
     uint32_t* wordPointer;

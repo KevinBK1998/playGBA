@@ -10,8 +10,7 @@
 
 using namespace std;
 int timePassed=0;
-int DEBUG_AFTER_CYCLES=210490;
-// int DEBUG_AFTER_PC=0x6ac;
+int DEBUG_AFTER_CYCLES=0;
 int DEBUG_AFTER_PC=0x0;
 Registers reg;
 
@@ -20,6 +19,8 @@ void status(){
 }
 
 int main(int argc, char *args[]){
+    DEBUG_AFTER_CYCLES=516165;
+    // DEBUG_AFTER_PC=0x90c;
     sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "playGBA - debug mode");
     GPU gpu(&window);
     Memory mem(&gpu);
@@ -28,7 +29,7 @@ int main(int argc, char *args[]){
     ArmCpu cpu = ArmCpu(&reg, &mem);
     ThumbCpu thumbCpu = ThumbCpu(&reg, &mem);
     cout<<"Starting up CPU"<<hex<<showbase<<endl;
-    while(timePassed < DEBUG_AFTER_CYCLES+500){
+    while(timePassed < DEBUG_AFTER_CYCLES + 500){
         status();
         reg.status();
         if (reg.isThumbMode())

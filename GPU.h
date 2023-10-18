@@ -68,6 +68,7 @@ public:
     GPU(){}
     GPU(sf::RenderWindow*);
     void write8(uint32_t, uint8_t);
+    uint8_t read8(uint32_t);
     void status();
     void dump();
     void step();
