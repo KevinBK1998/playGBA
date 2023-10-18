@@ -52,6 +52,8 @@ uint8_t Memory::read8(uint32_t address) {
     //     return slowRam[address - SLOW_WRAM_OFFSET];
     else if (address >= WRAM_OFFSET && address < WRAM_OFFSET+WRAM_SIZE)
         return wram[address - WRAM_OFFSET];
+    else if (address < IO_REG_OFFSET)
+        return wram[0];
     else if (address >= IO_REG_OFFSET && address < IO_REG_END)
     {
         if (address>GPU_REG_END && address < APU_REG_END)
