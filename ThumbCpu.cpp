@@ -6,7 +6,7 @@
 #include "ThumbInstructions/ShiftedALU.cpp"
 #include "ThumbInstructions/SingleDataTransfer.cpp"
 #include "ThumbInstructions/LoadPCRelative.h"
-#include "ThumbInstructions/SDTRelativeSP.h"
+#include "ThumbInstructions/SDTRelativeSP.cpp"
 #include "ThumbInstructions/CondBranch.h"
 #include "ThumbInstructions/Branch.cpp"
 #include "ThumbInstructions/LongBranch.h"
@@ -176,6 +176,9 @@ void ThumbCpu::execute(){
     case MUL:
         multiply();
         break;
+    case LDRSP:
+        loadRegSPRelative();
+        break;
     default:
         cout << "Undefined: " << decodedInstruction->toString() << endl;
         exit(FAILED_TO_EXECUTE);
@@ -202,14 +205,6 @@ void ThumbCpu::loadRegPCRelative(){
     int data = mem->read32(address);
     DEBUG_OUT<<"address = "<<address<<", data = "<< data << endl;
     reg->setReg(decodedInstruction->getRegDest(), data);
-}
-
-void ThumbCpu::storeRegSPRelative(){
-    int regBValue = reg->getReg(SP);
-    int address = regBValue + decodedInstruction->getImmediate()*4;
-    int data = reg->getReg(decodedInstruction->getRegDest());
-    DEBUG_OUT<<"address = "<< address <<", data = "<< data << endl;
-    mem->write32(address, data);
 }
 
 void ThumbCpu::addSP(){
