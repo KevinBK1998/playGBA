@@ -15,11 +15,11 @@ int DEBUG_AFTER_PC=0x0;
 Registers reg;
 
 void status(){
-    DEBUG_OUT<<"Time passed:"<<dec<<timePassed<<" cycles"<<hex<< endl;
+    DEBUG_OUT<<"Time passed: "<<dec<<timePassed<<" cycles"<<hex<< endl;
 }
 
 int main(int argc, char *args[]){
-    DEBUG_AFTER_CYCLES=602817;
+    DEBUG_AFTER_CYCLES=602822;
     // DEBUG_AFTER_PC=0x90c;
     sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "playGBA - debug mode");
     GPU gpu(&window);

@@ -1,6 +1,7 @@
 .vscode
 a.out
 playGBA
+paletteMap
 gba_bios.bin
 wram.bin
 wram.txt
