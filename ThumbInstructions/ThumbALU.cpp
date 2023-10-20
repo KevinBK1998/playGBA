@@ -24,6 +24,8 @@ public:
             return new ThumbALU(ROR, rD, rS);
         case 8:
             return new ThumbALU(TST, rD, rS);
+        case 9:
+            return new ThumbALU(NEG, rD, rS);
         case 0xA:
             return new ThumbALU(CMP, rD, rS);
         case 0xC:
@@ -55,6 +57,9 @@ public:
             break;
         case TST:
             stream<<"TST";
+            break;
+        case NEG:
+            stream<<"NEG";
             break;
         case CMP:
             stream<<"CMP";
@@ -105,6 +110,16 @@ void ThumbCpu::test(){
     int result = op1 & op2;
     DEBUG_OUT<<"result = "<<result<<endl;
     reg->setFlags(NZ, generateFlags(result));
+}
+
+void ThumbCpu::negate(){
+    ThumbALU* alu = (ThumbALU*) decodedInstruction;
+    uint64_t op1 = 0;
+    uint32_t op2 = reg->getReg(alu->getRegSource());
+    uint64_t result = op1 - op2;
+    DEBUG_OUT<<"result = "<<result<<endl;
+    reg->setReg(alu->getRegDest(), result);
+    reg->setFlags(NZCV, generateFlags(op1, -op2, result));
 }
 
 void ThumbCpu::compareReg(){

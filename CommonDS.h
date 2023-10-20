@@ -76,6 +76,7 @@ enum Opcode {
     EOR,
     MUL,
     RSB,
+    NEG,
 };
 
 enum ShiftType{

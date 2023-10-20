@@ -49,6 +49,7 @@ int main()
 
     uint32_t tileBase = ((bgControl[3]>>2) & 0b11) * 0x4000;
     bool use256color = ((bgControl[3]>>7) & 1);
+    // use256color = true;
 
     ifstream tileIn("vram.bin");
     if (!tileIn)
@@ -77,19 +78,30 @@ int main()
 
     sf::VertexArray screen(sf::Triangles, SCREEN_WIDTH*SCREEN_HEIGHT*6);
 
-    for (int tileNum = 0; tileNum < 1536; tileNum++)
+    int tileEnd = 767;
+    if(use256color)
+        tileEnd *= 2;
+
+    for (int tileNum = 0; tileNum < tileEnd; tileNum++)
     {
         for (int y = 0; y < TILE_WIDTH; y++)
         {
             for (int x = 0; x < TILE_WIDTH; x++)
             {
-                uint8_t value = tile[tileBase + TILE_WIDTH*TILE_WIDTH*tileNum + TILE_WIDTH*y + x];
+                int dot = TILE_WIDTH*TILE_WIDTH*tileNum + TILE_WIDTH*y + x;
+                uint8_t value = tile[tileBase + dot/2];
+                if (dot & 1 != 0)
+                    value &= 0xFF;
+                if (dot & 1)
+                    value >>= 4;
+                if (use256color){
+                    value = tile[tileBase + dot];
+                }
                 int xoff=(tileNum%SCREEN_WIDTH_TILES)*9,yoff=(tileNum/SCREEN_WIDTH_TILES)*9;
-                // cout <<dec<< "tN: " << tileNum << ", x: " << x << ", y: " << y << ", v: " <<hex<< unsigned(value) << endl;
+                // cout <<dec<< "tN: " << tileNum << ", x: " << x << ", y: " << y << ", dot: " << dot << ", v: " <<hex<< unsigned(value) << endl;
                 // cout <<dec<< "xoff: " << xoff << ", yoff: " << yoff << endl;
-                cout <<dec<< "dot: " << (TILE_WIDTH*TILE_WIDTH*tileNum + TILE_WIDTH*y + x) << endl;
 
-                sf::Vertex* triangles = &screen[(TILE_WIDTH*TILE_WIDTH*tileNum + TILE_WIDTH*y + x) * 6];
+                sf::Vertex* triangles = &screen[(dot) * 6];
 
                 int startX = (xoff+x)*ZOOM;
                 int startY = (yoff+y)*ZOOM;

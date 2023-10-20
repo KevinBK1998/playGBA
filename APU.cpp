@@ -85,6 +85,9 @@ void APU::write8(uint8_t address, uint8_t data){
         biasCnt.storeReg(address, data);
         status();
         return;
+    case SOUNDBIAS+2 ... SOUNDBIAS+6:
+        DEBUG_OUT << "W: APU Unused Memory: "<<unsigned(address)<<endl;
+        return;
     case WAVE_RAM_OFFSET ... WAVE_RAM_OFFSET+0xF:
         waveRam[address - WAVE_RAM_OFFSET] = data;
         status();

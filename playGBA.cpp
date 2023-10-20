@@ -19,7 +19,7 @@ void status(){
 }
 
 int main(int argc, char *args[]){
-    DEBUG_AFTER_CYCLES=602822;
+    DEBUG_AFTER_CYCLES=606962;
     // DEBUG_AFTER_PC=0x90c;
     sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "playGBA - debug mode");
     GPU gpu(&window);
@@ -29,8 +29,9 @@ int main(int argc, char *args[]){
     ArmCpu cpu = ArmCpu(&reg, &mem);
     ThumbCpu thumbCpu = ThumbCpu(&reg, &mem);
     cout<<"Starting up CPU"<<hex<<showbase<<endl;
-    while(timePassed < DEBUG_AFTER_CYCLES + 500){
+    // while(timePassed < 602841){
     // while(true){
+    while(timePassed < DEBUG_AFTER_CYCLES + 500){
         status();
         reg.status();
         if (reg.isThumbMode())

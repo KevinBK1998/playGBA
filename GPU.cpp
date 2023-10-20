@@ -62,18 +62,18 @@ void GPU::write8(uint32_t address, uint8_t data){
     bool isWord=false;
     if (address<PAL_RAM_OFFSET) switch (address & 0xFE)
     {
-    case DISPCNT ... DISPCNT+1:
+    case DISPCNT:
         dispCnt.storeReg(address, data);
         status();
         return;
-    case GREENSWAP ... GREENSWAP+1:
+    case GREENSWAP:
         pointer = &greenSwap;
         break;
-    case DISPSTAT ... DISPSTAT+1:
+    case DISPSTAT:
         dispStat.storeReg(address, data, 0x47);
         status();
         return;
-    case VCOUNT ... VCOUNT+1:
+    case VCOUNT:
         pointer = &vCount;
         break;
     case BGCNT_OFFSET ... BGCNT_END:
@@ -89,11 +89,11 @@ void GPU::write8(uint32_t address, uint8_t data){
         actualAddress = (address>>1) & 0b11;
         bg2Parameters[actualAddress].storeReg(address, data);
         return;
-    case BG2X ... BG2X+3:
+    case BG2X ... BG2X+2:
         isWord = true;
         wordPointer = &bg2x;
         break;
-    case BG2Y ... BG2Y+3:
+    case BG2Y ... BG2Y+2:
         isWord = true;
         wordPointer = &bg2y;
         break;
@@ -101,48 +101,48 @@ void GPU::write8(uint32_t address, uint8_t data){
         actualAddress = (address>>1) & 0b11;
         bg3Parameters[actualAddress].storeReg(address, data);
         return;
-    case BG3X ... BG3X+3:
+    case BG3X ... BG3X+2:
         isWord = true;
         wordPointer = &bg3x;
         break;
-    case BG3Y ... BG3Y+3:
+    case BG3Y ... BG3Y+2:
         isWord = true;
         wordPointer = &bg3y;
         break;
-    case WIN0H ... WIN0H+1:
+    case WIN0H:
         pointer = &win0x;
         break;
-    case WIN1H ... WIN1H+1:
+    case WIN1H:
         pointer = &win1x;
         break;
-    case WIN0V ... WIN0V+1:
+    case WIN0V:
         pointer = &win0y;
         break;
-    case WIN1V ... WIN1V+1:
+    case WIN1V:
         pointer = &win1y;
         break;
-    case WININ ... WININ+1:
+    case WININ:
         pointer = &winIn;
         break;
-    case WINOUT ... WINOUT+1:
+    case WINOUT:
         pointer = &winOut;
         break;
-    case MOSAIC ... MOSAIC+1:
+    case MOSAIC:
         pointer = &mosaic;
         break;
-    case MOSAIC+2 ... MOSAIC+3:
+    case MOSAIC+2:
         DEBUG_OUT << "W: GPU Unused Memory: "<<unsigned(address)<<endl;
         return;
-    case BLDCNT ... BLDCNT+1:
+    case BLDCNT:
         pointer = &sfxCnt;
         break;
-    case BLDALPHA ... BLDALPHA+1:
+    case BLDALPHA:
         pointer = &alphaCoeff;
         break;
-    case BLDY ... BLDY+1:
+    case BLDY:
         pointer = &brightCoeff;
         break;
-    case BLDY+2 ... BLDY+11:
+    case BLDY+2 ... BLDY+10:
         DEBUG_OUT << "W: GPU Unused Memory: "<<unsigned(address)<<endl;
         return;
     default:
@@ -240,7 +240,7 @@ void GPU::step(){
 
             gameWindow->clear(sf::Color::Black);
             sf::Color color = sf::Color(timerC, timerC, timerC, 0xFF);
-            timerC+=40;
+            timerC+=30;
             gameWindow->draw(fillColor(color));
             gameWindow->display();
         }

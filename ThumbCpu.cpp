@@ -179,6 +179,9 @@ void ThumbCpu::execute(){
     case LDRSP:
         loadRegSPRelative();
         break;
+    case NEG:
+        negate();
+        break;
     default:
         cout << "Undefined: " << decodedInstruction->toString() << endl;
         exit(FAILED_TO_EXECUTE);

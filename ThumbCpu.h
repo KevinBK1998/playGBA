@@ -51,6 +51,7 @@ class ThumbCpu{
     void rotateRight();
     void exclusiveOR();
     void multiply();
+    void negate();
     bool canExecute(Condition);
 public:
     ThumbCpu(Registers*, Memory*);
