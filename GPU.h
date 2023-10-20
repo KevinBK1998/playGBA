@@ -39,7 +39,7 @@ class GPU{
     uint16_t greenSwap;
     ControlRegister16_t dispStat;
     uint16_t vCount;
-    uint16_t bgCnt[4];
+    ControlRegister16_t bgCnt[4];
     uint16_t bgOffsetX[4];
     uint16_t bgOffsetY[4];
     ControlRegister16_t bg2Parameters[4];

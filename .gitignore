@@ -1,11 +1,13 @@
 .vscode
 a.out
 playGBA
-paletteMap
+palette
+tileset
 gba_bios.bin
 wram.bin
 wram.txt
 slowWram.bin
+bgControl.bin
 vram.bin
 oam.bin
 palRam.bin

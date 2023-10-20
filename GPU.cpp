@@ -78,8 +78,9 @@ void GPU::write8(uint32_t address, uint8_t data){
         break;
     case BGCNT_OFFSET ... BGCNT_END:
         actualAddress = (address>>1) & 0b11;
-        pointer = &bgCnt[actualAddress];
-        break;
+        bgCnt[actualAddress].storeReg(address, data);
+        status();
+        return;
     case BGHW_OFFSET ... BGHW_OFFSET_END:
         actualAddress = (address>>1) & 0b111;
         pointer = (actualAddress&1)? &bgOffsetY[actualAddress>>1]: &bgOffsetX[actualAddress>>1];
@@ -172,7 +173,7 @@ void GPU::write8(uint32_t address, uint8_t data){
 void GPU::status(){
     DEBUG_OUT<<"\nGPU:"<<endl;
     DEBUG_OUT<<"DISPCNT: "<<dispCnt.getRegValue()<<"\tGREENSWAP: "<<greenSwap<<"\tDISPSTAT: "<<dispStat.getRegValue()<<"\tVCOUNT: "<<vCount<<endl;
-    DEBUG_OUT<<"BG0CNT: "<<bgCnt[0]<<"\tBG1CNT: "<<bgCnt[1]<<"\tBG2CNT: "<<bgCnt[2]<<"\tBG3CNT: "<<bgCnt[3]<<endl;
+    DEBUG_OUT<<"BG0CNT: "<<bgCnt[0].getRegValue()<<"\tBG1CNT: "<<bgCnt[1].getRegValue()<<"\tBG2CNT: "<<bgCnt[2].getRegValue()<<"\tBG3CNT: "<<bgCnt[3].getRegValue()<<endl;
     DEBUG_OUT<<"BG0HOFS: "<<bgOffsetX[0]<<"\tBG0HOFS: "<<bgOffsetX[1]<<"\tBG0HOFS: "<<bgOffsetX[2]<<"\tBG0HOFS: "<<bgOffsetX[3]<<endl;
     DEBUG_OUT<<"BG0VOFS: "<<bgOffsetY[0]<<"\tBG0VOFS: "<<bgOffsetY[1]<<"\tBG0VOFS: "<<bgOffsetY[2]<<"\tBG0VOFS: "<<bgOffsetY[3]<<endl;
     DEBUG_OUT<<"BG2PA: "<<bg2Parameters[0].getRegValue()<<"\tBG2PB: "<<bg2Parameters[1].getRegValue()<<"\tBG2PC: "<<bg2Parameters[2].getRegValue()<<"\tBG2PD: "<<bg2Parameters[3].getRegValue()<<"\tBG2X: "<<bg2x<<"\tBG2Y: "<<bg2y<<endl;
@@ -182,6 +183,18 @@ void GPU::status(){
 }
 
 void GPU::dump(){
+    ofstream fout("bgControl.bin", ios::out|ios::binary);
+    if (!fout)
+    {
+        cout << "Error Opening File\n";
+        exit(FAILED_TO_LOAD_ROM);
+    }
+    for (int i = 0; i < 8; i++)
+    {
+        uint8_t v = bgCnt[i/2].loadReg(i);
+        fout.write((char*) &v, sizeof(uint8_t));
+    }
+    fout.close();
     dumpArrayToFile(vram, VRAM_SIZE, "vram.bin");
     dumpArrayToFile(oam, OAM_SIZE, "oam.bin");
     dumpArrayToFile(palRam, PAL_RAM_SIZE, "palRam.bin");
