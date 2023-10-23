@@ -168,7 +168,7 @@ void ArmCpu::test(){
     reg->setFlags(NZ, generateFlags(result));
 }
 
-void ArmCpu::testXOR(){
+void ArmCpu::testXORImmediate(){
     int before = reg->getReg(decodedInstruction->getRegN());
     int immediate = decodedInstruction->getImmediate();
     int result = before ^ immediate;

@@ -25,6 +25,8 @@ private:
     void addShifted();
     void test();
     void testXOR();
+    void testXORImmediate();
+    void testXORShifted();
     void compare();
     void cmpImmediate();
     void cmpShifted();

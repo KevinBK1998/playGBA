@@ -207,3 +207,10 @@ void ArmCpu::bitClear(){
     else
         bitClearShifted();
 }
+
+void ArmCpu::testXOR(){
+    if(decodedInstruction->shouldUseImmediate())
+        testXORImmediate();
+    else
+        testXORShifted();
+}

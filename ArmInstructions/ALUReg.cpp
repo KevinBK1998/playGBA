@@ -63,6 +63,8 @@ public:
             return new ALUReg(ADD, cond, psr, rDest, rN, rM, useShiftByReg,shiftType, imm);
         case 5:
             return new ALUReg(ADC, cond, psr, rDest, rN, rM, useShiftByReg,shiftType, imm);
+        case 9:
+            return new ALUReg(TEQ, cond, rN, rM, useShiftByReg, shiftType, imm);
         case 0xA:
             return new ALUReg(CMP, cond, rN, rM, useShiftByReg, shiftType, imm);
         case 0xC:
@@ -185,6 +187,9 @@ public:
             break;
         case ADC:
             stream<<"ADC"<<getPSRToString()<<getCondition()<<" R"<<getRegDest()<<", R"<< getRegN();
+            break;
+        case TEQ:
+            stream<<"TEQ"<<getCondition()<<" R"<< getRegN();
             break;
         case CMP:
             stream<<"CMP"<<getCondition()<<" R"<< getRegN();
@@ -335,6 +340,26 @@ void ArmCpu::subtractShifted(){
     reg->setReg(decodedInstruction->getRegDest(), result);
     if (alu->shouldUpdatePSR())
         reg->setFlags(NZCV, generateFlags(op1, op2, result));
+}
+
+void ArmCpu::testXORShifted(){
+    ALUReg* alu = (ALUReg*) decodedInstruction;
+    uint64_t op1 = reg->getReg(alu->getRegN());
+    uint32_t op2 = reg->getReg(alu->getRegM());
+    bool carry;
+    if(alu->shouldUseShiftByReg()){
+        int shift = reg->getReg(alu->getRegShift()) & 0xFF;
+        carry = alu->getShiftedCarry(op2, shift);
+        op2 = alu->getShiftedData(op2, shift);
+    } else{
+        carry = alu->getShiftedCarry(op2);
+        op2 = alu->getShiftedData(op2);
+    }
+    uint64_t result = op1 ^ op2;
+    DEBUG_OUT<<"result = "<< hex << result << endl;
+    char mask=NZC;
+    if (!alu->getShiftType() && !alu->getImmediate()) mask = NZ; //LSL#0 does not change carry flag
+    reg->setFlags(mask, generateShiftFlags(carry, result));
 }
 
 void ArmCpu::cmpShifted(){
