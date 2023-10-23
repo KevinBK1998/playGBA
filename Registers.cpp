@@ -187,6 +187,8 @@ string Condition::toString(){
         return "{ne}";
     case CC:
         return "{cc}";
+    case MI:
+        return "{mi}";
     case PL:
         return "{pl}";
     case GE:

@@ -63,7 +63,9 @@ public:
 
 void ThumbCpu::compareHigh(){
     HiRegOperation* alu = (HiRegOperation*) decodedInstruction;
-    uint64_t before = reg->getReg(decodedInstruction->getRegDest());
+    uint64_t before = reg->getReg(alu->getRegDest());
+    if(alu->getRegDest() == PC)
+        before+=HALFWORD_SIZE; //Source Register is PC+4
     uint32_t data = reg->getReg(alu->getRegSource());
     if(alu->getRegSource() == PC)
         data+=HALFWORD_SIZE; //Source Register is PC+4
@@ -84,6 +86,8 @@ void ThumbCpu::moveHigh(){
 void ThumbCpu::branchExchange(){
     HiRegOperation* b = (HiRegOperation*) decodedInstruction;
     int jumpTo = reg->getReg(b->getRegSource());
+    if(b->getRegSource() == PC)
+        jumpTo=(jumpTo + HALFWORD_SIZE) & ~2; //Source Register is (PC+4) AND NOT 2
     DEBUG_OUT<<"jumpAddress = "<<jumpTo<<endl;
     reg->exchange(jumpTo);
 }

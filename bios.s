@@ -1,25 +1,4 @@
-    .INCLUDE "asm/macro.inc"
-    .INCLUDE "asm/gba_constants.inc"
-
-    .SECTION .text
     .ARM
-
-    .macro ldrbeq args:vararg
-    ldreqb \args
-    .endm
-
-    .macro andseq args:vararg
-    andeqs \args
-    .endm
-
-    .macro strheq args:vararg
-    streqh \args
-    .endm
-
-    .macro strhne args:vararg
-    strneh \args
-    .endm
-
 @---------------------------------------------------------------------------------
 _start:
 @---------------------------------------------------------------------------------
@@ -30,7 +9,6 @@ _start:
         b reserved_vector   @ 0x10 Abort Data
         b reserved_vector   @ 0x14 Reserved
         b irq_vector        @ 0x1C FIQ
-
 
 @---------------------------------------------------------------------------------
 reserved_vector:
@@ -56,7 +34,6 @@ _00000054:
     msr spsr_fc, r12
     pop {r12, lr}
     subs pc, lr, #4
-
 
 @---------------------------------------------------------------------------------
 reset_vector:  @ This isn't required if not booting from bios
@@ -2289,3 +2266,8 @@ sub_00003718: @ 0x00003718
     bx pc
 _00003720:
     bx pc
+
+    .2byte ?
+
+_00003724:
+    b _000003A8
