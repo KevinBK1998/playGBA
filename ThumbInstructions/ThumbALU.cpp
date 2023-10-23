@@ -18,6 +18,8 @@ public:
         char op = (opcode>>6) & 0xF;
         switch (op)
         {
+        case 0:
+            return new ThumbALU(AND, rD, rS);
         case 1:
             return new ThumbALU(EOR, rD, rS);
         case 7:
@@ -49,6 +51,9 @@ public:
         stringstream stream;
         switch (getOpcode())
         {
+        case AND:
+            stream<<"AND";
+            break;
         case EOR:
             stream<<"EOR";
             break;
@@ -81,6 +86,16 @@ public:
         return stream.str();
     }
 };
+
+void ThumbCpu::logicalAND(){
+    ThumbALU* alu = (ThumbALU*) decodedInstruction;
+    int op1 = reg->getReg(alu->getRegDest());
+    int op2 = reg->getReg(alu->getRegSource());
+    int result = op1 & op2;
+    DEBUG_OUT<<"result = "<<result<<endl;
+    reg->setReg(alu->getRegDest(), result);
+    reg->setFlags(NZ, generateFlags(result));
+}
 
 void ThumbCpu::exclusiveOR(){
     ThumbALU* alu = (ThumbALU*) decodedInstruction;

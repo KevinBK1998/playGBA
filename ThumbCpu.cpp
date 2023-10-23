@@ -182,6 +182,9 @@ void ThumbCpu::execute(){
     case NEG:
         negate();
         break;
+    case AND:
+        logicalAND();
+        break;
     default:
         cout << "Undefined: " << decodedInstruction->toString() << endl;
         exit(FAILED_TO_EXECUTE);

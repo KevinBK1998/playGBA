@@ -52,6 +52,7 @@ class ThumbCpu{
     void exclusiveOR();
     void multiply();
     void negate();
+    void logicalAND();
     bool canExecute(Condition);
 public:
     ThumbCpu(Registers*, Memory*);
