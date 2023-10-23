@@ -116,6 +116,9 @@ void ArmCpu::execute(){
         case EOR:
             exclusiveOR();
             break;
+        case ADC:
+            addWithCarryShifted();
+            break;
         default:
             cout << "Undefined: " << decodedInstruction->toString() << endl;
             exit(FAILED_TO_EXECUTE);

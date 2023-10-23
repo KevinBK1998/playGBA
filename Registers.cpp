@@ -80,6 +80,10 @@ int Registers::getCPSR(){
     return currentStatusReg;
 }
 
+bool Registers::getCarry(){
+    return (currentStatusReg & C) != 0;
+}
+
 void Registers::setCPSR(int data){
     currentStatusReg = data;
     setControlBits();

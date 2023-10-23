@@ -61,6 +61,8 @@ public:
             return new ALUReg(SUB, cond, psr, rDest, rN, rM, useShiftByReg, shiftType, imm);
         case 4:
             return new ALUReg(ADD, cond, psr, rDest, rN, rM, useShiftByReg,shiftType, imm);
+        case 5:
+            return new ALUReg(ADC, cond, psr, rDest, rN, rM, useShiftByReg,shiftType, imm);
         case 0xA:
             return new ALUReg(CMP, cond, rN, rM, useShiftByReg, shiftType, imm);
         case 0xC:
@@ -181,6 +183,9 @@ public:
         case ADD:
             stream<<"ADD"<<getPSRToString()<<getCondition()<<" R"<<getRegDest()<<", R"<< getRegN();
             break;
+        case ADC:
+            stream<<"ADC"<<getPSRToString()<<getCondition()<<" R"<<getRegDest()<<", R"<< getRegN();
+            break;
         case CMP:
             stream<<"CMP"<<getCondition()<<" R"<< getRegN();
             break;
@@ -284,6 +289,27 @@ void ArmCpu::addShifted(){
         op2 = alu->getShiftedData(op2);
     }
     uint64_t result = op1 + op2;
+    DEBUG_OUT<<"result = "<< hex << result << endl;
+    reg->setReg(decodedInstruction->getRegDest(), result);
+    if (alu->shouldUpdatePSR())
+        reg->setFlags(NZCV, generateFlags(op1, op2, result));
+}
+
+void ArmCpu::addWithCarryShifted(){
+    ALUReg* alu = (ALUReg*) decodedInstruction;
+    uint64_t op1 = reg->getReg(alu->getRegN());
+    if (alu->getRegN()==PC)
+        op1+=2*WORD_SIZE; //Rn is PC+12 for shift by reg
+    uint32_t op2 = reg->getReg(alu->getRegM());
+    if (alu->getRegM()==PC)
+        op2+=2*WORD_SIZE; //Rm is PC+12 for shift by reg
+    if(alu->shouldUseShiftByReg()){
+        int shift = reg->getReg(alu->getRegShift()) & 0xFF;
+        op2 = alu->getShiftedData(op2, shift);
+    } else{
+        op2 = alu->getShiftedData(op2);
+    }
+    uint64_t result = op1 + op2 + reg->getCarry();
     DEBUG_OUT<<"result = "<< hex << result << endl;
     reg->setReg(decodedInstruction->getRegDest(), result);
     if (alu->shouldUpdatePSR())

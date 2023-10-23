@@ -44,6 +44,8 @@ private:
     void reverseSubtract();
     void loadHalfReg();
     void exclusiveOR();
+    void addWithCarry();
+    void addWithCarryShifted();
     bool canExecute(ArmInstruction*);
 public:
     long time=0;

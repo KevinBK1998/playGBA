@@ -70,6 +70,7 @@ public:
     uint32_t getReg(int);
     void setReg(char, int);
     int getCPSR();
+    bool getCarry();
     void setCPSR(int);
     void setFlags(char, int);
     int getSPSR();
