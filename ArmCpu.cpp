@@ -113,6 +113,9 @@ void ArmCpu::execute(){
         case LDRH:
             loadHalfReg();
             break;
+        case EOR:
+            exclusiveOR();
+            break;
         default:
             cout << "Undefined: " << decodedInstruction->toString() << endl;
             exit(FAILED_TO_EXECUTE);

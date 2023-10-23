@@ -148,6 +148,8 @@ bool Registers::canExecute(int cond){
         return (currentStatusReg & Z) != 0;
     case NE:
         return (currentStatusReg & Z) == 0;
+    case CS:
+        return (currentStatusReg & C) != 0;
     case CC:
         return (currentStatusReg & C) == 0;
     case MI:
@@ -156,6 +158,8 @@ bool Registers::canExecute(int cond){
         return (currentStatusReg & N) == 0;
     case VS:
         return (currentStatusReg & V) != 0;
+    case LS:
+        return canExecute(CC) || canExecute(EQ);
     case GE:
         return canExecute(MI) == canExecute(VS);
     case LT:
@@ -171,8 +175,7 @@ bool Registers::canExecute(int cond){
         cout << "Cond Undefined: " << Condition(cond).toString() << endl;
         exit(FAILED_TO_EXECUTE);
     }
-    // if (cond == CS) return (currentStatusReg & 0x20_00_00_00) != 0;
-    // else if (cond == VC) return (currentStatusReg & 0x10_00_00_00) == 0;
+    // if (cond == VC) return (currentStatusReg & 0x10_00_00_00) == 0;
     // else if (cond == HI) return canExecute(CS) && canExecute(NE);
     // else if (cond == LS) return canExecute(CC) || canExecute(EQ);
     return false;
@@ -185,12 +188,16 @@ string Condition::toString(){
         return "{eq}";
     case NE:
         return "{ne}";
+    case CS:
+        return "{cs/hs}";
     case CC:
-        return "{cc}";
+        return "{cc/lo}";
     case MI:
         return "{mi}";
     case PL:
         return "{pl}";
+    case LS:
+        return "{ls}";
     case GE:
         return "{ge}";
     case LT:

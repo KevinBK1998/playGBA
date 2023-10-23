@@ -43,6 +43,7 @@ private:
     void storeMultipleReg();
     void reverseSubtract();
     void loadHalfReg();
+    void exclusiveOR();
     bool canExecute(ArmInstruction*);
 public:
     long time=0;
