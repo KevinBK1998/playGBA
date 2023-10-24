@@ -22,6 +22,8 @@ public:
             return new ShiftMove(LSL, regD, regS, offset);
         case 1:
             return new ShiftMove(LSR, regD, regS, offset);
+        case 2:
+            return new ShiftMove(ASR, regD, regS, offset);
         default:
             cout << "ShiftMove = " << unsigned(op) << endl;
             exit(FAILED_TO_DECODE);
@@ -42,6 +44,9 @@ public:
             break;
         case LSR:
             stream<<"LSR";
+            break;
+        case ASR:
+            stream<<"ASR";
             break;
         default:
             cout << "ShiftMove = " << hex << getOpcode() << endl;
@@ -70,6 +75,26 @@ void ThumbCpu::shiftRight(){
     int imm = alu->getImmediate();
     if (!imm) {
         cout << "LSR Shift is zero"<<endl;
+        exit(PENDING_CODE);
+    }
+    uint64_t result = regSValue >> (imm-1);
+    bool carry = (result&1)!=0;
+    result >>= 1;
+    DEBUG_OUT<<"result = "<<result<<endl;
+    reg->setReg(alu->getRegDest(), result);
+    reg->setFlags(NZC, generateShiftFlags(carry, result));
+}
+
+void ThumbCpu::arithmeticShiftRight(){
+    ShiftMove* alu = (ShiftMove*) decodedInstruction;
+    int regSValue = reg->getReg(alu->getRegSource());
+    int imm = alu->getImmediate();
+    if (!imm) {
+        cout << "ASR Shift is zero"<<endl;
+        exit(PENDING_CODE);
+    }
+    if (regSValue < 0) {
+        cout << "ASR data -ve"<<endl;
         exit(PENDING_CODE);
     }
     uint64_t result = regSValue >> (imm-1);

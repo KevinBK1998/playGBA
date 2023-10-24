@@ -41,6 +41,7 @@ class ThumbCpu{
     void branchExchange();
     void shiftLeft();
     void shiftRight();
+    void arithmeticShiftRight();
     void test();
     void logicalOR();
     void compare();

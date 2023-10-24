@@ -3,7 +3,7 @@
 #include "ThumbInstructions/ThumbALU.cpp"
 #include "ThumbInstructions/AddSP.h"
 #include "ThumbInstructions/ALUImmediate.cpp"
-#include "ThumbInstructions/ShiftedALU.cpp"
+#include "ThumbInstructions/ShiftedMove.cpp"
 #include "ThumbInstructions/SingleDataTransfer.cpp"
 #include "ThumbInstructions/LoadPCRelative.h"
 #include "ThumbInstructions/SDTRelativeSP.cpp"
@@ -184,6 +184,9 @@ void ThumbCpu::execute(){
         break;
     case AND:
         logicalAND();
+        break;
+    case ASR:
+        arithmeticShiftRight();
         break;
     default:
         cout << "Undefined: " << decodedInstruction->toString() << endl;

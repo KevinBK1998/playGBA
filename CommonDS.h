@@ -78,6 +78,7 @@ enum Opcode {
     RSB,
     NEG,
     ADC,
+    ASR,
 };
 
 enum ShiftType{
