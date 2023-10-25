@@ -30,6 +30,8 @@ public:
         {
         case 0:
             return new AddRegImmediate(ADD, rD, rS, rN);
+        case 1:
+            return new AddRegImmediate(SUB, rD, rS, rN);
         case 2:
             return new AddRegImmediate(ADD, rD, rS, imm);
         case 3:
