@@ -74,6 +74,10 @@ void GPU::write8(uint32_t address, uint8_t data){
     {
     case DISPCNT:
         dispCnt.storeReg(address, data);
+        if ((address&1) == 0 && dispCnt.bitCheck(7)){
+            cout<< "RESET VCOUNT"<<endl;
+            vCount=0;
+        }
         status();
         return;
     case GREENSWAP:
@@ -233,12 +237,17 @@ void GPU::step(){
     timer++;
     DEBUG_OUT<<"GPU:"<<timer<<endl;
     DEBUG_OUT<<"GPUc:"<<timerC<<endl;
-    if (timer > 100000){
+    if (timer > 1232){
+        timer=0;
+        vCount++;
+    }
+    if (vCount > 228){
         if (dispStat.bitCheck(3)){
             dispStat.storeReg(0, 1, 0xFFFE);
             cout<<"VBLANKING"<<endl;
         }
         timer=0;
+        vCount=0;
         if (gameWindow->isOpen())
         {
             sf::Event event;
@@ -250,7 +259,7 @@ void GPU::step(){
 
             gameWindow->clear(sf::Color::Black);
             sf::Color color = sf::Color(timerC, timerC, timerC, 0xFF);
-            timerC+=30;
+            timerC+=0x77;
             gameWindow->draw(fillColor(color));
             gameWindow->display();
         }
