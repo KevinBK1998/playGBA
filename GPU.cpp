@@ -47,7 +47,17 @@ void GPU::storeWord(int address, uint32_t* var, uint8_t data){
 }
 
 uint8_t GPU::read8(uint32_t address){
-    if (address >= VRAM_OFFSET && address < OAM_OFFSET){
+    if (address<PAL_RAM_OFFSET) switch (address & 0xFF)
+    {
+    case VCOUNT:
+        return vCount;
+    case VCOUNT+1:
+        return vCount>>8;
+    default:
+        cout << "R: GPU Undefined Memory: "<<unsigned(address)<<endl;
+        exit(FAILED_DMA);
+    }
+    else if (address >= VRAM_OFFSET && address < OAM_OFFSET){
         DEBUG_OUT << "R: GPU VRAM Memory: "<<address<<endl;
         return vram[address-VRAM_OFFSET];
     }
