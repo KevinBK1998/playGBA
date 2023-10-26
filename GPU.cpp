@@ -259,7 +259,7 @@ void GPU::step(){
 
             gameWindow->clear(sf::Color::Black);
             sf::Color color = sf::Color(timerC, timerC, timerC, 0xFF);
-            timerC+=0x77;
+            timerC+=0x33;
             gameWindow->draw(fillColor(color));
             gameWindow->display();
         }
