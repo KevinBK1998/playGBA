@@ -19,7 +19,7 @@ void status(){
 }
 
 int main(int argc, char *args[]){
-    DEBUG_AFTER_CYCLES=1043350;
+    DEBUG_AFTER_CYCLES=1043437;
     // DEBUG_AFTER_PC=0x90c;
     sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "playGBA - debug mode");
     GPU gpu(&window);
@@ -43,6 +43,6 @@ int main(int argc, char *args[]){
         if(timePassed==DEBUG_AFTER_CYCLES || reg.getPC()==DEBUG_AFTER_PC) DEBUG_LOGS=true;
     }
     mem.dump(reg.getReg(SP));
-    cout<<"Time to start HBLANK"<< endl;
+    cout<<"Time to start Displaying Stuff"<< endl;
     return 0;
 }

@@ -61,6 +61,10 @@ uint8_t GPU::read8(uint32_t address){
         DEBUG_OUT << "R: GPU VRAM Memory: "<<address<<endl;
         return vram[address-VRAM_OFFSET];
     }
+    else if (address >= OAM_OFFSET){
+        DEBUG_OUT << "R: GPU OAM Memory: "<<address<<endl;
+        return oam[address-OAM_OFFSET];
+    }
     cout << "R: GPU Undefined Memory: "<<address<<endl;
     exit(FAILED_DMA);
 }

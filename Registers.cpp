@@ -162,6 +162,10 @@ bool Registers::canExecute(int cond){
         return (currentStatusReg & N) == 0;
     case VS:
         return (currentStatusReg & V) != 0;
+    case VC:
+        return (currentStatusReg & V) == 0;
+    case HI:
+        return canExecute(CS) && canExecute(NE);
     case LS:
         return canExecute(CC) || canExecute(EQ);
     case GE:
@@ -180,8 +184,6 @@ bool Registers::canExecute(int cond){
         exit(FAILED_TO_EXECUTE);
     }
     // if (cond == VC) return (currentStatusReg & 0x10_00_00_00) == 0;
-    // else if (cond == HI) return canExecute(CS) && canExecute(NE);
-    // else if (cond == LS) return canExecute(CC) || canExecute(EQ);
     return false;
 }
 
@@ -200,6 +202,8 @@ string Condition::toString(){
         return "{mi}";
     case PL:
         return "{pl}";
+    case HI:
+        return "{hi}";
     case LS:
         return "{ls}";
     case GE:

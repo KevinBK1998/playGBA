@@ -65,6 +65,8 @@ uint8_t Memory::read8(uint32_t address) {
     }
     else if (address >= VRAM_OFFSET && address < VRAM_OFFSET+VRAM_SIZE)
         return gpu->read8(address);
+    else if (address >= OAM_OFFSET && address < OAM_OFFSET+OAM_SIZE)
+        return gpu->read8(address);
     else if (address >= ROM_OFFSET && address < ROM_END)
         return rom[address - ROM_OFFSET];
     // else if (address >= VRAM_OFFSET)

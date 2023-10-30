@@ -151,10 +151,8 @@ public:
             }
             return copy>>shift;
         case ArithmeticShiftRight:
-            if(!shift){
-                DEBUG_OUT<<"ARshift = " << (data>>31) << endl;
+            if(!shift)
                 return data>>31;
-            }
             return data>>shift;
         default:
             cout<<"ALUReg shifttype = " << shiftType <<", shift = " << shift << endl;
