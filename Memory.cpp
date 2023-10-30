@@ -115,6 +115,8 @@ void Memory::write8(uint32_t address, uint8_t data) {
             intEnable.storeReg(address, data);
         else if (address>=IF && address<IF+HALFWORD_SIZE)
             intFlags.storeReg(address, data);
+        else if (address>=IME && address<IME+HALFWORD_SIZE)
+            masterIntEnable.storeReg(address, data);
         else
             registers.write8(address - IO_REG_OFFSET, data);
     }
@@ -175,7 +177,7 @@ void Memory::dump(int stack){
     fout.close();
     dumpArrayToFile(wram, WRAM_SIZE, "wram.bin");
     dumpArrayToFile(slowRam, SLOW_WRAM_SIZE, "slowWram.bin");
-    DEBUG_OUT<<"IE: "<<intEnable.getRegValue()<<"\tIF: "<<intFlags.getRegValue()<<endl;
+    DEBUG_OUT<<"IME: "<<masterIntEnable.getRegValue()<<"\tIE: "<<intEnable.getRegValue()<<"\tIF: "<<intFlags.getRegValue()<<endl;
     gpu->status();
     gpu->dump();
 }

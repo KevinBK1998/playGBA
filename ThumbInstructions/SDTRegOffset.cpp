@@ -51,18 +51,18 @@ public:
         switch (getOpcode())
         {
         case STR:
-            stream<<"STR"<<(byteTransfer?"B":"");
+            stream<<"STR";
             break;
         case LDR:
-            stream<<"LDR"<<(byteTransfer?"B":"");
+            stream<<"LDR";
             break;
         default:
             cout << "SDTRegOffset = " << hex << getOpcode() << endl;
             exit(FAILED_DECODED_TO_STRING);
         }
-        stream<<" R" << unsigned(getRegDest()) <<", [R"<<unsigned(regBase);
+        stream<<(byteTransfer?"B":"")<<" R" << unsigned(getRegDest()) <<", [R"<<unsigned(regBase);
         if(getImmediate())
-            stream<<", "<<hex<<showbase<< getImmediate();
+            stream<<", "<<hex<<showbase<<(byteTransfer?1:4)*getImmediate();
         stream<<"]";
         return stream.str();
     }
@@ -72,6 +72,8 @@ void ThumbCpu::storeImmediateOffset(){
     SDTRegOffset* sdt = (SDTRegOffset*) decodedInstruction;
     int base = reg->getReg(sdt->getRegBase());
     int offset = sdt->getImmediate();
+    if (!sdt->isByteTransfer())
+        offset*=4;
     int address = base + offset;
     int data = reg->getReg(sdt->getRegDest());
     if (sdt->isByteTransfer()){
@@ -88,6 +90,8 @@ void ThumbCpu::loadImmediateOffset(){
     SDTRegOffset* sdt = (SDTRegOffset*) decodedInstruction;
     int base = reg->getReg(sdt->getRegBase());
     int offset = sdt->getImmediate();
+    if (!sdt->isByteTransfer())
+        offset*=4;
     int address = base + offset;
     int data;
     if (sdt->isByteTransfer()){

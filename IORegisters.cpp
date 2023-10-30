@@ -10,17 +10,18 @@ const int TIMER_END = 0x110;
 const int SIODATA32 = 0x120;
 const int SERIAL1_END = 0x12C;
 const int KEYINPUT = 0x130;
+const int KEYCNT = 0x132;
 const int RCNT = 0x134;
 const int SERIAL2_END = 0x15A;
 const int WAITCNT = 0x204;
-const int IME = 0x208;
 const int POST_BOOT_FLAG = 0x300;
 
 class IORegisters
 {
 private:
     ControlRegister16_t waitCnt;
-    uint16_t ime;
+    uint16_t keyInput;
+    uint16_t keyCnt;
     uint8_t dma[48];
     uint8_t timer[16];
     uint8_t serial[12];
@@ -69,6 +70,10 @@ public:
         }
         else if (address >= SERIAL1_END && address < KEYINPUT)
             DEBUG_OUT << "W: IORegisters Unused Memory: "<<address<<endl;
+        else if (checkForAddress(address, KEYINPUT, HALFWORD_SIZE))
+            storeHalfWord(address&1, &keyInput, data);
+        else if (checkForAddress(address, KEYCNT, HALFWORD_SIZE))
+            storeHalfWord(address&1, &keyCnt, data);
         else if (address >= RCNT && address < SERIAL2_END){
             DEBUG_OUT << "W: IORegisters SERIAL_2 Memory: "<<address<<endl;
             serial[address-RCNT]=data;
@@ -79,11 +84,7 @@ public:
             waitCnt.storeReg(address, data);
             status();
         }
-        else if (address > WAITCNT && address < IME )
-            DEBUG_OUT << "W: IORegisters Unused Memory: "<<address<<endl;
-        else if (checkForAddress(address, IME, HALFWORD_SIZE))
-            storeHalfWord(address&1, &ime, data);
-        else if (address > IME && address < POST_BOOT_FLAG )
+        else if (address > WAITCNT && address < POST_BOOT_FLAG)
             DEBUG_OUT << "W: IORegisters Unused Memory: "<<address<<endl;
         else if (address == POST_BOOT_FLAG)
             postBootFlag = data;
@@ -95,6 +96,6 @@ public:
 
     void status(){
         DEBUG_OUT<<"IOREG:"<<endl;
-        DEBUG_OUT<<"WAITCNT: "<<waitCnt.getRegValue()<<"\tIME: "<<ime<<"\tPBOOT: "<<postBootFlag<<endl<<endl;
+        DEBUG_OUT<<"WAITCNT: "<<waitCnt.getRegValue()<<"\tKEYINPUT: "<<keyInput<<"\tKEYCNT: "<<keyCnt<<"\tPBOOT: "<<postBootFlag<<endl<<endl;
     }
 };

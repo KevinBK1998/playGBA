@@ -22,6 +22,7 @@ const int ROM_SIZE_INMEMORY = 0x6010000;
 
 const int IE = 0x4000200;
 const int IF = 0x4000202;
+const int IME= 0x4000208;
 
 class Memory
 {
@@ -32,6 +33,7 @@ private:
     uint8_t* rom = new uint8_t[ROM_SIZE_INMEMORY];
     ControlRegister16_t intEnable;
     ControlRegister16_t intFlags;
+    ControlRegister16_t masterIntEnable;
     IORegisters registers;
     GPU* gpu;
     APU apu;
