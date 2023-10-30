@@ -71,13 +71,13 @@ void ThumbCpu::shiftLeft(){
 
 void ThumbCpu::shiftRight(){
     ShiftMove* alu = (ShiftMove*) decodedInstruction;
-    uint64_t regSValue = reg->getReg(alu->getRegSource());
+    uint32_t regSValue = reg->getReg(alu->getRegSource());
     int imm = alu->getImmediate();
     if (!imm) {
         cout << "LSR Shift is zero"<<endl;
         exit(PENDING_CODE);
     }
-    uint64_t result = regSValue >> (imm-1);
+    uint32_t result = regSValue >> (imm-1);
     bool carry = (result&1)!=0;
     result >>= 1;
     DEBUG_OUT<<"result = "<<result<<endl;
@@ -91,10 +91,6 @@ void ThumbCpu::arithmeticShiftRight(){
     int imm = alu->getImmediate();
     if (!imm) {
         cout << "ASR Shift is zero"<<endl;
-        exit(PENDING_CODE);
-    }
-    if (regSValue < 0) {
-        cout << "ASR data -ve"<<endl;
         exit(PENDING_CODE);
     }
     uint64_t result = regSValue >> (imm-1);

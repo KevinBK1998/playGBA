@@ -48,6 +48,7 @@ private:
     void exclusiveOR();
     void addWithCarry();
     void addWithCarryShifted();
+    void loadSignedHalfReg();
     bool canExecute(ArmInstruction*);
 public:
     long time=0;

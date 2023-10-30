@@ -79,6 +79,7 @@ enum Opcode {
     NEG,
     ADC,
     ASR,
+    LDRSH,
 };
 
 enum ShiftType{

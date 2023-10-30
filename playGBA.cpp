@@ -19,7 +19,7 @@ void status(){
 }
 
 int main(int argc, char *args[]){
-    DEBUG_AFTER_CYCLES=1043438;
+    DEBUG_AFTER_CYCLES=1043469;
     // DEBUG_AFTER_PC=0x1a04;
     sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "playGBA - debug mode");
     GPU gpu(&window);

@@ -6,17 +6,17 @@ class ARMExtendedSDT : public ArmInstruction
 private:
     bool preFlag;
     bool addFlag;
+    bool immFlag;
     bool writeBackFlag;
     char regBase;
+    char regOffset;
 public:
     ARMExtendedSDT(Condition cond, Opcode opcode, int flags, char rB, char rD, int imm):ArmInstruction(cond, opcode, imm, rD){
         preFlag = ((flags >> 3) & 1) != 0;
         addFlag = ((flags >> 2) & 1) != 0;//U
-        bool immFlag = ((flags>>1) & 1) != 0; //I
-        if (!immFlag){
-            cout << "ARMExtendedSDT I = " << immFlag << endl;
-            exit(PENDING_CODE);
-        }
+        immFlag = ((flags>>1) & 1) != 0; //I
+        if (!immFlag)
+            regOffset = imm;
         writeBackFlag = (flags & 1) != 0; //W
         regBase = rB;
     }
@@ -38,6 +38,8 @@ public:
         {
         case 1:
             return new ARMExtendedSDT(cond, LDRH, flags, rB, rD, imm);
+        case 3:
+            return new ARMExtendedSDT(cond, LDRSH, flags, rB, rD, imm);
         default:
             cout << "ARMExtendedSDT = " << unsigned(op) << endl;
             exit(FAILED_TO_DECODE);
@@ -56,12 +58,19 @@ public:
         case LDRH:
             stream << "LDRH";
             break;
+        case LDRSH:
+            stream << "LDRSH";
+            break;
         default:
             exit(FAILED_DECODED_TO_STRING);
         }
-        stream<< getCondition() <<" R" << getRegDest() << ", [R"<< unsigned(getRegBase()); 
-        if(getImmediate())
-            stream << (preFlag?", ":"] ") << (addFlag?"":"-")<< showbase << hex << getImmediate();
+        stream<< getCondition() <<" R" << getRegDest() << ", [R"<< unsigned(getRegBase());
+        if (immFlag){
+            if(getImmediate())
+                stream << (preFlag?", ":"] ") << (addFlag?"":"-")<< showbase << hex << getImmediate();
+        }
+        else
+            stream << (preFlag?", ":"] ") << (addFlag?"":"-")<<" R" << unsigned(regOffset);
         stream << (preFlag?"]":"")<<(writeBackFlag?"!":"");
         return stream.str();
     }
@@ -70,10 +79,23 @@ public:
 void ArmCpu::loadHalfReg(){
     ARMExtendedSDT* sdt = (ARMExtendedSDT*) decodedInstruction;
     int base = reg->getReg(sdt->getRegBase());
-    DEBUG_OUT<<"address = "<< base << endl;
     int offset = sdt->getImmediate();
     int address = base + offset;
     int data = mem->read16(address);
     DEBUG_OUT<<"address = "<< address <<", data = "<< data << endl;
+    reg->setReg(sdt->getRegDest(), data);
+}
+
+void ArmCpu::loadSignedHalfReg(){
+    ARMExtendedSDT* sdt = (ARMExtendedSDT*) decodedInstruction;
+    int base = reg->getReg(sdt->getRegBase());
+    int offset = sdt->getImmediate();
+    int address = base + offset;
+    int16_t data = mem->read16(address);
+    DEBUG_OUT<<"address = "<< address <<", data = "<< data << endl;
+    if (data<0){
+        cout<<"ldrsh data -ve = "<< data << endl;
+        exit(PENDING_CODE);
+    }
     reg->setReg(sdt->getRegDest(), data);
 }

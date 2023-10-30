@@ -119,6 +119,9 @@ void ArmCpu::execute(){
         case ADC:
             addWithCarryShifted();
             break;
+        case LDRSH:
+            loadSignedHalfReg();
+            break;
         default:
             cout << "Undefined: " << decodedInstruction->toString() << endl;
             exit(FAILED_TO_EXECUTE);
