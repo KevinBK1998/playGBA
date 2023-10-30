@@ -4,7 +4,7 @@
 #include "ThumbInstructions/AddSP.h"
 #include "ThumbInstructions/ALUImmediate.cpp"
 #include "ThumbInstructions/ShiftedMove.cpp"
-#include "ThumbInstructions/SingleDataTransfer.cpp"
+#include "ThumbInstructions/ThumbSDT.cpp"
 #include "ThumbInstructions/LoadPCRelative.h"
 #include "ThumbInstructions/SDTRelativeSP.cpp"
 #include "ThumbInstructions/CondBranch.h"
