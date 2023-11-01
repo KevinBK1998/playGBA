@@ -49,6 +49,7 @@ private:
     void addWithCarry();
     void addWithCarryShifted();
     void loadSignedHalfReg();
+    void multiply();
     bool canExecute(ArmInstruction*);
 public:
     long time=0;

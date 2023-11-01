@@ -9,6 +9,7 @@
 #include "ArmInstructions/ALUReg.cpp"
 #include "ArmInstructions/PSRTransfer.cpp"
 #include "ArmInstructions/ARMExtendedSDT.cpp"
+#include "ArmInstructions/Multiply.cpp"
 
 using namespace std;
 
@@ -30,8 +31,14 @@ void ArmCpu::decode(){
     else if (((opcode>>20) & 0b11011001) == 0b10000)
         decodedInstruction=PSRTransfer::decode(opcode);
     else if (((opcode>>25) & 0b111) == 0b000){
-        if (((opcode>>4) & 1) && ((opcode>>7) & 1))
-            decodedInstruction=ARMExtendedSDT::decode(opcode);
+        if ((opcode>>4) & 1)
+            if ((opcode>>7) & 1)
+                if ((opcode>>5) & 0b11)
+                    decodedInstruction=ARMExtendedSDT::decode(opcode);
+                else
+                    decodedInstruction=Multiply::decode(opcode);
+            else
+                decodedInstruction=ALUReg::decode(opcode);
         else
             decodedInstruction=ALUReg::decode(opcode);
     }
@@ -121,6 +128,9 @@ void ArmCpu::execute(){
             break;
         case LDRSH:
             loadSignedHalfReg();
+            break;
+        case MUL:
+            multiply();
             break;
         default:
             cout << "Undefined: " << decodedInstruction->toString() << endl;
