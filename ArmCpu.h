@@ -45,6 +45,7 @@ private:
     void storeMultipleReg();
     void reverseSubtract();
     void loadHalfReg();
+    void storeHalfReg();
     void exclusiveOR();
     void addWithCarry();
     void addWithCarryShifted();

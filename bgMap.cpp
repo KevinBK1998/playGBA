@@ -49,7 +49,6 @@ int main()
 
     uint32_t tileBase = ((bgControl[3]>>2) & 0b11) * 0x4000;
     bool use256color = ((bgControl[3]>>7) & 1);
-    // use256color = true;
 
     ifstream tileIn("vram.bin");
     if (!tileIn)

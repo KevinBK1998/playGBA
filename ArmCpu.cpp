@@ -117,6 +117,9 @@ void ArmCpu::execute(){
         case RSB:
             reverseSubtract();
             break;
+        case STRH:
+            storeHalfReg();
+            break;
         case LDRH:
             loadHalfReg();
             break;

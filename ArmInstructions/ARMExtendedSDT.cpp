@@ -25,26 +25,33 @@ public:
         Condition cond = Condition((opcode >> 28) & 0xF);
         int flags = (opcode>>21) & 0xF;
         bool loadFlag = (opcode>>20) & 1;
-        if (!loadFlag){
-            cout << "ARMExtendedSDT L = " << loadFlag << endl;
-            exit(PENDING_CODE);
-        }
         char rB = (opcode>>16) & 0xF;
         char rD = (opcode>>12) & 0xF;
         int imm = (opcode>>4) & 0xF0;
         char op = (opcode >> 5) & 0b11;
         imm |= (opcode & 0xF);
-        switch (op)
-        {
-        case 1:
-            return new ARMExtendedSDT(cond, LDRH, flags, rB, rD, imm);
-        case 3:
-            return new ARMExtendedSDT(cond, LDRSH, flags, rB, rD, imm);
-        default:
-            cout << "ARMExtendedSDT = " << unsigned(op) << endl;
-            exit(FAILED_TO_DECODE);
-            break;
-        }
+        if (loadFlag)
+            switch (op)
+            {
+            case 1:
+                return new ARMExtendedSDT(cond, LDRH, flags, rB, rD, imm);
+            case 3:
+                return new ARMExtendedSDT(cond, LDRSH, flags, rB, rD, imm);
+            default:
+                cout << "ARMExtendedSDT LDR = " << unsigned(op) << endl;
+                exit(FAILED_TO_DECODE);
+                break;
+            }
+        else
+            switch (op)
+            {
+            case 1:
+                return new ARMExtendedSDT(cond, STRH, flags, rB, rD, imm);
+            default:
+                cout << "ARMExtendedSDT STR = " << unsigned(op) << endl;
+                exit(FAILED_TO_DECODE);
+                break;
+            }
     }
 
     char getRegBase(){
@@ -62,7 +69,7 @@ public:
     bool shouldUseImmediate(){
         return immFlag;
     }
-    
+
     int addOffset(int address, int offset){
         if (addFlag)
             address+=offset;
@@ -79,6 +86,9 @@ public:
         stringstream stream;
         switch (getOpcode())
         {
+        case STRH:
+            stream << "STRH";
+            break;
         case LDRH:
             stream << "LDRH";
             break;
@@ -100,27 +110,28 @@ public:
     }
 };
 
-// void ArmCpu::loadReg(){
-//     SingleDataTransfer* sdt = (SingleDataTransfer*) decodedInstruction;
-//     int regNValue = reg->getReg(sdt->getRegN());
-//     if (sdt->getRegN()==PC)
-//         regNValue+=WORD_SIZE; //Base Register is PC+8
-//     int address = regNValue;
-//     if (sdt->shouldAddOffsetPreTransfer())
-//         address = sdt->addOffset(address);
-//     int data;
-//     if (sdt->isByteTransfer())
-//         data = mem->read8(address);
-//     else
-//         data = mem->read32(address);
-//     DEBUG_OUT<<"address = "<<address<<", data = "<< data << endl;
-//     if (!sdt->shouldAddOffsetPreTransfer())
-//         address = sdt->addOffset(address);
-//     reg->setReg(sdt->getRegDest(), data);
-//     regNValue = reg->getReg(sdt->getRegN());
-//     if (sdt->shouldWriteBack())
-//         reg->setReg(sdt->getRegN(), address);
-// }
+void ArmCpu::storeHalfReg(){
+    ARMExtendedSDT* sdt = (ARMExtendedSDT*) decodedInstruction;
+    int address = reg->getReg(sdt->getRegBase());
+    if (sdt->getRegBase()==PC)
+        address+=WORD_SIZE; //Base Register is PC+8
+    int offset;
+    if (sdt->shouldUseImmediate())
+        offset = sdt->getImmediate();
+    else
+        offset = reg->getReg(sdt->getRegOffset());
+    if (sdt->shouldAddOffsetPreTransfer())
+        address = sdt->addOffset(address, offset);
+    int data = reg->getReg(sdt->getRegDest());
+    if (sdt->getRegDest()==PC)
+        address+=2*WORD_SIZE; //Base Register is PC+12
+    mem->write16(address, data);
+    if (!sdt->shouldAddOffsetPreTransfer())
+        address = sdt->addOffset(address, offset);
+    DEBUG_OUT<<"address = "<< address <<", data = "<< data << endl;
+    if (sdt->shouldWriteBack())
+        reg->setReg(sdt->getRegBase(), address);
+}
 
 void ArmCpu::loadHalfReg(){
     ARMExtendedSDT* sdt = (ARMExtendedSDT*) decodedInstruction;
@@ -139,10 +150,8 @@ void ArmCpu::loadHalfReg(){
         address = sdt->addOffset(address, offset);
     DEBUG_OUT<<"address = "<< address <<", data = "<< data << endl;
     reg->setReg(sdt->getRegDest(), data);
-    if (sdt->shouldWriteBack()){
+    if (sdt->shouldWriteBack())
         reg->setReg(sdt->getRegBase(), address);
-        exit(PENDING_CODE);
-    }
 }
 
 void ArmCpu::loadSignedHalfReg(){
@@ -166,8 +175,6 @@ void ArmCpu::loadSignedHalfReg(){
         exit(PENDING_CODE);
     }
     reg->setReg(sdt->getRegDest(), data);
-    if (sdt->shouldWriteBack()){
+    if (sdt->shouldWriteBack())
         reg->setReg(sdt->getRegBase(), address);
-        exit(PENDING_CODE);
-    }
 }
