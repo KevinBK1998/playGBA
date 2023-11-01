@@ -51,6 +51,30 @@ public:
         return regBase;
     }
 
+    char getRegOffset(){
+        return regOffset;
+    }
+
+    bool shouldAddOffsetPreTransfer(){
+        return preFlag;
+    }
+
+    bool shouldUseImmediate(){
+        return immFlag;
+    }
+    
+    int addOffset(int address, int offset){
+        if (addFlag)
+            address+=offset;
+        else
+            address-=offset;
+        return address;
+    }
+
+    bool shouldWriteBack(){
+        return !preFlag || writeBackFlag;
+    }
+
     string toString(){
         stringstream stream;
         switch (getOpcode())
@@ -67,35 +91,83 @@ public:
         stream<< getCondition() <<" R" << getRegDest() << ", [R"<< unsigned(getRegBase());
         if (immFlag){
             if(getImmediate())
-                stream << (preFlag?", ":"] ") << (addFlag?"":"-")<< showbase << hex << getImmediate();
+                stream << (preFlag?"":"]") <<", "<< (addFlag?"":"-")<< showbase << hex << getImmediate();
         }
         else
-            stream << (preFlag?", ":"] ") << (addFlag?"":"-")<<" R" << unsigned(regOffset);
+            stream << (preFlag?"":"]") <<", "<< (addFlag?"":"-")<<"R" << unsigned(regOffset);
         stream << (preFlag?"]":"")<<(writeBackFlag?"!":"");
         return stream.str();
     }
 };
 
+// void ArmCpu::loadReg(){
+//     SingleDataTransfer* sdt = (SingleDataTransfer*) decodedInstruction;
+//     int regNValue = reg->getReg(sdt->getRegN());
+//     if (sdt->getRegN()==PC)
+//         regNValue+=WORD_SIZE; //Base Register is PC+8
+//     int address = regNValue;
+//     if (sdt->shouldAddOffsetPreTransfer())
+//         address = sdt->addOffset(address);
+//     int data;
+//     if (sdt->isByteTransfer())
+//         data = mem->read8(address);
+//     else
+//         data = mem->read32(address);
+//     DEBUG_OUT<<"address = "<<address<<", data = "<< data << endl;
+//     if (!sdt->shouldAddOffsetPreTransfer())
+//         address = sdt->addOffset(address);
+//     reg->setReg(sdt->getRegDest(), data);
+//     regNValue = reg->getReg(sdt->getRegN());
+//     if (sdt->shouldWriteBack())
+//         reg->setReg(sdt->getRegN(), address);
+// }
+
 void ArmCpu::loadHalfReg(){
     ARMExtendedSDT* sdt = (ARMExtendedSDT*) decodedInstruction;
-    int base = reg->getReg(sdt->getRegBase());
-    int offset = sdt->getImmediate();
-    int address = base + offset;
+    int address = reg->getReg(sdt->getRegBase());
+    if (sdt->getRegBase()==PC)
+        address+=WORD_SIZE; //Base Register is PC+8
+    int offset;
+    if (sdt->shouldUseImmediate())
+        offset = sdt->getImmediate();
+    else
+        offset = reg->getReg(sdt->getRegOffset());
+    if (sdt->shouldAddOffsetPreTransfer())
+        address = sdt->addOffset(address, offset);
     int data = mem->read16(address);
+    if (!sdt->shouldAddOffsetPreTransfer())
+        address = sdt->addOffset(address, offset);
     DEBUG_OUT<<"address = "<< address <<", data = "<< data << endl;
     reg->setReg(sdt->getRegDest(), data);
+    if (sdt->shouldWriteBack()){
+        reg->setReg(sdt->getRegBase(), address);
+        exit(PENDING_CODE);
+    }
 }
 
 void ArmCpu::loadSignedHalfReg(){
     ARMExtendedSDT* sdt = (ARMExtendedSDT*) decodedInstruction;
-    int base = reg->getReg(sdt->getRegBase());
-    int offset = sdt->getImmediate();
-    int address = base + offset;
+    int address = reg->getReg(sdt->getRegBase());
+    if (sdt->getRegBase()==PC)
+        address+=WORD_SIZE; //Base Register is PC+8
+    int offset;
+    if (sdt->shouldUseImmediate())
+        offset = sdt->getImmediate();
+    else
+        offset = reg->getReg(sdt->getRegOffset());
+    if (sdt->shouldAddOffsetPreTransfer())
+        address = sdt->addOffset(address, offset);
     int16_t data = mem->read16(address);
+    if (!sdt->shouldAddOffsetPreTransfer())
+        address = sdt->addOffset(address, offset);
     DEBUG_OUT<<"address = "<< address <<", data = "<< data << endl;
     if (data<0){
         cout<<"ldrsh data -ve = "<< data << endl;
         exit(PENDING_CODE);
     }
     reg->setReg(sdt->getRegDest(), data);
+    if (sdt->shouldWriteBack()){
+        reg->setReg(sdt->getRegBase(), address);
+        exit(PENDING_CODE);
+    }
 }

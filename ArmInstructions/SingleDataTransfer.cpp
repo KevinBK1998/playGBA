@@ -43,7 +43,7 @@ public:
     }
 
     bool shouldWriteBack(){
-        return writeBackFlag;
+        return !preFlag || writeBackFlag;
     }
 
     int addOffset(int address){
@@ -93,7 +93,6 @@ void ArmCpu::loadReg(){
     if (!sdt->shouldAddOffsetPreTransfer())
         address = sdt->addOffset(address);
     reg->setReg(sdt->getRegDest(), data);
-    regNValue = reg->getReg(sdt->getRegN());
     if (sdt->shouldWriteBack())
         reg->setReg(sdt->getRegN(), address);
 }
