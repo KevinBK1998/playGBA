@@ -19,7 +19,7 @@ void status(){
 }
 
 int main(int argc, char *args[]){
-    DEBUG_AFTER_CYCLES=1043494;
+    DEBUG_AFTER_CYCLES=1046389;
     // DEBUG_AFTER_PC=0x1a04;
     sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "playGBA - debug mode");
     GPU gpu(&window);
@@ -33,6 +33,7 @@ int main(int argc, char *args[]){
     // while(true){
     while(timePassed < DEBUG_AFTER_CYCLES + 500){
         status();
+        // gpu.status();
         reg.status();
         if (reg.isThumbMode())
             thumbCpu.step();

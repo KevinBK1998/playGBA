@@ -47,6 +47,8 @@ class ThumbCpu{
     void compare();
     void compareImmediate();
     void compareReg();
+    void negativeCompare();
+    void negativeCompareReg();
     void compareHigh();
     void moveRegAddress();
     void rotateRight();

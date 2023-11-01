@@ -190,6 +190,7 @@ void GPU::write8(uint32_t address, uint8_t data){
 
 void GPU::status(){
     DEBUG_OUT<<"\nGPU:"<<endl;
+    DEBUG_OUT<<"Forced VBlank: "<<dispCnt.bitCheck(7)<<"\tEnableOBJ: "<<dispCnt.bitCheck(12)<<"\tBGMode: "<<(dispCnt.getRegValue()&0b111)<<endl;
     DEBUG_OUT<<"DISPCNT: "<<dispCnt.getRegValue()<<"\tGREENSWAP: "<<greenSwap<<"\tDISPSTAT: "<<dispStat.getRegValue()<<"\tVCOUNT: "<<vCount<<endl;
     DEBUG_OUT<<"BG0CNT: "<<bgCnt[0].getRegValue()<<"\tBG1CNT: "<<bgCnt[1].getRegValue()<<"\tBG2CNT: "<<bgCnt[2].getRegValue()<<"\tBG3CNT: "<<bgCnt[3].getRegValue()<<endl;
     DEBUG_OUT<<"BG0HOFS: "<<bgOffsetX[0]<<"\tBG0HOFS: "<<bgOffsetX[1]<<"\tBG0HOFS: "<<bgOffsetX[2]<<"\tBG0HOFS: "<<bgOffsetX[3]<<endl;

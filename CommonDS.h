@@ -49,6 +49,7 @@ enum Opcode {
     MRS,
     MSR,
     CMP,
+    CMN,
     ORR,
     MOV,
     BIC,
