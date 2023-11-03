@@ -20,7 +20,7 @@ class IORegisters
 {
 private:
     ControlRegister16_t waitCnt;
-    uint16_t keyInput;
+    ControlRegister16_t keyInput;
     uint16_t keyCnt;
     uint8_t dma[48];
     uint8_t timer[16];
@@ -45,6 +45,8 @@ public:
     uint8_t read8(int address) {
         if (address == POST_BOOT_FLAG)
             return postBootFlag;
+        else if (checkForAddress(address, KEYINPUT, HALFWORD_SIZE))
+            return keyInput.loadReg(address);
         else if (checkForAddress(address, WAITCNT, HALFWORD_SIZE))
             return waitCnt.loadReg(address);
         cout << "R: IORegisters Undefined Memory: "<<address<<endl;
@@ -71,7 +73,7 @@ public:
         else if (address >= SERIAL1_END && address < KEYINPUT)
             DEBUG_OUT << "W: IORegisters Unused Memory: "<<address<<endl;
         else if (checkForAddress(address, KEYINPUT, HALFWORD_SIZE))
-            storeHalfWord(address&1, &keyInput, data);
+            keyInput.storeReg(address, data);
         else if (checkForAddress(address, KEYCNT, HALFWORD_SIZE))
             storeHalfWord(address&1, &keyCnt, data);
         else if (address >= RCNT && address < SERIAL2_END){
@@ -96,6 +98,6 @@ public:
 
     void status(){
         DEBUG_OUT<<"IOREG:"<<endl;
-        DEBUG_OUT<<"WAITCNT: "<<waitCnt.getRegValue()<<"\tKEYINPUT: "<<keyInput<<"\tKEYCNT: "<<keyCnt<<"\tPBOOT: "<<postBootFlag<<endl<<endl;
+        DEBUG_OUT<<"WAITCNT: "<<waitCnt.getRegValue()<<"\tKEYINPUT: "<<keyInput.getRegValue()<<"\tKEYCNT: "<<keyCnt<<"\tPBOOT: "<<postBootFlag<<endl<<endl;
     }
 };
