@@ -36,6 +36,8 @@ public:
             return new ThumbALU(ORR, rD, rS);
         case 0xD:
             return new ThumbALU(MUL, rD, rS);
+        case 0xE:
+            return new ThumbALU(BIC, rD, rS);
         case 0xF:
             return new ThumbALU(MVN, rD, rS);
         default:
@@ -79,6 +81,9 @@ public:
             break;
         case MUL:
             stream<<"MUL";
+            break;
+        case BIC:
+            stream<<"BIC";
             break;
         case MVN:
             stream<<"MVN";
@@ -177,6 +182,16 @@ void ThumbCpu::multiply(){
     int result = op1 * op2;
     DEBUG_OUT<<"result = "<<result<<endl;
     reg->setReg(alu->getRegDest(), result);
+    reg->setFlags(NZ, generateFlags(result));
+}
+
+void ThumbCpu::bitClear(){
+    ThumbALU* alu = (ThumbALU*) decodedInstruction;
+    uint32_t op1 = reg->getReg(alu->getRegDest());
+    uint32_t op2 = reg->getReg(alu->getRegSource());
+    uint32_t result = op1 & ~op2;
+    DEBUG_OUT<<"result = " << result << endl;
+    reg->setReg(decodedInstruction->getRegDest(), result);
     reg->setFlags(NZ, generateFlags(result));
 }
 

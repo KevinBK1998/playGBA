@@ -191,6 +191,9 @@ void ThumbCpu::execute(){
     case CMN:
         negativeCompare();
         break;
+    case BIC:
+        bitClear();
+        break;
     default:
         cout << "Undefined: " << decodedInstruction->toString() << endl;
         exit(FAILED_TO_EXECUTE);

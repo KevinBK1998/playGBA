@@ -56,6 +56,7 @@ class ThumbCpu{
     void multiply();
     void negate();
     void logicalAND();
+    void bitClear();
     bool canExecute(Condition);
 public:
     ThumbCpu(Registers*, Memory*);
